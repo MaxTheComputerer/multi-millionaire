@@ -1059,6 +1059,15 @@
                 this._cachedPingMessage = this._protocol.writeMessage({type: MessageType.Ping});
             }
 
+            /** @internal */
+            // Using a public static factory method means we can have a private constructor and an _internal_
+            // create method that can be used by HubConnectionBuilder. An "internal" constructor would just
+            // be stripped away and the '.d.ts' file would have no constructor, which is interpreted as a
+            // public parameter-less constructor.
+            static create(connection, logger, protocol, reconnectPolicy) {
+                return new HubConnection(connection, logger, protocol, reconnectPolicy);
+            }
+
             /** Indicates the state of the {@link HubConnection} to the server. */
             get state() {
                 return this._connectionState;
@@ -1089,15 +1098,6 @@
                     throw new Error("The HubConnection url must be a valid url.");
                 }
                 this.connection.baseUrl = url;
-            }
-
-            /** @internal */
-            // Using a public static factory method means we can have a private constructor and an _internal_
-            // create method that can be used by HubConnectionBuilder. An "internal" constructor would just
-            // be stripped away and the '.d.ts' file would have no constructor, which is interpreted as a
-            // public parameter-less constructor.
-            static create(connection, logger, protocol, reconnectPolicy) {
-                return new HubConnection(connection, logger, protocol, reconnectPolicy);
             }
 
             /** Starts the connection.
@@ -1918,14 +1918,6 @@
                 this.onabort = null;
             }
 
-            get signal() {
-                return this;
-            }
-
-            get aborted() {
-                return this._isAborted;
-            }
-
             abort() {
                 if (!this._isAborted) {
                     this._isAborted = true;
@@ -1933,6 +1925,14 @@
                         this.onabort();
                     }
                 }
+            }
+
+            get signal() {
+                return this;
+            }
+
+            get aborted() {
+                return this._isAborted;
             }
         }
 
@@ -2844,17 +2844,6 @@
                 this._sendLoopPromise = this._sendLoop();
             }
 
-            static _concatBuffers(arrayBuffers) {
-                const totalLength = arrayBuffers.map((b) => b.byteLength).reduce((a, b) => a + b);
-                const result = new Uint8Array(totalLength);
-                let offset = 0;
-                for (const item of arrayBuffers) {
-                    result.set(new Uint8Array(item), offset);
-                    offset += item.byteLength;
-                }
-                return result.buffer;
-            }
-
             send(data) {
                 this._bufferData(data);
                 if (!this._transportResult) {
@@ -2900,6 +2889,17 @@
                         transportResult.reject(error);
                     }
                 }
+            }
+
+            static _concatBuffers(arrayBuffers) {
+                const totalLength = arrayBuffers.map((b) => b.byteLength).reduce((a, b) => a + b);
+                const result = new Uint8Array(totalLength);
+                let offset = 0;
+                for (const item of arrayBuffers) {
+                    result.set(new Uint8Array(item), offset);
+                    offset += item.byteLength;
+                }
+                return result.buffer;
             }
         }
 
