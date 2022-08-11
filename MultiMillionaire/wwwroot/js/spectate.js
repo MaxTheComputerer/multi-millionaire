@@ -16,7 +16,8 @@ function addUser() {
     connection.invoke("AddUser", name);
 }
 
-function hostGame() {
+function spectateGame() {
     addUser();
-    connection.invoke("HostGame");
+    const gameId = $("#gameIdInput").val();
+    connection.invoke("SpectateGame", gameId);
 }

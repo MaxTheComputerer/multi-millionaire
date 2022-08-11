@@ -2,11 +2,12 @@
 
 public class MultiplayerGame
 {
-    public int Id { get; set; }
-    public User Host { get; set; }
+    public string Id { get; set; } = string.Empty;
+    public User Host { get; set; } = null!;
+    public List<User> Spectators { get; set; } = new();
 
-    public MultiplayerGame(User host)
+    public static string GenerateRoomId()
     {
-        Host = host;
+        return Guid.NewGuid().ToString()[..5].ToUpper();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MultiMillionaire.Models;
 
 namespace MultiMillionaire.Controllers;
 
@@ -19,8 +18,8 @@ public class MultiplayerController : Controller
     }
 
     [HttpPost("spectate")]
-    public IActionResult Spectate([FromForm] MultiplayerGame game)
+    public IActionResult Spectate()
     {
-        return View(game);
+        return View();
     }
 }

@@ -1,10 +1,12 @@
-﻿<h1>multiplayer menu</h1>
+﻿@model MultiplayerGame
+
+<h1>multiplayer menu</h1>
 
 <form asp-controller="Multiplayer" asp-action="Host" method="post">
     <input type="submit" value="Host new game"/>
 </form>
 
 <form asp-controller="Multiplayer" asp-action="Spectate" method="post">
-    <input type="hidden" name="Id" value="1"/>
+    <input type="hidden" asp-for="Id" value="1"/>
     <input type="submit" value="Spectate game 1"/>
 </form>
