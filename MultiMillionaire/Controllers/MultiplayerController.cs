@@ -11,13 +11,19 @@ public class MultiplayerController : Controller
         return View();
     }
 
-    [HttpPost("host")]
+    [HttpGet("host")]
     public IActionResult Host()
     {
         return View();
     }
 
-    [HttpPost("spectate")]
+    [HttpGet("audience")]
+    public IActionResult Audience()
+    {
+        return View();
+    }
+
+    [HttpGet("spectate")]
     public IActionResult Spectate()
     {
         return View();

@@ -1,8 +1,15 @@
-﻿multiplayer host
+﻿@{
+    ViewData["Title"] = "Host";
+}
 
-<label for="nameInput" class="form-label">Name</label>
+multiplayer host
+
+@*<label for="nameInput" class="form-label">Name</label>
 <input type="text" id="nameInput" class="form-control">
-<button type="button" class="btn" onclick="hostGame()">Host game</button>
+<button type="button" class="btn" onclick="hostGame()">Host game</button>*@
 
-<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<partial name="_Question"/>
+
+
+<partial name="_MultiplayerScripts"/>
 <script src="~/js/host.js" asp-append-version="true"></script>

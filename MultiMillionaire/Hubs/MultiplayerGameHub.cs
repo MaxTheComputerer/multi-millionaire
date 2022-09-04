@@ -17,22 +17,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     #region UserMethods
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        await RemoveUserFromGame();
-        lock (Users)
-        {
-            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
-            if (user != null)
-            {
-                Users.Remove(user);
-                Console.WriteLine($"User disconnected: {user.Name}");
-            }
-        }
-
-        await base.OnDisconnectedAsync(exception);
-    }
-
     private User? GetCurrentUser()
     {
         lock (Users)
@@ -41,49 +25,72 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         }
     }
 
-    public void AddUser(string name)
+    public override async Task OnConnectedAsync()
     {
-        name = Regex.Replace(name, @"\s+", "");
-        User user;
         lock (Users)
         {
-            if (GetCurrentUser() != null) return;
-
-            user = new User(Context.ConnectionId, name);
-            Users.Add(user);
+            if (GetCurrentUser() == null) Users.Add(new User(Context.ConnectionId));
         }
 
-        Console.WriteLine($"Registered user: {user.Name}");
+        Console.WriteLine($"User connected: {Context.ConnectionId}");
+        await base.OnConnectedAsync();
     }
 
-    public async Task RemoveUserFromGame()
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var user = GetCurrentUser();
+        if (user != null)
+        {
+            await LeaveGame();
+            Users.Remove(user);
+        }
+
+        Console.WriteLine($"User disconnected: {Context.ConnectionId}");
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    private async Task AddUserToGame(User user, MultiplayerGame game, UserRole role)
+    {
+        await Groups.AddToGroupAsync(user.ConnectionId, game.Id);
+        user.Game = game;
+        switch (role)
+        {
+            case UserRole.Audience:
+                game.Audience.Add(user);
+                break;
+            case UserRole.Spectator:
+                game.Spectators.Add(user);
+                break;
+        }
+    }
+
+    private async Task RemoveUserFromGame(User user)
+    {
+        if (user.Game == null) return;
+        await Groups.RemoveFromGroupAsync(user.ConnectionId, user.Game.Id);
+        user.Game = null;
+    }
+
+    public void SetName(string name)
     {
         var user = GetCurrentUser();
         if (user == null) return;
 
-        var game = user.Game;
-        if (game != null)
-        {
-            if (game.Host == user)
-            {
-                // End game
-            }
-
-            await Groups.RemoveFromGroupAsync(user.ConnectionId, game.Id);
-            await Clients.Group(game.Id).Message($"{user.Name} has left the game");
-        }
+        name = Regex.Replace(name, @"\s+", "");
+        user.Name = name;
+        Console.WriteLine($"Registered player: {name}");
     }
 
     #endregion
 
     #region GameMethods
 
-    public static MultiplayerGame? GetGameById(string gameId)
+    private static MultiplayerGame? GetGameById(string gameId)
     {
         return Games.SingleOrDefault(g => g.Id == gameId);
     }
 
-    public MultiplayerGame CreateGame(User host)
+    private static MultiplayerGame CreateGame(User host)
     {
         // Make sure ID is unique
         string gameId;
@@ -99,52 +106,82 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         };
     }
 
-    public async Task JoinGameRoom(string gameId)
-    {
-        var user = GetCurrentUser();
-        if (user == null) return;
-
-        var game = GetGameById(gameId);
-        if (game == null) return;
-
-        await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        await Clients.OthersInGroup(gameId).Message($"{user.Name} has joined the game");
-        await Clients.Caller.Message($"Welcome to game {gameId}. Your host is {game.Host.Name}");
-    }
-
     public async Task HostGame()
     {
-        await RemoveUserFromGame();
-
         var user = GetCurrentUser();
-        if (user == null) return;
+        if (user == null || user.Name == null) return;
 
+        // Create game
         var game = CreateGame(user);
         Games.Add(game);
 
-        user.Game = game;
-        await JoinGameRoom(game.Id);
+        // Join game
+        await LeaveGame();
+        await AddUserToGame(user, game, UserRole.Host);
+
+        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
+    }
+
+    public async Task JoinGameAudience(string gameId)
+    {
+        var user = GetCurrentUser();
+        if (user == null || user.Name == null) return;
+
+        var game = GetGameById(gameId);
+        if (game == null || game.Audience.Contains(user)) return;
+
+        // Join game
+        await LeaveGame();
+        await AddUserToGame(user, game, UserRole.Audience);
+
+        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
     }
 
     public async Task SpectateGame(string gameId)
     {
-        await RemoveUserFromGame();
-
         var user = GetCurrentUser();
         if (user == null) return;
 
         var game = GetGameById(gameId);
-        if (game == null) return;
+        if (game == null || game.Audience.Contains(user)) return;
 
-        if (game.Spectators.Contains(user)) return;
+        // Join game
+        await LeaveGame();
+        await AddUserToGame(user, game, UserRole.Spectator);
 
-        user.Game = game;
-        game.Spectators.Add(user);
-        await JoinGameRoom(game.Id);
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
+    }
+
+    private async Task LeaveGame()
+    {
+        var user = GetCurrentUser();
+        if (user == null) return;
+
+        var game = user.Game;
+        if (game != null)
+        {
+            if (game.Host == user) await EndGame(game);
+
+            await RemoveUserFromGame(user);
+            if (user.Name != null) await Clients.Group(game.Id).Message($"{user.Name} has left the game");
+            await Clients.Caller.Message($"You have left game {game.Id}");
+        }
+    }
+
+    private async Task EndGame(MultiplayerGame game)
+    {
+        await Clients.Group(game.Id).Message("Game ended by host");
+
+        foreach (var user in game.Audience) await RemoveUserFromGame(user);
+        foreach (var user in game.Spectators) await RemoveUserFromGame(user);
+        await RemoveUserFromGame(game.Host);
+
+        Games.Remove(game);
     }
 
     #endregion
-
 
     #region MiscellaneousMethods
 

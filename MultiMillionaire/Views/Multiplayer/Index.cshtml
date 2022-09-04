@@ -2,11 +2,8 @@
 
 <h1>multiplayer menu</h1>
 
-<form asp-controller="Multiplayer" asp-action="Host" method="post">
-    <input type="submit" value="Host new game"/>
-</form>
+<a asp-controller="Multiplayer" asp-action="Host">Host new game</a>
 
-<form asp-controller="Multiplayer" asp-action="Spectate" method="post">
-    <input type="hidden" asp-for="Id" value="1"/>
-    <input type="submit" value="Spectate game 1"/>
-</form>
+<a asp-controller="Multiplayer" asp-action="Audience">Join audience</a>
+
+<a asp-controller="Multiplayer" asp-action="Spectate">Spectate</a>

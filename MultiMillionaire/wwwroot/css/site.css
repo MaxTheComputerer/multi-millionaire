@@ -1,18 +1,107 @@
-html {
-    font-size: 14px;
+@font-face {
+    font-family: Conduit ITC Bold;
+    src: url(../fonts/Conduit_ITC_Bold.ttf);
 }
 
-@media (min-width: 768px) {
-    html {
-        font-size: 16px;
-    }
+@font-face {
+    font-family: Conduit ITC;
+    src: url(../fonts/conduit_itc.ttf);
 }
 
-html {
-    position: relative;
-    min-height: 100%;
+@font-face {
+    font-family: Copperplate Gothic Condensed;
+    src: url('../fonts/CopperplateGothicBT-RomanCond.woff2') format('woff2'),
+    url('../fonts/CopperplateGothicBT-RomanCond.woff') format('woff');
+}
+
+@font-face {
+    font-family: Copperplate Gothic32BC;
+    src: url("../fonts/Copperplate Gothic 32 BC.otf");
+}
+
+@font-face {
+    font-family: Memphis Pro Bold;
+    src: url("../fonts/Memphis-Bold.woff");
+}
+
+@font-face {
+    font-family: Copperplate Gothic Regular;
+    src: url('../fonts/CopperplateGothicBT-Roman.woff2') format('woff2'),
+    url('../fonts/CopperplateGothicBT-Roman.woff') format('woff');
 }
 
 body {
-    margin-bottom: 60px;
+    color: white;
+    background-color: black;
+    font-family: Conduit ITC, Arial, Verdana, Helvetica CY, sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.3rem;
+}
+
+.question {
+    background-image: url("../images/question.png");
+    background-size: 100% 100%;
+    background-position: 0 0;
+    max-width: 768px;
+    width: 100%;
+    min-height: 86px;
+    padding: 10px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 2rem;
+}
+
+.question-line {
+    border-bottom: 3px solid #338CD3;
+    opacity: 1;
+}
+
+.answer-left, .answer-right {
+    background-image: url("../images/question.png");
+    background-size: 100% 100%;
+    background-position: 0 0;
+    height: 53px;
+    padding: 10px 30px 10px 15px;
+    display: flex;
+    align-items: baseline;
+    font-size: 2rem;
+    line-height: 2rem;
+}
+
+@media (min-width: 576px) {
+    .answer-left {
+        background-image: url("../images/answer_left.png");
+    }
+
+    .answer-right {
+        background-image: url("../images/answer_right.png");
+        padding-left: 25px;
+    }
+
+    .answer-left, .answer-right {
+        background-size: 100% 300%;
+        width: 50%;
+        max-width: 366px;
+    }
+}
+
+.text-orange {
+    color: #e1a02e;
+}
+
+.answer-diamond {
+    font-size: 1rem;
+    align-self: end;
+}
+
+.answer-letter {
+    font-family: Copperplate Gothic Condensed, Conduit ITC, Arial, Verdana, Helvetica CY, sans-serif;
+}
+
+.answer-text {
+    white-space: nowrap;
+    transform-origin: 0;
 }

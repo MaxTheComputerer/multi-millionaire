@@ -1,11 +1,8 @@
 ﻿multiplayer spectate
 
-<label for="nameInput" class="form-label">Name</label>
-<input type="text" id="nameInput" class="form-control">
-
-<label for="nameInput" class="form-label">Game Id</label>
+<label for="gameIdInput" class="form-label">Game Id</label>
 <input type="text" id="gameIdInput" class="form-control">
 <button type="button" class="btn" onclick="spectateGame()">Spectate game</button>
 
-<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<partial name="_MultiplayerScripts"/>
 <script src="~/js/spectate.js" asp-append-version="true"></script>

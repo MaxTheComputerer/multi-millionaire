@@ -3,12 +3,18 @@
 public class User
 {
     public string ConnectionId { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public MultiplayerGame? Game { get; set; }
 
-    public User(string connectionId, string name)
+    public User(string connectionId)
     {
         ConnectionId = connectionId;
-        Name = name;
     }
+}
+
+public enum UserRole
+{
+    Host,
+    Audience,
+    Spectator
 }
