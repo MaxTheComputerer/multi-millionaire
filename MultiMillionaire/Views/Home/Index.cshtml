@@ -1,5 +1,20 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<a asp-controller="Multiplayer" asp-action="Index" class="btn">Multiplayer</a>
+<div class="logo-large mx-auto mb-5">
+    <img src="~/images/logo.png" alt="Who Wants To Be A Millionaire? logo"/>
+</div>
+
+
+<div class="row mb-2">
+    <hr class="col question-line my-auto px-0"/>
+    <a class="col-md-auto question menu-button">Singleplayer</a>
+    <hr class="col question-line my-auto px-0"/>
+</div>
+
+<div class="row mb-2">
+    <hr class="col question-line my-auto px-0"/>
+    <a asp-controller="Multiplayer" asp-action="Index" class="col-md-auto question menu-button">Multiplayer</a>
+    <hr class="col question-line my-auto px-0"/>
+</div>
