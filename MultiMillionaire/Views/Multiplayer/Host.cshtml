@@ -2,14 +2,16 @@
     ViewData["Title"] = "Host";
 }
 
-multiplayer host
-
 @*<label for="nameInput" class="form-label">Name</label>
 <input type="text" id="nameInput" class="form-control">
 <button type="button" class="btn" onclick="hostGame()">Host game</button>*@
 
-<partial name="_Question"/>
-
+<div class="h-100 d-flex flex-column justify-content-sm-around">
+    <div class="row mb-3">
+        <partial name="_MoneyTree"/>
+    </div>
+    <partial name="_Question"/>
+</div>
 
 <partial name="_MultiplayerScripts"/>
 <script src="~/js/host.js" asp-append-version="true"></script>

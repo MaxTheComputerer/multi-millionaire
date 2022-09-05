@@ -1,9 +1,24 @@
-﻿@model MultiplayerGame
+﻿@{
+    ViewData["Title"] = "Multiplayer";
+}
 
-<h1>multiplayer menu</h1>
+<partial name="_MenuLogo"/>
 
-<a asp-controller="Multiplayer" asp-action="Host">Host new game</a>
+<div class="row mb-2">
+    <hr class="col question-line my-auto px-0"/>
+    <a asp-controller="Multiplayer" asp-action="Host" class="col-md-auto question menu-button-lg">Host new game</a>
+    <hr class="col question-line my-auto px-0"/>
+</div>
 
-<a asp-controller="Multiplayer" asp-action="Audience">Join audience</a>
-
-<a asp-controller="Multiplayer" asp-action="Spectate">Spectate</a>
+<div class="row mb-2">
+    <hr class="col question-line my-auto px-0"/>
+    <a asp-controller="Multiplayer" asp-action="Audience" class="col-sm-auto answer answer-left mb-2 mb-sm-0 menu-button-sm">
+        <span class="answer-diamond text-orange me-1">◆</span>
+        <span class="answer-text">Join audience</span>
+    </a>
+    <a asp-controller="Multiplayer" asp-action="Spectate" class="col-sm-auto answer answer-right menu-button-sm">
+        <span class="answer-diamond text-orange me-1">◆</span>
+        <span class="answer-text">Spectate</span>
+    </a>
+    <hr class="col question-line my-auto px-0"/>
+</div>

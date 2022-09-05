@@ -2,6 +2,7 @@
 
 :root {
     --blue: #338CD3;
+    --light-blue: #6BB6EE;
     --orange: #E1A02E;
     --background: #030D13;
 }
@@ -99,19 +100,19 @@ body.bg-3::before {
 }
 
 .container-lg {
-    border-left-width: 2px;
-    border-right-width: 2px;
+    border-left-width: 3px;
+    border-right-width: 3px;
     border-top-width: 0;
     border-bottom-width: 0;
     border-style: ridge;
-    border-image: linear-gradient(to bottom, #1634a3, #9fc6d2, #1634a3) 1 100%;
-    box-shadow: 0 0 5px #1634a3, 0 0 5px #1634a3 inset;
+    border-image: linear-gradient(to bottom, #338cd3, #ade1f6, #338cd3) 1 100%;
+    box-shadow: 0 0 4px #338cd3, 0 0 4px #338cd3 inset;
 }
 
 
 /* Menus */
 
-.menu-button {
+.menu-button-lg, .menu-button-sm {
     text-decoration: none;
     color: white;
 }
@@ -168,11 +169,11 @@ body.bg-3::before {
     cursor: pointer;
 }
 
-.answer:hover, .answer.selected {
+.answer:hover, .answer.selected, .menu-button-sm:hover {
     background-position: 0 50%;
 }
 
-.answer.correct, .menu-button:hover {
+.answer.correct, .menu-button-lg:hover {
     background-position: 0 100%;
 }
 
@@ -180,7 +181,7 @@ body.bg-3::before {
     color: white;
 }
 
-.answer:hover .answer-text, .answer.selected .answer-text, .answer.correct .answer-text, .menu-button:hover {
+.answer:hover .answer-text, .answer.selected .answer-text, .answer.correct .answer-text, .menu-button-lg:hover, .menu-button-sm:hover {
     color: black;
 }
 
@@ -217,4 +218,89 @@ body.bg-3::before {
 .answer-text {
     white-space: nowrap;
     transform-origin: 0;
+}
+
+
+/* Money tree */
+
+.money-tree {
+    background-image: url(../images/money_tree_bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    box-shadow: var(--light-blue) 0 0 7px;
+    border-width: 5px 0 5px 0;
+    border-style: ridge;
+    border-image: radial-gradient(var(--light-blue) 0%, white 70%, var(--light-blue) 100%) 1;
+}
+
+@media (min-width: 576px) {
+    .money-tree {
+        border-left-width: 5px;
+    }
+}
+
+.lifeline {
+    width: 93px;
+    max-width: 93px;;
+    height: 60px;
+    background-position: 0 0;
+    background-size: 100% 300%;
+    transition: transform .2s ease-out;
+}
+
+.lifeline-5050 {
+    background-image: url(../images/5050.png);
+}
+
+.lifeline-phone {
+    background-image: url(../images/phone.png);
+}
+
+.lifeline-audience {
+    background-image: url(../images/audience.png);
+}
+
+.money-tree table {
+    font-family: Copperplate Gothic32BC, serif;
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    line-height: 1.75rem;
+    color: var(--orange);
+    text-shadow: 1px 1px 5px black;
+}
+
+.safety-net {
+    color: white;
+}
+
+.tree-selected {
+    background-color: var(--orange);
+}
+
+.tree-question-number {
+    text-align: right;
+}
+
+.tree-selected .tree-question-number {
+    color: white;
+}
+
+.tree-diamond {
+    font-size: 1.2rem;
+    color: white;
+    visibility: hidden;
+}
+
+.tree-selected .tree-diamond {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #fff, 0 0 25px #fff, 0 0 30px #fff;
+}
+
+.tree-selected .tree-diamond, .tree-selected ~ tr .tree-diamond {
+    visibility: visible;
+}
+
+.tree-selected .tree-money {
+    color: black;
+    text-shadow: none;
 }

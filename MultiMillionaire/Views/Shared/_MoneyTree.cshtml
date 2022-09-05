@@ -1,0 +1,22 @@
+﻿<div class="col-sm-auto ms-auto p-0">
+    <div class="money-tree p-2">
+        <div class="row m-2 mb-4">
+            <span class="col lifeline lifeline-5050 mx-1"></span>
+            <span class="col lifeline lifeline-phone mx-1"></span>
+            <span class="col lifeline lifeline-audience mx-1"></span>
+        </div>
+
+        <table class="m-2 d-none d-sm-table">
+            <tbody>
+            @for (var i = 15; i > 0; i--)
+            {
+                <tr id="tree-@i" class="@(i is 5 or 10 or 15 ? "safety-net" : "")">
+                    <td class="tree-question-number">@i</td>
+                    <td class="tree-diamond px-2">◆</td>
+                    <td class="tree-money">@Question.GetValueFromQuestionNumber(i)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

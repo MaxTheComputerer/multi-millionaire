@@ -2,19 +2,16 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="logo-large mx-auto mb-5">
-    <img src="~/images/logo.png" alt="Who Wants To Be A Millionaire? logo"/>
-</div>
-
+<partial name="_MenuLogo"/>
 
 <div class="row mb-2">
     <hr class="col question-line my-auto px-0"/>
-    <a class="col-md-auto question menu-button">Singleplayer</a>
+    <a class="col-md-auto question menu-button-lg">Singleplayer</a>
     <hr class="col question-line my-auto px-0"/>
 </div>
 
 <div class="row mb-2">
     <hr class="col question-line my-auto px-0"/>
-    <a asp-controller="Multiplayer" asp-action="Index" class="col-md-auto question menu-button">Multiplayer</a>
+    <a asp-controller="Multiplayer" asp-action="Index" class="col-md-auto question menu-button-lg">Multiplayer</a>
     <hr class="col question-line my-auto px-0"/>
 </div>
