@@ -105,8 +105,25 @@ body.bg-3::before {
     border-top-width: 0;
     border-bottom-width: 0;
     border-style: ridge;
-    border-image: linear-gradient(to bottom, #338cd3, #ade1f6, #338cd3) 1 100%;
-    box-shadow: 0 0 4px #338cd3, 0 0 4px #338cd3 inset;
+    border-image: linear-gradient(to bottom, var(--blue), #ade1f6, var(--blue)) 1 100%;
+    box-shadow: 0 0 4px var(--blue), 0 0 4px var(--blue) inset;
+}
+
+.box {
+    background: linear-gradient(black, black) padding-box,
+                linear-gradient(to right, var(--blue), #ade1f6, var(--blue)) border-box;
+    border-radius: .5rem;
+    border: 3px solid transparent;
+}
+
+.small-button {
+    background: linear-gradient(black, black) padding-box,
+    linear-gradient(to right, var(--blue), #ade1f6, var(--blue)) border-box;
+    border-radius: .5rem;
+    border: 2px solid transparent;
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1.5;
 }
 
 
@@ -125,7 +142,12 @@ body.bg-3::before {
     min-width: 200px;
 }
 
-.logo-large img {
+.logo-small {
+    width: 30%;
+    min-width: 200px;
+}
+
+.logo-large img, .logo-small img {
     width: 100%;
     height: auto;
     -webkit-filter: drop-shadow(5px 5px 7px black);
@@ -246,6 +268,21 @@ body.bg-3::before {
     background-position: 0 0;
     background-size: 100% 300%;
     transition: transform .2s ease-out;
+}
+
+.lifeline:hover {
+    background-position: 0 100%;
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+.lifeline.disabled {
+    pointer-events: none;
+}
+
+.lifeline.used {
+    background-position: 0 50%;
+    pointer-events: none;
 }
 
 .lifeline-5050 {
