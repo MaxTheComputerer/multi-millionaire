@@ -6,28 +6,12 @@
 <input type="text" id="nameInput" class="form-control">
 <button type="button" class="btn" onclick="hostGame()">Host game</button>*@
 
-<div class="h-100 d-flex flex-column justify-content-sm-around">
-    <div class="row mb-3">
-        <div class="col">
-            <div class="row">
-                <div class="col mb-3">
-                    <div class="logo-small mx-auto">
-                        <img src="~/images/logo.png" alt="Who Wants To Be A Millionaire? logo"/>
-                    </div>
-                </div>
-                <partial name="_GameStatusBox"/>
-            </div>
-            <div class="">
-                <div id="buttonPanel">
-                    <button type="button" class="small-button d-block mx-auto my-2">Walk away</button>
-                    <button type="button" class="small-button d-block mx-auto my-2">Next</button>
-                </div>
-            </div>
-        </div>
-        <partial name="_MoneyTree"/>
-    </div>
-    <partial name="_Question"/>
+<div class="row mb-3">
+    <partial name="_HostPanel"/>
+    <partial name="_MoneyTree"/>
 </div>
+
+<partial name="_Question"/>
 
 <partial name="_MultiplayerScripts"/>
 <script src="~/js/host.js" asp-append-version="true"></script>

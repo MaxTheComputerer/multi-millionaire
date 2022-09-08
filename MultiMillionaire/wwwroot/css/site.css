@@ -126,6 +126,17 @@ body.bg-3::before {
     line-height: 1.5;
 }
 
+.small-button:hover {
+    background: linear-gradient(var(--orange), var(--orange)) padding-box,
+    linear-gradient(to right, var(--blue), #ade1f6, var(--blue)) border-box;
+    color: black;
+}
+
+.small-button.disabled {
+    pointer-events: none;
+    filter: brightness(0.5);
+}
+
 
 /* Menus */
 
