@@ -14,6 +14,15 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
 
+    #region MiscellaneousMethods
+
+    public async Task Echo(string message)
+    {
+        await Clients.Caller.Message(message);
+    }
+
+    #endregion
+
 
     #region UserMethods
 
@@ -179,15 +188,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await RemoveUserFromGame(game.Host);
 
         Games.Remove(game);
-    }
-
-    #endregion
-
-    #region MiscellaneousMethods
-
-    public async Task Echo(string message)
-    {
-        await Clients.Caller.Message(message);
     }
 
     #endregion

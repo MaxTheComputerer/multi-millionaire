@@ -1,0 +1,19 @@
+﻿@{
+    const string textBoxString = "Who would you like to phone?";
+}
+
+<div class="col-auto mx-auto" id="phonePanel">
+    <div class="box text-center py-3">
+        <div id="phoneSetupPanel">
+            <partial name="_TextBox" model="textBoxString"/>
+            <button type="button" class="small-button mx-2 px-4">Friend</button>
+            <button type="button" class="small-button mx-2 px-4">AI</button>
+        </div>
+
+        <div class="px-4" id="phoneClockPanel">
+            clock
+
+            <button type="button" class="small-button px-4">OK</button>
+        </div>
+    </div>
+</div>

@@ -10,12 +10,12 @@ public interface IChatClient
 
 public class ChatHub : Hub<IChatClient>
 {
-    public static List<string> TestList { get; set; } = new();
-
     public ChatHub()
     {
         TestList.Add("hello");
     }
+
+    public static List<string> TestList { get; set; } = new();
 
     public async Task SendMessage(string user, string message)
     {
