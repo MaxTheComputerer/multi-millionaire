@@ -1,13 +1,9 @@
-﻿@{
-    const string textBoxString = "Which audience would you like to ask?";
-}
-
-<div class="col-auto mx-auto" id="audiencePanel">
+﻿<div class="col-auto mx-auto" id="audiencePanel">
     <div class="box text-center py-3">
         <div id="audienceSetupPanel">
-            <partial name="_TextBox" model="textBoxString"/>
-            <button type="button" class="small-button mx-2 px-4">Live audience</button>
-            <button type="button" class="small-button mx-2 px-4">AI audience</button>
+            <textbox>Which audience would you like to ask?</textbox>
+            <small-button>Live audience</small-button>
+            <small-button>AI audience</small-button>
         </div>
 
         <div class="px-4" id="audienceGraphPanel">
@@ -38,7 +34,7 @@
                 </tbody>
             </table>
 
-            <button type="button" class="small-button px-4">OK</button>
+            <small-button>OK</small-button>
         </div>
     </div>
 </div>

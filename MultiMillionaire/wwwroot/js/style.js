@@ -8,6 +8,8 @@
 
 window.addEventListener('resize', scaleAnswerTexts, true);
 
+new bootstrap.Modal('#joinGameModal').show();
+
 
 // Ask the audience graph
 

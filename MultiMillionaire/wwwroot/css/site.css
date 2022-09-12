@@ -136,12 +136,23 @@ body.bg-3::before {
     filter: brightness(0.5);
 }
 
+.modal-backdrop.show {
+    opacity: 0.9;
+}
+
 
 /* Menus */
 
 .menu-button-lg, .menu-button-sm {
     text-decoration: none;
     color: white;
+}
+
+
+/* Host panel */
+
+#hostPanel {
+    display: none !important;
 }
 
 
@@ -355,6 +366,10 @@ body.bg-3::before {
 
 /* Ask the audience */
 
+#audiencePanel {
+    display: none;
+}
+
 .audience-graph-text {
     width: 300px;
     table-layout: fixed;
@@ -387,6 +402,87 @@ body.bg-3::before {
 
 /* Phone a friend */
 
+#phonePanel {
+    display: none;
+}
+
 #phoneClockPanel {
     display: none;
 }
+
+.clock img {
+    max-width: 250px;
+    width: 100%;
+    height: auto;
+}
+
+
+/* Fastest finger first */
+
+#fffResultsPanel {
+    /*display: none;*/
+}
+
+.question-fff {
+    font-size: 2rem;
+    line-height: 2rem;
+    max-width: 366px;;
+}
+
+.answer-fff {
+    background-image: url("../images/answer_fff.png");
+    background-size: 100% 100%;
+    background-position: 0 0;
+    height: 53px;
+    width: 100%;
+    max-width: 366px;
+    padding: 10px 30px 10px 15px;
+    display: flex;
+    align-items: baseline;
+    font-size: 2rem;
+    line-height: 2rem;
+    margin-left: 0;
+}
+
+@media (min-width: 576px) {
+    .answer-block-fff {
+        margin-left: -45px;
+    }
+}
+
+.answer-block-fff {
+    overflow: hidden;
+}
+
+.answer-row-fff {
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+}
+
+.fff-slide-in {
+    animation: slide-in 0.25s forwards;
+    -webkit-animation: slide-in 0.25s forwards;
+}
+
+@keyframes slide-in {
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@-webkit-keyframes slide-in {
+    100% {
+        -webkit-transform: translateX(0%);
+    }
+}
+
+.money-tree-fff {
+    clip-path: inset(0 0 0 -100vw);
+}
+
+.fff-results {
+    background-image: url(../images/fff_results_bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
