@@ -149,13 +149,6 @@ body.bg-3::before {
 }
 
 
-/* Host panel */
-
-#hostPanel {
-    display: none !important;
-}
-
-
 /* Logo */
 
 .logo-large {
@@ -270,6 +263,7 @@ body.bg-3::before {
     background-image: url(../images/money_tree_bg.png);
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
     box-shadow: var(--light-blue) 0 0 7px;
     border-width: 5px 0 5px 0;
     border-style: ridge;
@@ -366,10 +360,6 @@ body.bg-3::before {
 
 /* Ask the audience */
 
-#audiencePanel {
-    display: none;
-}
-
 .audience-graph-text {
     width: 300px;
     table-layout: fixed;
@@ -395,20 +385,8 @@ body.bg-3::before {
     color: #bf6b1d;
 }
 
-#audienceGraphPanel {
-    display: none;
-}
-
 
 /* Phone a friend */
-
-#phonePanel {
-    display: none;
-}
-
-#phoneClockPanel {
-    display: none;
-}
 
 .clock img {
     max-width: 250px;
@@ -418,10 +396,6 @@ body.bg-3::before {
 
 
 /* Fastest finger first */
-
-#fffResultsPanel {
-    /*display: none;*/
-}
 
 .question-fff {
     font-size: 2rem;
@@ -481,8 +455,20 @@ body.bg-3::before {
 }
 
 .fff-results {
-    background-image: url(../images/fff_results_bg.png);
-    background-repeat: no-repeat;
-    background-size: cover;
+    background: center / cover padding-box url(../images/fff_results_bg.png),
+    linear-gradient(to right, var(--blue), #ade1f6, var(--blue)) border-box;
+    border-radius: .5rem;
+    border: 3px solid transparent;
 }
 
+.player-list .question {
+    font-family: Copperplate Gothic Condensed, Copperplate Gothic32BC, Copperplate Gothic, Conduit ITC, Arial, Verdana, Helvetica CY, sans-serif;
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    min-height: 53px;
+    padding: 5px 3%;
+}
+
+.player-list .question-line {
+    border-bottom-width: 2px;
+}
