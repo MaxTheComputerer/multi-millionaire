@@ -1,0 +1,103 @@
+﻿.money-tree {
+    background-image: url(../images/money_tree_bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--light-blue) 0 0 7px;
+    border-width: 5px 0 5px 0;
+    border-style: ridge;
+    border-image: radial-gradient(var(--light-blue) 0%, white 70%, var(--light-blue) 100%) 1;
+}
+
+@media (min-width: 576px) {
+    .money-tree {
+        border-left-width: 5px;
+    }
+}
+
+
+/* Lifeline icons */
+
+.lifeline {
+    width: 93px;
+    max-width: 93px;;
+    height: 60px;
+    background-position: 0 0;
+    background-size: 100% 300%;
+    transition: transform .2s ease-out;
+}
+
+.lifeline:hover {
+    background-position: 0 100%;
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+.lifeline.disabled {
+    pointer-events: none;
+}
+
+.lifeline.used {
+    background-position: 0 50%;
+    pointer-events: none;
+}
+
+.lifeline-5050 {
+    background-image: url(../images/5050.png);
+}
+
+.lifeline-phone {
+    background-image: url(../images/phone.png);
+}
+
+.lifeline-audience {
+    background-image: url(../images/audience.png);
+}
+
+
+/* Tree */
+
+.money-tree table {
+    font-family: Copperplate Gothic32BC, serif;
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    line-height: 1.75rem;
+    color: var(--orange);
+    text-shadow: 1px 1px 5px black;
+}
+
+.safety-net {
+    color: white;
+}
+
+.tree-selected {
+    background-color: var(--orange);
+}
+
+.tree-question-number {
+    text-align: right;
+}
+
+.tree-selected .tree-question-number {
+    color: white;
+}
+
+.tree-diamond {
+    font-size: 1.2rem;
+    color: white;
+    visibility: hidden;
+}
+
+.tree-selected .tree-diamond {
+    text-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px white, 0 0 20px white, 0 0 25px white, 0 0 30px white;
+}
+
+.tree-selected .tree-diamond, .tree-selected ~ tr .tree-diamond {
+    visibility: visible;
+}
+
+.tree-selected .tree-money {
+    color: black;
+    text-shadow: none;
+}

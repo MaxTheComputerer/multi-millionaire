@@ -1,0 +1,91 @@
+﻿/* Question */
+
+.question {
+    background-image: url("../images/question.png");
+    background-size: 100% 300%;
+    background-position: 0 0;
+    max-width: 768px;
+    width: 100%;
+    min-height: 86px;
+    padding: 10px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 2rem;
+}
+
+.question-line {
+    border-bottom: 3px solid var(--blue);
+    opacity: 1;
+}
+
+
+/* Answers */
+
+.answer {
+    background-image: url("../images/question.png");
+    background-size: 100% 300%;
+    background-position: 0 0;
+    height: 53px;
+    padding: 10px 30px 10px 15px;
+    display: flex;
+    align-items: baseline;
+    font-size: 2rem;
+    line-height: 2rem;
+    cursor: pointer;
+}
+
+.answer:hover, .answer.selected, .menu-button-sm:hover, .menu-button-lg:hover {
+    background-position: 0 50%;
+}
+
+.answer.correct {
+    background-position: 0 100%;
+}
+
+.answer:hover .answer-diamond, .answer:hover .answer-letter, .answer.selected .answer-diamond, .answer.selected .answer-letter, .answer.correct .answer-diamond, .answer.correct .answer-letter {
+    color: white;
+}
+
+.answer:hover .answer-text, .answer.selected .answer-text, .answer.correct .answer-text, .menu-button-lg:hover, .menu-button-sm:hover {
+    color: black;
+}
+
+.answer.disabled {
+    pointer-events: none;
+}
+
+@media (min-width: 576px) {
+    .answer-left {
+        background-image: url("../images/answer_left.png");
+    }
+
+    .answer-right {
+        background-image: url("../images/answer_right.png");
+        padding-left: 25px;
+    }
+
+    .answer {
+        background-size: 100% 300%;
+        width: 50%;
+        max-width: 366px;
+    }
+}
+
+.answer-diamond {
+    font-size: 1rem;
+    align-self: end;
+    color: var(--orange);
+}
+
+.answer-letter {
+    font-family: Copperplate Gothic Condensed, Conduit ITC, Arial, Verdana, Helvetica CY, sans-serif;
+    color: var(--light-orange);
+}
+
+.answer-text {
+    white-space: nowrap;
+    transform-origin: 0;
+}

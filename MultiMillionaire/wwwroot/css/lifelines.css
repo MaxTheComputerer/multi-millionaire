@@ -1,0 +1,35 @@
+﻿/* Ask the audience */
+
+.audience-graph-text {
+    width: 300px;
+    table-layout: fixed;
+    font-size: 2rem;
+}
+
+.audience-graph-votes {
+    font-family: Memphis Pro Bold, serif;
+}
+
+.audience-graph-letters {
+    width: 266px;
+    font-family: Copperplate Gothic32BC, serif;
+    font-size: 3rem;
+    line-height: 2rem;
+    color: var(--light-orange);
+}
+
+.audience-graph-diamond {
+    font-size: 1.5rem;
+    line-height: 0;
+    vertical-align: middle;
+    color: var(--dark-orange);
+}
+
+
+/* Phone a friend */
+
+.clock img {
+    max-width: 250px;
+    width: 100%;
+    height: auto;
+}

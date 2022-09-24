@@ -1,0 +1,31 @@
+﻿@font-face {
+    font-family: Conduit ITC Bold;
+    src: url(../fonts/Conduit_ITC_Bold.ttf);
+}
+
+@font-face {
+    font-family: Conduit ITC;
+    src: url(../fonts/conduit_itc.ttf);
+}
+
+@font-face {
+    font-family: Copperplate Gothic Condensed;
+    src: url('../fonts/CopperplateGothicBT-RomanCond.woff2') format('woff2'),
+    url('../fonts/CopperplateGothicBT-RomanCond.woff') format('woff');
+}
+
+@font-face {
+    font-family: Copperplate Gothic32BC;
+    src: url("../fonts/Copperplate Gothic 32 BC.otf");
+}
+
+@font-face {
+    font-family: Memphis Pro Bold;
+    src: url("../fonts/Memphis-Bold.woff");
+}
+
+@font-face {
+    font-family: Copperplate Gothic Regular;
+    src: url('../fonts/CopperplateGothicBT-Roman.woff2') format('woff2'),
+    url('../fonts/CopperplateGothicBT-Roman.woff') format('woff');
+}

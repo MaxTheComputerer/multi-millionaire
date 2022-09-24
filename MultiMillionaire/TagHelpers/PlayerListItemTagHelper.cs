@@ -15,11 +15,11 @@ public class PlayerLiTagHelper : TagHelper
             $@"<div class=""row mb-2 mx-0 player-list {Class}"">
                 <hr class=""col-1 question-line my-auto px-0""/>
                 <div class=""col question"" id=""{Id}"">
-                    <span class=""answer-diamond text-orange me-2"">◆</span>
-                    <span>");
+                    <span class=""answer-diamond me-2"">◆</span>
+                    <span class=""player-list-text"">");
         output.PostContent.SetHtmlContent(
             $@"</span>
-            <span class=""ms-auto me-1"">{RightText}</span>
+            <span class=""player-list-text ms-auto me-1"">{RightText}</span>
             <span class=""answer-diamond text-orange"">◆</span>
         </div>
         <hr class=""col-1 question-line my-auto px-0""/>

@@ -10,7 +10,7 @@ public class AnswerTagHelper : TagHelper
     public bool HasDiamond { get; set; } = true;
     public string Onclick { get; set; } = string.Empty;
     public string Letter { get; set; } = string.Empty;
-    private const string DiamondContent = @"<span class=""answer-diamond text-orange me-1"">◆</span>";
+    private const string DiamondContent = @"<span class=""answer-diamond me-1"">◆</span>";
 
 
     private string GetLeftPreContent()
@@ -20,7 +20,7 @@ public class AnswerTagHelper : TagHelper
         if (HasDiamond) content += DiamondContent;
 
         if (Letter != string.Empty)
-            content += $@"<span class=""answer-letter text-orange me-1"">{Letter.ToUpper()}:</span>";
+            content += $@"<span class=""answer-letter me-1"">{Letter.ToUpper()}:</span>";
 
         content += @"<span class=""answer-text"">";
         return content;
@@ -37,7 +37,7 @@ public class AnswerTagHelper : TagHelper
         if (HasDiamond) content += DiamondContent;
 
         if (Letter != string.Empty)
-            content += $@"<span class=""answer-letter text-orange me-1"">{Letter.ToUpper()}:</span>";
+            content += $@"<span class=""answer-letter me-1"">{Letter.ToUpper()}:</span>";
 
         content += @"<span class=""answer-text"">";
         return content;
