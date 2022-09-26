@@ -6,6 +6,7 @@ public class AnswerTagHelper : TagHelper
 {
     public string Id { get; set; } = string.Empty;
     public string Class { get; set; } = string.Empty;
+    public string TextStyle { get; set; } = string.Empty;
     public string Position { get; set; } = "left";
     public bool HasDiamond { get; set; } = true;
     public string Onclick { get; set; } = string.Empty;
@@ -22,7 +23,7 @@ public class AnswerTagHelper : TagHelper
         if (Letter != string.Empty)
             content += $@"<span class=""answer-letter me-1"">{Letter.ToUpper()}:</span>";
 
-        content += @"<span class=""answer-text"">";
+        content += $@"<span class=""answer-text"" style=""{TextStyle}"">";
         return content;
     }
 
@@ -39,7 +40,7 @@ public class AnswerTagHelper : TagHelper
         if (Letter != string.Empty)
             content += $@"<span class=""answer-letter me-1"">{Letter.ToUpper()}:</span>";
 
-        content += @"<span class=""answer-text"">";
+        content += @"<span class=""answer-text"" style=""{TextStyle}"">";
         return content;
     }
 

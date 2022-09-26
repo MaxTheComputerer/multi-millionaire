@@ -1,11 +1,11 @@
 ﻿<div id="hostMenu">
     <question id="gameId">Game ID: 07DED</question>
     <div class="row mb-2">
-        <answer letter="A" position="left">Start game</answer>
-        <answer letter="B" position="right" onclick="new bootstrap.Modal('#editQuestionsModal').show()">Edit questions</answer>
+        <answer letter="A" position="left" text-style="transform: scaleX(0.9);">Play Fastest Finger First</answer>
+        <answer letter="B" position="right" onclick="new bootstrap.Modal('#choosePlayerModal').show()">Start game</answer>
     </div>
     <div class="row mb-2">
-        <answer letter="C" position="left">Settings</answer>
-        <answer letter="D" position="right">Exit</answer>
+        <answer letter="C" position="left" onclick="new bootstrap.Modal('#editQuestionsModal').show()">Edit questions</answer>
+        <answer letter="D" position="right">Settings</answer>
     </div>
 </div>

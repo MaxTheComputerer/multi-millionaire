@@ -1,0 +1,121 @@
+﻿.winnings {
+    background-image: url("../images/winnings.png");
+    background-size: 100% 100%;
+    height: calc(132 * 100vw / 917);
+    min-height: 0;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.total-prize {
+    background-image: url("../images/total_prize.png");
+    background-size: 100% 100%;
+    height: calc(204 * 100vw / 1365);
+    text-align: center;
+}
+
+.millionaire-prize {
+    background-image: url("../images/millionaire.png");
+    background-size: 100% 100%;
+    height: calc(194 * 100vw / 960);
+    text-align: center;
+}
+
+.winnings-text, .total-prize-text, .millionaire-prize-text {
+    font-family: Copperplate Gothic Regular, Copperplate Gothic, Conduit ITC, serif;
+    font-weight: bold;
+    letter-spacing: .02em;
+    text-shadow: 0 0 8px black;
+    color: var(--orange);
+}
+
+.winnings-text {
+    font-size: calc(8.64vw + 8px);
+    line-height: 4.5rem;
+}
+
+.total-prize-text {
+    font-size: 6.7vw;
+    line-height: 6.7vw;
+    margin: calc(40% * 204 / 1365) 32% auto 32%;
+    display: block;
+}
+
+.millionaire-prize-text {
+    font-size: 6.7vw;
+    line-height: 7.6vw;
+    white-space: nowrap;
+    margin: calc(10% * 194 / 960) 18% auto 18%;
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .winnings {
+        height: auto;
+        min-height: 111px;
+    }
+
+    .winnings-text {
+        font-size: 4.5rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .total-prize {
+        height: calc(204 * 960px / 1365);
+    }
+
+    .millionaire-prize {
+        height: calc(194 * 960px / 960);
+    }
+
+    .total-prize-text {
+        font-size: 4rem;
+        line-height: 4rem;
+    }
+
+    .millionaire-prize-text {
+        font-size: 4rem;
+        line-height: 73px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .total-prize {
+        height: calc(204 * 1140px / 1365);
+    }
+
+    .millionaire-prize {
+        height: calc(194 * 1140px / 960);
+    }
+
+    .total-prize-text {
+        font-size: 4.75rem;
+        line-height: 4.75rem;
+    }
+
+    .millionaire-prize-text {
+        font-size: 4.75rem;
+        line-height: 86px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .total-prize {
+        height: calc(204 * 1320px / 1365);
+    }
+
+    .millionaire-prize {
+        height: calc(194 * 1320px / 960);
+    }
+
+    .total-prize-text {
+        font-size: 5.5rem;
+        line-height: 5.5rem;
+    }
+
+    .millionaire-prize-text {
+        font-size: 5.5rem;
+        line-height: 100px;
+    }
+}

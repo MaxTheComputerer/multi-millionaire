@@ -2,7 +2,7 @@
     background-image: url(../images/money_tree_bg.png);
     background-repeat: no-repeat;
     background-size: cover;
-    background-position: center;
+    background-position: right center;
     box-shadow: var(--light-blue) 0 0 7px;
     border-width: 5px 0 5px 0;
     border-style: ridge;
