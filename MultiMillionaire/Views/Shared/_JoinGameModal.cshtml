@@ -1,15 +1,38 @@
-﻿<div class="modal fade" id="joinGameModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+﻿@functions
+{
+    string getJoinOnClick()
+    {
+        return ViewData["Role"] switch
+        {
+            UserRole.Host => "game.join.host()",
+            UserRole.Audience => "game.join.audience()",
+            UserRole.Spectator => "game.join.spectator()",
+            _ => "console.log('Unrecognised user role')"
+            };
+    }
+}
+
+<div class="modal fade" id="joinGameModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content box">
             <div class="modal-header">
                 <h2 class="modal-title">Join multiplayer game</h2>
             </div>
             <div class="modal-body">
-                <label for="playerNameInput" class="form-label">Name</label>
-                <input type="text" class="form-control" id="playerNameInput">
+                @if (ViewData["Role"] is not UserRole.Host)
+                {
+                    <div class="mb-3">
+                        <label for="gameIdInput" class="form-label">Game ID</label>
+                        <input type="text" class="form-control" id="gameIdInput" required>
+                    </div>
+                }
+                <div>
+                    <label for="playerNameInput" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="playerNameInput" required>
+                </div>
             </div>
             <div class="modal-footer">
-                <small-button data-bs-dismiss="modal">Join</small-button>
+                <small-button onclick="@getJoinOnClick()">Join</small-button>
             </div>
         </div>
     </div>

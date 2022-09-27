@@ -40,7 +40,7 @@ public class AnswerTagHelper : TagHelper
         if (Letter != string.Empty)
             content += $@"<span class=""answer-letter me-1"">{Letter.ToUpper()}:</span>";
 
-        content += @"<span class=""answer-text"" style=""{TextStyle}"">";
+        content += $@"<span class=""answer-text"" style=""{TextStyle}"">";
         return content;
     }
 

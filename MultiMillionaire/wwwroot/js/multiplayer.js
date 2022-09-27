@@ -2,16 +2,23 @@
 
 const connection = new signalR.HubConnectionBuilder().withUrl("/multiplayerHub").build();
 
-
 connection.on("Message", msg => console.log(msg));
 
-connection.start().then(function () {
+connection.start().then(() => {
     console.log("Connected");
-}).catch(function (err) {
+    modals.joinGameModal.show();
+}).catch(err => {
     return console.error(err.toString());
 });
 
-function setName() {
-    const name = $("#nameInput").val();
-    connection.invoke("SetName", name);
+const beforeUnloadListener = (event) => {
+    event.preventDefault();
+    return event.returnValue = "Are you sure you want to exit the game?";
+};
+
+async function setName() {
+    const name = document.getElementById("playerNameInput").value;
+    await connection.invoke("SetName", name);
 }
+
+connection.on("JoinSuccessful", () => game.join.joinSuccessful());

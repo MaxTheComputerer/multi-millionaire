@@ -7,6 +7,7 @@ namespace MultiMillionaire.Hubs;
 public interface IMultiplayerGameHub
 {
     Task Message(string message);
+    Task JoinSuccessful();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -130,6 +131,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
         await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
+        await Clients.Caller.JoinSuccessful();
     }
 
     public async Task JoinGameAudience(string gameId)
@@ -146,6 +148,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
         await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
+        await Clients.Caller.JoinSuccessful();
     }
 
     public async Task SpectateGame(string gameId)
@@ -161,6 +164,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await AddUserToGame(user, game, UserRole.Spectator);
 
         await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
+        await Clients.Caller.JoinSuccessful();
     }
 
     private async Task LeaveGame()

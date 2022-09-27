@@ -1,14 +1,22 @@
-﻿function scaleAnswerTexts() {
-    $('.answer-text').each(function (i, obj) {
-        const element = $(this);
-        const scale = Math.min((element.parent().width() - 40) / element.width(), 1);
-        element.css('transform', 'scaleX(' + scale + ')');
-    });
+﻿function getInnerWidth(element) {
+    const cs = getComputedStyle(element);
+    const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+    return element.offsetWidth - paddingX - borderX;
+}
+
+function scaleAnswerTexts() {
+    const elements = document.querySelectorAll('.answer-text');
+
+    Array.from(elements).forEach(element => {
+        const elementWidth = getInnerWidth(element);
+        const parentWidth = getInnerWidth(element.parentElement);
+        const scale = Math.min((parentWidth - 50) / elementWidth, 1);
+        element.style.transform = 'scaleX(' + scale + ')';
+    })
 }
 
 window.addEventListener('resize', scaleAnswerTexts, true);
-
-new bootstrap.Modal('#joinGameModal').show();
 
 
 // Ask the audience graph
@@ -34,4 +42,4 @@ function drawAudienceGrid(canvas) {
     ctx.stroke();
 }
 
-drawAudienceGrid(document.getElementById("audienceGraph"));
+// drawAudienceGrid(document.getElementById("audienceGraph"));

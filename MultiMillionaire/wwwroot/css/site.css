@@ -76,6 +76,10 @@ body.bg-3::before {
     opacity: 0.9;
 }
 
+.form-control {
+    font-size: 1.5rem;
+}
+
 
 /* Menus */
 
