@@ -14,7 +14,7 @@ public class User
 
     public string GetScore()
     {
-        return Question.GetValueFromQuestionNumber(Game?.Scores[this]);
+        return Question.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
     }
 
     public UserViewModel ToViewModel()
@@ -23,7 +23,8 @@ public class User
         {
             ConnectionId = ConnectionId,
             Name = Name,
-            Role = Role
+            Role = Role,
+            Score = GetScore()
         };
     }
 }

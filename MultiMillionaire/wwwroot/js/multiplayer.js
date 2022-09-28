@@ -22,5 +22,6 @@ async function setName() {
 }
 
 connection.on("JoinSuccessful", game.join.joinSuccessful);
+connection.on("PopulatePlayerList", players.populateListPanel);
 connection.on("PlayerJoined", players.joined);
 connection.on("PlayerLeft", players.left);

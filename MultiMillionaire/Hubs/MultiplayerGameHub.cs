@@ -7,6 +7,7 @@ public interface IMultiplayerGameHub
 {
     Task Message(string message);
     Task JoinSuccessful(string gameId);
+    Task PopulatePlayerList(IEnumerable<UserViewModel> players);
     Task PlayerJoined(UserViewModel player);
     Task PlayerLeft(UserViewModel player);
 }
@@ -133,10 +134,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         // Join game
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Host);
-
-        await Clients.Group(game.Id).PlayerJoined(user.ToViewModel());
-        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
-        await Clients.Caller.JoinSuccessful(game.Id);
+        await JoinSuccessful(game);
     }
 
     public async Task JoinGameAudience(string gameId)
@@ -151,10 +149,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Audience);
 
-        await Clients.Group(game.Id).PlayerJoined(user.ToViewModel());
+        await Clients.OthersInGroup(game.Id).PlayerJoined(user.ToViewModel());
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
-        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
-        await Clients.Caller.JoinSuccessful(game.Id);
+        await JoinSuccessful(game);
     }
 
     public async Task SpectateGame(string gameId)
@@ -168,9 +165,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         // Join game
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Spectator);
-
-        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
-        await Clients.Caller.JoinSuccessful(game.Id);
+        await JoinSuccessful(game);
     }
 
     private async Task LeaveGame()
@@ -199,6 +194,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await RemoveUserFromGame(game.Host);
 
         Games.Remove(game);
+    }
+
+    private async Task JoinSuccessful(MultiplayerGame game)
+    {
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
+        await Clients.Caller.PopulatePlayerList(game.GetPlayers().Select(u => u.ToViewModel()));
+        await Clients.Caller.JoinSuccessful(game.Id);
     }
 
     #endregion

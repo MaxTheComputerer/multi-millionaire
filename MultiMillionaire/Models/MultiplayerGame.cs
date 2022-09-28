@@ -12,4 +12,9 @@ public class MultiplayerGame
     {
         return Guid.NewGuid().ToString()[..5].ToUpper();
     }
+
+    public IEnumerable<User> GetPlayers()
+    {
+        return Audience.Prepend(Host);
+    }
 }

@@ -1,6 +1,16 @@
 ﻿const game = {
+    id: "",
+    setId: id => {
+        game.id = id;
+        const gameIdElement = document.getElementById("gameId");
+        if (gameIdElement) {
+            gameIdElement.innerText = `Game ID: ${game.id}`;
+        }
+    },
+
     join: {
-        joinSuccessful: () => {
+        joinSuccessful: gameId => {
+            game.setId(gameId);
             addEventListener("beforeunload", beforeUnloadListener, {capture: true});
             modals.joinGameModal.hide();
         },
@@ -12,6 +22,7 @@
         }
     }
 }
+
 
 const players = {
     roles: {
@@ -34,9 +45,15 @@ const players = {
         if (user.role === players.roles.Host) {
             listElement = players.createPlayerListElement(user.connectionId, user.name.toUpperCase(), "HOST");
         } else {
-            listElement = players.createPlayerListElement(user.connectionId, user.name.toUpperCase(), "", "text-orange");
+            listElement = players.createPlayerListElement(user.connectionId, user.name.toUpperCase(), user.score, "text-orange");
         }
         playerList.appendChild(listElement);
+    },
+
+    populateListPanel: playerList => {
+        for (const player of playerList) {
+            players.addToListPanel(player);
+        }
     },
 
     removeFromListPanel: user => {
