@@ -1,35 +1,4 @@
-﻿const game = {
-    id: "",
-    setId: id => {
-        game.id = id;
-        const gameIdElement = document.getElementById("gameId");
-        if (gameIdElement) {
-            gameIdElement.innerText = `Game ID: ${game.id}`;
-        }
-    },
-
-    join: {
-        joinSuccessful: gameId => {
-            game.setId(gameId);
-            addEventListener("beforeunload", beforeUnloadListener, {capture: true});
-            modals.joinGameModal.hide();
-        },
-
-        validateForm: () => {
-            const nameInput = document.getElementById("playerNameInput");
-            const gameIdInput = document.getElementById("gameIdInput");
-            return nameInput.reportValidity() && (!gameIdInput || gameIdInput.reportValidity());
-        }
-    },
-
-    ended: () => {
-        removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
-        modals.gameEndedModal.show();
-    }
-}
-
-
-const players = {
+﻿const players = {
     roles: {
         Host: 0,
         Audience: 1,
@@ -81,8 +50,4 @@ const players = {
             '</div>';
         return listElement;
     }
-}
-
-const modals = {
-    joinGameModal: new bootstrap.Modal('#joinGameModal')
 }

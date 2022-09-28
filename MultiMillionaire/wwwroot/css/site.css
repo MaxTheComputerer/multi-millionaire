@@ -80,6 +80,10 @@ body.bg-3::before {
     font-size: 1.5rem;
 }
 
+.invalid-feedback {
+    width: auto;
+}
+
 
 /* Menus */
 

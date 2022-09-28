@@ -7,6 +7,7 @@ public interface IMultiplayerGameHub
 {
     Task Message(string message);
     Task JoinSuccessful(string gameId);
+    Task JoinGameIdNotFound();
     Task PopulatePlayerList(IEnumerable<UserViewModel> players);
     Task PlayerJoined(UserViewModel player);
     Task PlayerLeft(UserViewModel player);
@@ -144,7 +145,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (user == null || user.Name == null) return;
 
         var game = GetGameById(gameId);
-        if (game == null || game.Audience.Contains(user)) return;
+        if (game == null)
+        {
+            await Clients.Caller.JoinGameIdNotFound();
+            return;
+        }
+
+        if (game.Audience.Contains(user)) return;
 
         // Join game
         await LeaveGame();
@@ -161,7 +168,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (user == null) return;
 
         var game = GetGameById(gameId);
-        if (game == null || game.Audience.Contains(user)) return;
+        if (game == null)
+        {
+            await Clients.Caller.JoinGameIdNotFound();
+            return;
+        }
+
+        if (game.Spectators.Contains(user)) return;
 
         // Join game
         await LeaveGame();

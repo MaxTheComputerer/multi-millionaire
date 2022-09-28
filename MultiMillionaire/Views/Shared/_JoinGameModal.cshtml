@@ -32,6 +32,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                @if (ViewData["Role"] is not UserRole.Host)
+                {
+                    <span class="invalid-feedback" id="gameIdNotFoundMessage">A game with that ID could not be found.</span>
+                }
                 <small-button onclick="@getJoinOnClick()">Join</small-button>
             </div>
         </div>
