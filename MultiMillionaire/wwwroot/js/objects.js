@@ -20,6 +20,11 @@
             const gameIdInput = document.getElementById("gameIdInput");
             return nameInput.reportValidity() && (!gameIdInput || gameIdInput.reportValidity());
         }
+    },
+
+    ended: () => {
+        removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+        modals.gameEndedModal.show();
     }
 }
 

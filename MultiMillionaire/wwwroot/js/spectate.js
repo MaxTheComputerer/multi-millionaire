@@ -1,4 +1,8 @@
-﻿function spectateGame() {
-    const gameId = $("#gameIdInput").val();
-    connection.invoke("SpectateGame", gameId);
+﻿game.join.spectators = async () => {
+    if (game.join.validateForm()) {
+        const gameId = document.getElementById("gameIdInput").value;
+        await connection.invoke("SpectateGame", gameId);
+    }
 }
+
+modals.gameEndedModal = new bootstrap.Modal('#gameEndedModal');

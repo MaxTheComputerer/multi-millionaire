@@ -5,3 +5,5 @@
         await connection.invoke("JoinGameAudience", gameId);
     }
 }
+
+modals.gameEndedModal = new bootstrap.Modal('#gameEndedModal');

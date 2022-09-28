@@ -10,6 +10,7 @@ public interface IMultiplayerGameHub
     Task PopulatePlayerList(IEnumerable<UserViewModel> players);
     Task PlayerJoined(UserViewModel player);
     Task PlayerLeft(UserViewModel player);
+    Task GameEnded();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -188,6 +189,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private async Task EndGame(MultiplayerGame game)
     {
         await Clients.Group(game.Id).Message("Game ended by host");
+        await Clients.GroupExcept(game.Id, game.Host.ConnectionId).GameEnded();
 
         foreach (var user in game.Audience) await RemoveUserFromGame(user);
         foreach (var user in game.Spectators) await RemoveUserFromGame(user);
