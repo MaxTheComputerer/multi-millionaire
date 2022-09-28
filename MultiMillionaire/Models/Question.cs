@@ -2,7 +2,7 @@
 
 public class Question
 {
-    public static string GetValueFromQuestionNumber(int questionNumber)
+    public static string GetValueFromQuestionNumber(int? questionNumber)
     {
         return questionNumber switch
         {

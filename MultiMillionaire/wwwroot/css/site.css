@@ -166,3 +166,7 @@ body.bg-3::before {
 .player-list .question-line {
     border-bottom-width: 2px;
 }
+
+.player-list-text {
+    word-break: break-word;
+}

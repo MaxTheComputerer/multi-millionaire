@@ -76,7 +76,7 @@
 
 .answer-diamond {
     font-size: 1rem;
-    align-self: end;
+    align-self: center;
     color: var(--orange);
 }
 

@@ -1,16 +1,15 @@
-﻿@{
+﻿@model MultiplayerGame
+
+@{
     ViewData["Title"] = "Audience";
+    ViewData["Role"] = UserRole.Audience;
 }
 
-multiplayer audience
+<div class="row mb-3" id="gameSetupPanels">
+    <partial name="_PlayersListPanel"/>
+</div>
 
-<label for="nameInput" class="form-label">Name</label>
-<input type="text" id="nameInput" class="form-control">
-
-<label for="gameIdInput" class="form-label">Game Id</label>
-<input type="text" id="gameIdInput" class="form-control">
-
-<button type="button" class="btn" onclick="joinAudience()">Join audience</button>
+<partial name="_JoinGameModal"/>
 
 <partial name="_MultiplayerScripts"/>
 <script src="~/js/audience.js" asp-append-version="true"></script>

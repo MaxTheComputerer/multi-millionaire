@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 
 namespace MultiMillionaire.Hubs;
@@ -7,7 +6,9 @@ namespace MultiMillionaire.Hubs;
 public interface IMultiplayerGameHub
 {
     Task Message(string message);
-    Task JoinSuccessful();
+    Task JoinSuccessful(string gameId);
+    Task PlayerJoined(UserViewModel player);
+    Task PlayerLeft(UserViewModel player);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -63,6 +64,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     {
         await Groups.AddToGroupAsync(user.ConnectionId, game.Id);
         user.Game = game;
+        user.Role = role;
         switch (role)
         {
             case UserRole.Audience:
@@ -71,6 +73,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             case UserRole.Spectator:
                 game.Spectators.Add(user);
                 break;
+            case UserRole.Host:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(role), role, null);
         }
     }
 
@@ -86,7 +92,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var user = GetCurrentUser();
         if (user == null) return;
 
-        name = Regex.Replace(name, @"\s+", "");
         user.Name = name;
         Console.WriteLine($"Registered player: {name}");
     }
@@ -129,9 +134,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Host);
 
-        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
+        await Clients.Group(game.Id).PlayerJoined(user.ToViewModel());
         await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
-        await Clients.Caller.JoinSuccessful();
+        await Clients.Caller.JoinSuccessful(game.Id);
     }
 
     public async Task JoinGameAudience(string gameId)
@@ -146,9 +151,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Audience);
 
-        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game");
-        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
-        await Clients.Caller.JoinSuccessful();
+        await Clients.Group(game.Id).PlayerJoined(user.ToViewModel());
+        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
+        await Clients.Caller.JoinSuccessful(game.Id);
     }
 
     public async Task SpectateGame(string gameId)
@@ -163,8 +169,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Spectator);
 
-        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}");
-        await Clients.Caller.JoinSuccessful();
+        await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
+        await Clients.Caller.JoinSuccessful(game.Id);
     }
 
     private async Task LeaveGame()
@@ -178,7 +184,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (game.Host == user) await EndGame(game);
 
             await RemoveUserFromGame(user);
-            if (user.Name != null) await Clients.Group(game.Id).Message($"{user.Name} has left the game");
+            if (user.Name != null) await Clients.Group(game.Id).PlayerLeft(user.ToViewModel());
+            await Clients.OthersInGroup(game.Id).Message($"{user.Name} has left the game.");
             await Clients.Caller.Message($"You have left game {game.Id}");
         }
     }

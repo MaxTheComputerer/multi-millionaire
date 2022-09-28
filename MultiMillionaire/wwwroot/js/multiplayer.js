@@ -21,4 +21,6 @@ async function setName() {
     await connection.invoke("SetName", name);
 }
 
-connection.on("JoinSuccessful", () => game.join.joinSuccessful());
+connection.on("JoinSuccessful", game.join.joinSuccessful);
+connection.on("PlayerJoined", players.joined);
+connection.on("PlayerLeft", players.left);
