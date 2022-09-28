@@ -2,15 +2,15 @@
     <div class="box p-3 lh-base mb-4">
         <h2 class="mb-3">Settings</h2>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteHostSound" checked>
+            <input class="form-check-input" type="checkbox" role="switch" id="muteHostSound" onchange="settings.updateSwitchSetting('muteHostSound')" checked>
             <label class="form-check-label" for="muteHostSound">Mute sound for host</label>
         </div>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteAudienceSound" checked>
+            <input class="form-check-input" type="checkbox" role="switch" id="muteAudienceSound" onchange="settings.updateSwitchSetting('muteAudienceSound')" checked>
             <label class="form-check-label" for="muteAudienceSound">Mute sound for audience</label>
         </div>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteSpectatorSound">
+            <input class="form-check-input" type="checkbox" role="switch" id="muteSpectatorSound" onchange="settings.updateSwitchSetting('muteSpectatorSound')">
             <label class="form-check-label" for="muteSpectatorSound">Mute sound for spectators</label>
         </div>
     </div>

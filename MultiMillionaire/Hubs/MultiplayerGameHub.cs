@@ -101,6 +101,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     #endregion
 
+
     #region GameMethods
 
     private static MultiplayerGame? GetGameById(string gameId)
@@ -214,8 +215,39 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private async Task JoinSuccessful(MultiplayerGame game)
     {
         await Clients.Caller.Message($"Welcome to game {game.Id}. Your host is {game.Host.Name}.");
-        await Clients.Caller.PopulatePlayerList(game.GetPlayers().Select(u => u.ToViewModel()));
+        var players = game.GetPlayers().Select(u => u.ToViewModel());
+        await Clients.Caller.PopulatePlayerList(players);
         await Clients.Caller.JoinSuccessful(game.Id);
+    }
+
+    #endregion
+
+
+    #region GameSetupMethods
+
+    public async Task UpdateSwitchSetting(string settingName, bool value)
+    {
+        var user = GetCurrentUser();
+        var game = user?.Game;
+        if (game == null || game.Host != user) return;
+
+        switch (settingName)
+        {
+            case "muteHostSound":
+                game.Settings.MuteHostSound = value;
+                break;
+            case "muteAudienceSound":
+                game.Settings.MuteAudienceSound = value;
+                break;
+            case "muteSpectatorSound":
+                game.Settings.MuteSpectatorSound = value;
+                break;
+            default:
+                await Clients.Caller.Message("Setting not found");
+                return;
+        }
+
+        await Clients.Caller.Message("Settings updated successfully");
     }
 
     #endregion

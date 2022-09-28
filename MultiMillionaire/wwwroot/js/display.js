@@ -11,9 +11,15 @@ const modals = {
 }
 
 function show(element, display = "block") {
+    if (typeof element === 'string' || element instanceof String) {
+        element = document.getElementById(element);
+    }
     element.style.display = display;
 }
 
 function hide(element) {
+    if (typeof element === 'string' || element instanceof String) {
+        element = document.getElementById(element);
+    }
     element.style.display = "none";
 }

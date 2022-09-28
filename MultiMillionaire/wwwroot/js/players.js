@@ -5,6 +5,11 @@
         Spectator: 2
     },
 
+    setName: async () => {
+        const name = document.getElementById("playerNameInput").value;
+        await connection.invoke("SetName", name);
+    },
+
     joined: user => {
         players.addToListPanel(user);
     },

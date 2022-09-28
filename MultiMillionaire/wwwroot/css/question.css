@@ -17,7 +17,8 @@
 }
 
 .question-line {
-    border-bottom: 3px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+    border-top: 1px solid var(--blue);
     opacity: 1;
 }
 

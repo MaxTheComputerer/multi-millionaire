@@ -84,6 +84,10 @@ body.bg-3::before {
     width: auto;
 }
 
+#settingsPanel .box {
+    min-height: 50vh;
+}
+
 
 /* Menus */
 
@@ -173,4 +177,8 @@ body.bg-3::before {
 
 .player-list-text {
     word-break: break-word;
+}
+
+#playersListPanel .box {
+    min-height: 50vh;
 }

@@ -3,6 +3,7 @@
 public class MultiplayerGame
 {
     public string Id { get; set; } = string.Empty;
+    public GameSettings Settings { get; set; } = new();
     public User Host { get; set; } = null!;
     public List<User> Audience { get; set; } = new();
     public List<User> Spectators { get; set; } = new();
@@ -15,6 +16,6 @@ public class MultiplayerGame
 
     public IEnumerable<User> GetPlayers()
     {
-        return Audience.Prepend(Host);
+        return Audience.OrderByDescending(u => Scores.GetValueOrDefault(u)).Prepend(Host);
     }
 }

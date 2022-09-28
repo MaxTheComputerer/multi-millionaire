@@ -16,14 +16,11 @@ const beforeUnloadListener = (event) => {
     return event.returnValue = "Are you sure you want to exit the game?";
 };
 
-async function setName() {
-    const name = document.getElementById("playerNameInput").value;
-    await connection.invoke("SetName", name);
-}
-
 connection.on("JoinSuccessful", game.join.joinSuccessful);
 connection.on("JoinGameIdNotFound", game.join.idNotFound);
 connection.on("PopulatePlayerList", players.populateListPanel);
 connection.on("PlayerJoined", players.joined);
 connection.on("PlayerLeft", players.left);
 connection.on("GameEnded", game.ended);
+
+connection.on("SettingsUpdated", settings.updated);

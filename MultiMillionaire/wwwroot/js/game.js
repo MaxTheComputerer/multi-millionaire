@@ -11,20 +11,20 @@
     join: {
         host: async () => {
             if (game.join.validateForm()) {
-                await setName();
+                await players.setName();
                 await connection.invoke("HostGame");
             }
         },
 
         audience: async () => {
             if (game.join.validateForm()) {
-                await setName();
+                await players.setName();
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
                 await connection.invoke("JoinGameAudience", gameId);
             }
         },
 
-        spectators: async () => {
+        spectator: async () => {
             if (game.join.validateForm()) {
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
                 await connection.invoke("SpectateGame", gameId);
