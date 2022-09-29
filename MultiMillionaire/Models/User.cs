@@ -14,7 +14,7 @@ public class User
 
     public string GetScore()
     {
-        return Question.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
+        return MultipleChoiceQuestion.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
     }
 
     public UserViewModel ToViewModel()

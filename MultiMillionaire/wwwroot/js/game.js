@@ -51,5 +51,11 @@
     ended: () => {
         removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
         modals.gameEndedModal.show();
+    },
+
+    rounds: {
+        fastestFinger: {
+            request: () => connection.invoke("RequestFastestFinger")
+        }
     }
 }

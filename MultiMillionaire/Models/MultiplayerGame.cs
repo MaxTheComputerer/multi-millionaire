@@ -8,6 +8,7 @@ public class MultiplayerGame
     public List<User> Audience { get; set; } = new();
     public List<User> Spectators { get; set; } = new();
     public Dictionary<User, int> Scores { get; set; } = new();
+    public GameRound? Round { get; set; }
 
     public static string GenerateRoomId()
     {
@@ -17,5 +18,24 @@ public class MultiplayerGame
     public IEnumerable<User> GetPlayers()
     {
         return Audience.OrderByDescending(u => Scores.GetValueOrDefault(u)).Prepend(Host);
+    }
+
+    public bool IsReadyForNewRound()
+    {
+        return Round == null && Audience.Count > 0;
+    }
+
+    private List<User> GetNotPlayedPlayers()
+    {
+        return Audience.FindAll(u => !Scores.ContainsKey(u)).ToList();
+    }
+
+    public async Task StartFastestFingerRound()
+    {
+        Round = new FastestFingerFirst
+        {
+            Players = GetNotPlayedPlayers(),
+            Question = await FastestFingerFirst.GenerateQuestion()
+        };
     }
 }

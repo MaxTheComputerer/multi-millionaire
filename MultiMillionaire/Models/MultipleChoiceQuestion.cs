@@ -1,6 +1,6 @@
 ﻿namespace MultiMillionaire.Models;
 
-public class Question
+public class MultipleChoiceQuestion
 {
     public static string GetValueFromQuestionNumber(int? questionNumber)
     {

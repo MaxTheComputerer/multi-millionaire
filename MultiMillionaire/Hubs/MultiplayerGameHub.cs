@@ -109,6 +109,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return Games.SingleOrDefault(g => g.Id == gameId);
     }
 
+    private MultiplayerGame? GetCurrentGame()
+    {
+        return GetCurrentUser()?.Game;
+    }
+
     private static MultiplayerGame CreateGame(User host)
     {
         // Make sure ID is unique
@@ -227,9 +232,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     public async Task UpdateSwitchSetting(string settingName, bool value)
     {
-        var user = GetCurrentUser();
-        var game = user?.Game;
-        if (game == null || game.Host != user) return;
+        var game = GetCurrentGame();
+        if (game == null) return;
 
         switch (settingName)
         {
@@ -248,6 +252,19 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         }
 
         await Clients.Caller.Message("Settings updated successfully");
+    }
+
+    #endregion
+
+
+    #region FastestFingerMethods
+
+    public async Task RequestFastestFinger()
+    {
+        var game = GetCurrentGame();
+        if (game == null || !game.IsReadyForNewRound()) return;
+
+        await game.StartFastestFingerRound();
     }
 
     #endregion
