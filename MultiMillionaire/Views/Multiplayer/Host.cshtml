@@ -32,3 +32,12 @@
 <partial name="Host/_QuestionEditorModal"/>
 
 <partial name="_MultiplayerScripts"/>
+
+@* Temp script to set up game for testing *@
+<script>
+setTimeout(() => {
+    connection.invoke("SetName", "Max");
+    connection.invoke("HostGame");
+    connection.invoke("RequestFastestFinger");
+}, 1000);
+</script>

@@ -12,6 +12,11 @@ public interface IMultiplayerGameHub
     Task PlayerJoined(UserViewModel player);
     Task PlayerLeft(UserViewModel player);
     Task GameEnded();
+
+    Task Show(string elementId, string display = "block");
+    Task Hide(string elementId);
+    Task SetText(string elementId, string text);
+    Task SetOnClick(string elementId, string onclick);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -126,7 +131,15 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return new MultiplayerGame
         {
             Id = gameId,
-            Host = host
+            Host = host,
+            Audience =
+            {
+                new User("abc")
+                {
+                    Name = "Test audience",
+                    Role = UserRole.Audience
+                }
+            }
         };
     }
 
@@ -264,7 +277,38 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null || !game.IsReadyForNewRound()) return;
 
-        await game.StartFastestFingerRound();
+        game.StartFastestFingerRound();
+
+        await Clients.Group(game.Id).Hide("gameSetupPanels");
+        await Clients.Group(game.Id).Show("fastestFingerPanels", "flex");
+        await Clients.Caller.Hide("hostMenu");
+        await Clients.Group(game.Id).Show("questionAndAnswers");
+    }
+
+    public async Task FetchFastestFingerQuestion()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst round)
+        {
+            if (round.Question == null)
+            {
+                await Clients.Caller.Message("Question has not been set for this round.");
+            }
+            else
+            {
+                await Clients.Group(game.Id).SetText("question", round.Question.Question);
+                await Clients.Caller.SetOnClick("fffNextBtn", "");
+            }
+        }
+    }
+
+    public async Task FetchFastestFingerAnswer(char letter)
+    {
+        if (!new[] { 'A', 'B', 'C', 'D' }.Contains(letter)) return;
+
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst round)
+            await Clients.Group(game.Id).SetText($"answer{letter}", round.Question!.Answers[letter]);
     }
 
     #endregion

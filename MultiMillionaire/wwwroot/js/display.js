@@ -10,16 +10,27 @@ const modals = {
     gameEndedModal: new Modal('gameEndedModal')
 }
 
-function show(element, display = "block") {
-    if (typeof element === 'string' || element instanceof String) {
-        element = document.getElementById(element);
-    }
+function show(id, display = "block") {
+    const element = document.getElementById(id);
     element.style.display = display;
 }
 
-function hide(element) {
-    if (typeof element === 'string' || element instanceof String) {
-        element = document.getElementById(element);
-    }
+function hide(id) {
+    const element = document.getElementById(id);
     element.style.display = "none";
 }
+
+function setText(id, text) {
+    const element = document.getElementById(id);
+    element.innerText = text;
+}
+
+function setOnClick(id, onclick) {
+    const element = document.getElementById(id);
+    element.onclick = onclick;
+}
+
+connection.on("Show", show);
+connection.on("Hide", hide);
+connection.on("SetText", setText);
+connection.on("SetOnClick", setOnClick);

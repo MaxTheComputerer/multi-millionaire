@@ -44,7 +44,7 @@
         },
 
         idNotFound: () => {
-            show(document.getElementById("gameIdNotFoundMessage"));
+            show("gameIdNotFoundMessage");
         }
     },
 
@@ -55,7 +55,13 @@
 
     rounds: {
         fastestFinger: {
-            request: () => connection.invoke("RequestFastestFinger")
+            request: async () => await connection.invoke("RequestFastestFinger"),
+
+            fetchQuestion: async () => await connection.invoke("FetchFastestFingerQuestion")
         }
     }
 }
+
+connection.on("JoinSuccessful", game.join.joinSuccessful);
+connection.on("JoinGameIdNotFound", game.join.idNotFound);
+connection.on("GameEnded", game.ended);

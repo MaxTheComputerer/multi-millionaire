@@ -30,12 +30,12 @@ public class MultiplayerGame
         return Audience.FindAll(u => !Scores.ContainsKey(u)).ToList();
     }
 
-    public async Task StartFastestFingerRound()
+    public void StartFastestFingerRound()
     {
         Round = new FastestFingerFirst
         {
             Players = GetNotPlayedPlayers(),
-            Question = await FastestFingerFirst.GenerateQuestion()
+            Question = FastestFingerFirst.GenerateQuestion()
         };
     }
 }
