@@ -57,7 +57,11 @@
         fastestFinger: {
             request: async () => await connection.invoke("RequestFastestFinger"),
 
-            fetchQuestion: async () => await connection.invoke("FetchFastestFingerQuestion")
+            fetchQuestion: async () => await connection.invoke("FetchFastestFingerQuestion"),
+
+            onStart: answers => {
+                console.log(answers);
+            }
         }
     }
 }
@@ -65,3 +69,5 @@
 connection.on("JoinSuccessful", game.join.joinSuccessful);
 connection.on("JoinGameIdNotFound", game.join.idNotFound);
 connection.on("GameEnded", game.ended);
+
+connection.on("StartFastestFinger", game.rounds.fastestFinger.onStart);

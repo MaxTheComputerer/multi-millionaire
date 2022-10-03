@@ -17,6 +17,8 @@ public interface IMultiplayerGameHub
     Task Hide(string elementId);
     Task SetText(string elementId, string text);
     Task SetOnClick(string elementId, string onclick);
+
+    Task StartFastestFinger(Dictionary<char, string> answers);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -277,7 +279,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null || !game.IsReadyForNewRound()) return;
 
-        game.StartFastestFingerRound();
+        game.SetupFastestFingerRound();
 
         await Clients.Group(game.Id).Hide("gameSetupPanels");
         await Clients.Group(game.Id).Show("fastestFingerPanels", "flex");
@@ -297,18 +299,46 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             else
             {
                 await Clients.Group(game.Id).SetText("question", round.Question.Question);
-                await Clients.Caller.SetOnClick("fffNextBtn", "");
+                await Clients.Caller.SetOnClick("fffNextBtn", "StartFastestFinger");
             }
         }
     }
 
-    public async Task FetchFastestFingerAnswer(char letter)
+    public async Task StartFastestFinger()
     {
-        if (!new[] { 'A', 'B', 'C', 'D' }.Contains(letter)) return;
-
         var game = GetCurrentGame();
         if (game?.Round is FastestFingerFirst round)
-            await Clients.Group(game.Id).SetText($"answer{letter}", round.Question!.Answers[letter]);
+        {
+            if (round.Question == null)
+            {
+                await Clients.Caller.Message("Question has not been set for this round.");
+            }
+            else
+            {
+                await Clients.Group(game.Id).StartFastestFinger(round.Question.Answers);
+                await round.StartRoundAndWait();
+                await StopFastestFinger();
+            }
+        }
+    }
+
+    public async Task SubmitFastestFingerAnswer(IEnumerable<char> answerOrder, double time)
+    {
+        var user = GetCurrentUser();
+        var game = user?.Game;
+
+        if (game?.Round is FastestFingerFirst round)
+        {
+            if (round.InProgress)
+                round.SubmitAnswer(user!, answerOrder, time);
+            else
+                await Clients.Caller.Message("The round has not started.");
+        }
+    }
+
+    private async Task StopFastestFinger()
+    {
+        await Clients.Caller.Message("round over");
     }
 
     #endregion

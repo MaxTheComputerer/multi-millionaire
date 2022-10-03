@@ -25,9 +25,9 @@ function setText(id, text) {
     element.innerText = text;
 }
 
-function setOnClick(id, onclick) {
+function setOnClick(id, methodName) {
     const element = document.getElementById(id);
-    element.onclick = onclick;
+    element.onclick = async () => await connection.invoke(methodName);
 }
 
 connection.on("Show", show);

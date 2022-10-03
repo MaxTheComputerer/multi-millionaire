@@ -30,7 +30,7 @@ public class MultiplayerGame
         return Audience.FindAll(u => !Scores.ContainsKey(u)).ToList();
     }
 
-    public void StartFastestFingerRound()
+    public void SetupFastestFingerRound()
     {
         Round = new FastestFingerFirst
         {
