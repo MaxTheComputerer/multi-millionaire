@@ -1,0 +1,20 @@
+{
+    "name": "Who Wants To Be A Millionaire?",
+    "short_name": "WWTBAM",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#030d13",
+    "background_color": "#030d13",
+    "start_url": "https://millionaire.blockfour.co.uk",
+    "display": "standalone"
+}
