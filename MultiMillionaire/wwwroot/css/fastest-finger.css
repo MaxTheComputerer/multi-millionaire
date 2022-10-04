@@ -66,3 +66,15 @@
     border-radius: .5rem;
     border: 3px solid transparent;
 }
+
+
+/* Answer input */
+
+.fff-answer-input {
+    font-size: 4rem;
+    line-height: 4rem;
+}
+
+.fff-answer-input span {
+    border-bottom: 2px solid var(--blue);
+}

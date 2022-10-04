@@ -17,6 +17,11 @@ public class FastestFingerFirst : GameRound
         InProgress = false;
     }
 
+    public List<string> GetPlayerIds()
+    {
+        return Players.Select(u => u.ConnectionId).ToList();
+    }
+
     private void CheckAllPlayersAnswered()
     {
         if (Times.Count == Players.Count && GaveCorrectAnswer.Count == Players.Count) AllPlayersAnsweredToken.Cancel();

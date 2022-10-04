@@ -17,14 +17,23 @@ public interface IMultiplayerGameHub
     Task Hide(string elementId);
     Task SetText(string elementId, string text);
     Task SetOnClick(string elementId, string onclick);
+    Task Lock(string elementId);
+    Task Unlock(string elementId);
 
     Task StartFastestFinger(Dictionary<char, string> answers);
+    Task EnableFastestFingerAnswering();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
+
+    // TEMP
+    public async Task JoinRandomAudience()
+    {
+        await JoinGameAudience(Games.First().Id);
+    }
 
     #region MiscellaneousMethods
 
@@ -133,15 +142,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return new MultiplayerGame
         {
             Id = gameId,
-            Host = host,
-            Audience =
-            {
-                new User("abc")
-                {
-                    Name = "Test audience",
-                    Role = UserRole.Audience
-                }
-            }
+            Host = host
         };
     }
 
@@ -283,6 +284,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         await Clients.Group(game.Id).Hide("gameSetupPanels");
         await Clients.Group(game.Id).Show("fastestFingerPanels", "flex");
+
+        var players = ((FastestFingerFirst)game.Round!).GetPlayerIds();
+        await Clients.Clients(players).Show("fastestFingerInput");
+        await Clients.Clients(players).Show("fastestFingerBtns", "flex");
+
         await Clients.Caller.Hide("hostMenu");
         await Clients.Group(game.Id).Show("questionAndAnswers");
     }
@@ -315,7 +321,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                await Clients.Caller.Lock("fffNextBtn");
                 await Clients.Group(game.Id).StartFastestFinger(round.Question.Answers);
+                await Clients.Clients(round.GetPlayerIds()).EnableFastestFingerAnswering();
                 await round.StartRoundAndWait();
                 await StopFastestFinger();
             }
@@ -332,7 +340,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (round.InProgress)
                 round.SubmitAnswer(user!, answerOrder, time);
             else
-                await Clients.Caller.Message("The round has not started.");
+                await Clients.Caller.Message("The round is not currently in progress.");
         }
     }
 

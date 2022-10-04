@@ -9,7 +9,20 @@
     <partial name="_PlayersListPanel"/>
 </div>
 
+<partial name="FastestFingerFirst/_AnswerInput"/>
+
+<partial name="_QuestionAndAnswers"/>
+<partial name="FastestFingerFirst/_InputButtons"/>
+
 <partial name="_JoinGameModal"/>
 <partial name="_GameEndedModal"/>
 
 <partial name="_MultiplayerScripts"/>
+
+@* Temp script to set up game for testing *@
+<script>
+setTimeout(() => {
+    connection.invoke("SetName", "Max 2");
+    connection.invoke("JoinRandomAudience");
+}, 2000);
+</script>

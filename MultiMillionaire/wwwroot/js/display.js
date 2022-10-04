@@ -25,12 +25,32 @@ function setText(id, text) {
     element.innerText = text;
 }
 
+function setAnswerText(id, text) {
+    const element = document.getElementById(id).querySelector(".answer-text");
+    element.style.visibility = "hidden";
+    element.innerText = text;
+    scaleToFit(element);
+    element.style.visibility = "visible";
+}
+
 function setOnClick(id, methodName) {
     const element = document.getElementById(id);
     element.onclick = async () => await connection.invoke(methodName);
+}
+
+function unlock(id) {
+    const element = document.getElementById(id);
+    element.classList.remove("disabled");
+}
+
+function lock(id) {
+    const element = document.getElementById(id);
+    element.classList.add("disabled");
 }
 
 connection.on("Show", show);
 connection.on("Hide", hide);
 connection.on("SetText", setText);
 connection.on("SetOnClick", setOnClick);
+connection.on("Lock", lock);
+connection.on("Unlock", unlock);
