@@ -1,39 +1,19 @@
-﻿<div class="col-sm-4 ms-auto ms-lg-0 mb-3 p-0" style="display: none">
+﻿<div class="col-sm-4 ms-auto ms-lg-0 mb-3 p-0" id="fffAnswerPanel" style="display: none">
     <div class="money-tree money-tree-fff p-2 pe-0">
         <div class="m-2 me-0">
-            <div class="question-fff mb-5" id="fffQuestion">
-                Starting with the lowest number, put the answers to these sums in numerical order.
-            </div>
+            <div class="question-fff mb-5" id="fffQuestion"></div>
 
             <div class="answer-block-fff">
-                <div class="row answer-row-fff mb-2 ms-0" id="fffAnswer0">
-                    <div class="answer-fff">
-                        <span class="answer-letter mx-1">D:</span>
-                        <span class="answer-text">9 ÷ 3</span>
+                @for (var i = 0; i < 4; i++)
+                {
+                    <div class="row answer-row-fff mb-2 ms-0" id="fffAnswer@(i)">
+                        <div class="answer-fff">
+                            <span class="answer-letter mx-1"></span>
+                            <span class="answer-text"></span>
+                        </div>
+                        <hr class="col question-line my-auto px-0"/>
                     </div>
-                    <hr class="col question-line my-auto px-0"/>
-                </div>
-                <div class="row answer-row-fff mb-2 ms-0" id="fffAnswer1">
-                    <div class="answer-fff">
-                        <span class="answer-letter mx-1">B:</span>
-                        <span class="answer-text">9 - 3</span>
-                    </div>
-                    <hr class="col question-line my-auto px-0"/>
-                </div>
-                <div class="row answer-row-fff mb-2 ms-0" id="fffAnswer2">
-                    <div class="answer-fff">
-                        <span class="answer-letter mx-1">A:</span>
-                        <span class="answer-text">9 + 3</span>
-                    </div>
-                    <hr class="col question-line my-auto px-0"/>
-                </div>
-                <div class="row answer-row-fff mb-2 ms-0" id="fffAnswer3">
-                    <div class="answer-fff">
-                        <span class="answer-letter mx-1">C:</span>
-                        <span class="answer-text">9 x 3</span>
-                    </div>
-                    <hr class="col question-line my-auto px-0"/>
-                </div>
+                }
             </div>
         </div>
     </div>

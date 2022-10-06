@@ -35,7 +35,7 @@ public class MultiplayerGame
         Round = new FastestFingerFirst
         {
             Players = GetNotPlayedPlayers(),
-            Question = FastestFingerFirst.GenerateQuestion()
+            Question = OrderQuestion.GenerateQuestion()
         };
     }
 }

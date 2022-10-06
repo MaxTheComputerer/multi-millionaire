@@ -22,6 +22,9 @@ public interface IMultiplayerGameHub
 
     Task StartFastestFinger(Dictionary<char, string> answers);
     Task EnableFastestFingerAnswering();
+    Task ShowFastestFingerAnswer(int answerIndex, char letter, string answerText);
+    Task PopulateFastestFingerResults(IEnumerable<UserViewModel> players);
+    Task RevealCorrectFastestFingerPlayers(Dictionary<string, double> correctUserTimes);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -296,7 +299,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task FetchFastestFingerQuestion()
     {
         var game = GetCurrentGame();
-        if (game?.Round is FastestFingerFirst round)
+        if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.Setup } round)
         {
             if (round.Question == null)
             {
@@ -305,6 +308,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             else
             {
                 await Clients.Group(game.Id).SetText("question", round.Question.Question);
+                await Clients.Group(game.Id).SetText("fffQuestion", round.Question.Question);
                 await Clients.Caller.SetOnClick("fffNextBtn", "StartFastestFinger");
             }
         }
@@ -313,7 +317,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task StartFastestFinger()
     {
         var game = GetCurrentGame();
-        if (game?.Round is FastestFingerFirst round)
+        if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.Setup } round)
         {
             if (round.Question == null)
             {
@@ -337,7 +341,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         if (game?.Round is FastestFingerFirst round)
         {
-            if (round.InProgress)
+            if (round.State == FastestFingerFirst.RoundState.InProgress)
                 round.SubmitAnswer(user!, answerOrder, time);
             else
                 await Clients.Caller.Message("The round is not currently in progress.");
@@ -346,7 +350,73 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     private async Task StopFastestFinger()
     {
-        await Clients.Caller.Message("round over");
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal })
+        {
+            await Clients.Caller.SetOnClick("fffNextBtn", "ShowFastestFingerAnswerPanel");
+            await Clients.Caller.Unlock("fffNextBtn");
+        }
+    }
+
+    public async Task ShowFastestFingerAnswerPanel()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal })
+        {
+            await Clients.Group(game.Id).Hide("questionAndAnswers");
+            await Clients.Group(game.Id).Show("fffAnswerPanel");
+            await Clients.Caller.SetOnClick("fffNextBtn", "RevealNextFastestFingerAnswer");
+        }
+    }
+
+    public async Task RevealNextFastestFingerAnswer()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst
+            {
+                State: FastestFingerFirst.RoundState.AnswerReveal, Question: { }
+            } round)
+            try
+            {
+                var index = round.AnswerRevealIndex;
+                var letter = round.GetNextAnswer();
+                var answer = round.Question.Answers[letter];
+                await Clients.Group(game.Id).ShowFastestFingerAnswer(index, letter, answer);
+
+                if (index == 3) await Clients.Caller.SetOnClick("fffNextBtn", "ShowFastestFingerResultsPanel");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                await Clients.Caller.Message("All answers have been revealed.");
+            }
+    }
+
+    public async Task ShowFastestFingerResultsPanel()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst
+            {
+                State: FastestFingerFirst.RoundState.AnswerReveal, Question: { }
+            } round)
+        {
+            round.State = FastestFingerFirst.RoundState.ResultsReveal;
+            await Clients.Group(game.Id).PopulateFastestFingerResults(round.Players.Select(u => u.ToViewModel()));
+            await Clients.Group(game.Id).Show("fffResultsPanel", "flex");
+            await Clients.Caller.SetOnClick("fffNextBtn", "RevealCorrectFastestFingerPlayers");
+        }
+    }
+
+    public async Task RevealCorrectFastestFingerPlayers()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.ResultsReveal } round)
+        {
+            var correctUserTimes = round.Times
+                .Where(k => round.GaveCorrectAnswer[k.Key])
+                .ToDictionary(x => x.Key.ConnectionId, v => v.Value);
+            await Clients.Group(game.Id).RevealCorrectFastestFingerPlayers(correctUserTimes);
+            await Clients.Caller.SetOnClick("fffNextBtn", "RevealCorrectFastestFingerPlayers");
+        }
     }
 
     #endregion

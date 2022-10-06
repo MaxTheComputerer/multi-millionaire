@@ -6,15 +6,24 @@ public class FastestFingerFirst : GameRound
     public OrderQuestion? Question { get; init; }
     public Dictionary<User, double> Times { get; } = new();
     public Dictionary<User, bool> GaveCorrectAnswer { get; } = new();
-    public bool InProgress { get; set; }
-    public CancellationTokenSource AllPlayersAnsweredToken { get; set; } = new();
+    public RoundState State { get; set; } = RoundState.Setup;
+    private TaskCompletionSource AllPlayersAnsweredSignal { get; } = new();
+    public int AnswerRevealIndex { get; set; }
+
+    public enum RoundState
+    {
+        Setup,
+        InProgress,
+        AnswerReveal,
+        ResultsReveal
+    }
 
     public async Task StartRoundAndWait()
     {
-        InProgress = true;
+        State = RoundState.InProgress;
         // Timeout after 20 seconds if nobody answers
-        await Task.Delay(20000, AllPlayersAnsweredToken.Token);
-        InProgress = false;
+        await Task.WhenAny(Task.Delay(20000), AllPlayersAnsweredSignal.Task);
+        State = RoundState.AnswerReveal;
     }
 
     public List<string> GetPlayerIds()
@@ -24,29 +33,20 @@ public class FastestFingerFirst : GameRound
 
     private void CheckAllPlayersAnswered()
     {
-        if (Times.Count == Players.Count && GaveCorrectAnswer.Count == Players.Count) AllPlayersAnsweredToken.Cancel();
+        if (Times.Count == Players.Count && GaveCorrectAnswer.Count == Players.Count)
+            AllPlayersAnsweredSignal.SetResult();
     }
 
     public void SubmitAnswer(User player, IEnumerable<char> answerOrder, double time)
     {
-        Times.Add(player, time);
-        GaveCorrectAnswer.Add(player, answerOrder.Equals(Question!.CorrectOrder));
+        Times.Add(player, Math.Round(time, 2));
+        GaveCorrectAnswer.Add(player, answerOrder.SequenceEqual(Question!.CorrectOrder));
         CheckAllPlayersAnswered();
     }
 
-    public static OrderQuestion GenerateQuestion()
+    public char GetNextAnswer()
     {
-        return new OrderQuestion
-        {
-            Question = "Starting with the lowest number, put the answers to these sums in numerical order.",
-            Answers =
-            {
-                ['A'] = "9 + 3",
-                ['B'] = "9 - 3",
-                ['C'] = "9 x 3",
-                ['D'] = "9 ÷ 3"
-            },
-            CorrectOrder = { 'D', 'B', 'A', 'C' }
-        };
+        var correctOrder = Question!.CorrectOrder;
+        return correctOrder[AnswerRevealIndex++];
     }
 }

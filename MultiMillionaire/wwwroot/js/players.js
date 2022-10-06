@@ -39,9 +39,9 @@
         document.getElementById(`player-list-element_${user.connectionId}`).remove();
     },
 
-    createPlayerListElement: (id, text, rightText = "", rightClass = "") => {
+    createPlayerListElement: (id, text, rightText = "", rightClass = "", idPrefix = "player-list-element_") => {
         const listElement = document.createElement("div");
-        listElement.id = `player-list-element_${id}`;
+        listElement.id = idPrefix + id;
         listElement.className = "row mb-2 mx-0 player-list";
         listElement.innerHTML =
             '<hr class="col-1 question-line my-auto px-0"/>\n' +

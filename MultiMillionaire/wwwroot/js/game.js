@@ -68,7 +68,6 @@
             },
 
             onStart: function () {
-                console.log(this.input);
                 this.input.unlock();
                 this.startTime = Date.now();
             },
@@ -87,11 +86,38 @@
                 }
             },
 
+            revealAnswer: (index, letter, answer) => {
+                const rowElement = document.getElementById(`fffAnswer${index}`);
+                const letterElement = rowElement.querySelector(".answer-letter");
+                const textElement = rowElement.querySelector(".answer-text");
+                letterElement.innerText = `${letter}:`;
+                textElement.innerText = answer;
+                rowElement.classList.add("fff-slide-in");
+            },
+
+            populateResultsPanel: playerList => {
+                const panel = document.getElementById("fffResultsPanel");
+                for (const player of playerList) {
+                    const listElement = players.createPlayerListElement(player.connectionId, player.name.toUpperCase(), "", "", "fff-results-list-element_");
+                    panel.appendChild(listElement);
+                }
+            },
+
+            revealCorrectPlayers: async correctPlayerTimes => {
+                console.log(correctPlayerTimes);
+                for (const playerId of Object.keys(correctPlayerTimes)) {
+                    const listElement = document.getElementById(`fff-results-list-element_${playerId}`);
+                    const rightText = listElement.querySelector(".player-list-right");
+                    listElement.classList.add("correct");
+                    rightText.innerText = correctPlayerTimes[playerId];
+                    await sleep(250);
+                }
+            },
+
             input: {
                 cursor: 0,
 
                 unlock: () => {
-                    console.log("unlock");
                     unlock("answerA");
                     unlock("answerB");
                     unlock("answerC");
@@ -135,4 +161,7 @@ connection.on("JoinGameIdNotFound", game.join.idNotFound);
 connection.on("GameEnded", game.ended);
 
 connection.on("StartFastestFinger", game.rounds.fastestFinger.showAnswers);
-connection.on("EnableFastestFingerAnswering", game.rounds.fastestFinger.onStart);
+connection.on("EnableFastestFingerAnswering", game.rounds.fastestFinger.onStart.bind(game.rounds.fastestFinger));
+connection.on("ShowFastestFingerAnswer", game.rounds.fastestFinger.revealAnswer);
+connection.on("PopulateFastestFingerResults", game.rounds.fastestFinger.populateResultsPanel);
+connection.on("RevealCorrectFastestFingerPlayers", game.rounds.fastestFinger.revealCorrectPlayers);

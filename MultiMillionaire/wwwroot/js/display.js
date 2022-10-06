@@ -10,6 +10,10 @@ const modals = {
     gameEndedModal: new Modal('gameEndedModal')
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function show(id, display = "block") {
     const element = document.getElementById(id);
     element.style.display = display;
