@@ -58,7 +58,7 @@ public class FastestFingerFirst : GameRound
             .ToDictionary(x => x.Key, x => x.Value);
     }
 
-    public IEnumerable<User> GetWinners()
+    public List<User> GetWinners()
     {
         if (!GaveCorrectAnswer.Any(x => x.Value)) return new List<User>();
 
@@ -66,6 +66,7 @@ public class FastestFingerFirst : GameRound
         var minTime = times.Min(x => x.Value);
         return times
             .Where(x => x.Value.Equals(minTime))
-            .Select(x => x.Key);
+            .Select(x => x.Key)
+            .ToList();
     }
 }

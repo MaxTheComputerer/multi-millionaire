@@ -72,6 +72,7 @@ async function flash(id, flashCount = 5, delay = 150, startsOn = false, remainOn
 connection.on("Show", show);
 connection.on("Hide", hide);
 connection.on("SetText", setText);
+connection.on("SetAnswerText", setAnswerText);
 connection.on("SetOnClick", setOnClick);
 connection.on("Lock", lock);
 connection.on("Unlock", unlock);

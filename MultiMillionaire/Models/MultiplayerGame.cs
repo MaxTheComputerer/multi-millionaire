@@ -9,6 +9,7 @@ public class MultiplayerGame
     public List<User> Spectators { get; set; } = new();
     public Dictionary<User, int> Scores { get; set; } = new();
     public GameRound? Round { get; set; }
+    public User? NextPlayer { get; set; }
 
     public static string GenerateRoomId()
     {
@@ -37,5 +38,10 @@ public class MultiplayerGame
             Players = GetNotPlayedPlayers(),
             Question = OrderQuestion.GenerateQuestion()
         };
+    }
+
+    public void ResetRound()
+    {
+        Round = null;
     }
 }

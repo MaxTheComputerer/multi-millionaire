@@ -98,7 +98,7 @@
             populateResultsPanel: playerList => {
                 const panel = document.getElementById("fffResultsPanel");
                 for (const player of playerList) {
-                    const listElement = players.createPlayerListElement(player.connectionId, player.name.toUpperCase(), "", "", "fff-results-list-element_");
+                    const listElement = players.listPanel.createListElement(player.connectionId, player.name.toUpperCase(), "", "", "", "fff-results-list-element_");
                     panel.appendChild(listElement);
                 }
             },
@@ -108,13 +108,28 @@
                     const listElement = document.getElementById(`fff-results-list-element_${playerId}`);
                     const rightText = listElement.querySelector(".player-list-right");
                     listElement.classList.add("correct");
-                    rightText.innerText = correctPlayerTimes[playerId];
+                    rightText.innerText = correctPlayerTimes[playerId].toFixed(2);
                     await sleep(250);
                 }
             },
 
             highlightWinner: async winner => {
                 await flash(`fff-results-list-element_${winner}`, 8, 115, true);
+            },
+
+            reset: function () {
+                this.input.reset();
+                const resultsPanel = document.getElementById("fffResultsPanel");
+                resultsPanel.replaceChildren();
+
+                for (let i = 0; i < 4; i++) {
+                    const rowElement = document.getElementById(`fffAnswer${i}`);
+                    const letterElement = rowElement.querySelector(".answer-letter");
+                    const textElement = rowElement.querySelector(".answer-text");
+                    letterElement.innerText = "";
+                    textElement.innerText = "";
+                    rowElement.classList.remove("fff-slide-in");
+                }
             },
 
             input: {
@@ -153,6 +168,12 @@
                         setText(id, "\u{2002}");
                         unlock(`answer${letter}`);
                     }
+                },
+
+                reset: function () {
+                    while (this.cursor > 0) {
+                        this.delete();
+                    }
                 }
             }
         }
@@ -165,7 +186,9 @@ connection.on("GameEnded", game.ended);
 
 connection.on("StartFastestFinger", game.rounds.fastestFinger.showAnswers);
 connection.on("EnableFastestFingerAnswering", game.rounds.fastestFinger.onStart.bind(game.rounds.fastestFinger));
+connection.on("DisableFastestFingerAnswering", game.rounds.fastestFinger.input.lock);
 connection.on("ShowFastestFingerAnswer", game.rounds.fastestFinger.revealAnswer);
 connection.on("PopulateFastestFingerResults", game.rounds.fastestFinger.populateResultsPanel);
 connection.on("RevealCorrectFastestFingerPlayers", game.rounds.fastestFinger.revealCorrectPlayers);
 connection.on("HighlightFastestFingerWinner", game.rounds.fastestFinger.highlightWinner);
+connection.on("ResetFastestFinger", game.rounds.fastestFinger.reset.bind(game.rounds.fastestFinger));

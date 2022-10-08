@@ -6,4 +6,5 @@ public class UserViewModel
     public string? Name { get; set; }
     public UserRole? Role { get; set; }
     public string Score { get; set; } = string.Empty;
+    public bool IsFastestFingerWinner { get; set; }
 }
