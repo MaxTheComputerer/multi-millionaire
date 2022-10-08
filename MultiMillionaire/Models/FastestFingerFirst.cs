@@ -49,4 +49,23 @@ public class FastestFingerFirst : GameRound
         var correctOrder = Question!.CorrectOrder;
         return correctOrder[AnswerRevealIndex++];
     }
+
+    public Dictionary<User, double> GetTimesForCorrectPlayers()
+    {
+        return Times
+            .Where(k => GaveCorrectAnswer[k.Key])
+            .OrderBy(x => x.Key.Name)
+            .ToDictionary(x => x.Key, x => x.Value);
+    }
+
+    public IEnumerable<User> GetWinners()
+    {
+        if (!GaveCorrectAnswer.Any(x => x.Value)) return new List<User>();
+
+        var times = GetTimesForCorrectPlayers();
+        var minTime = times.Min(x => x.Value);
+        return times
+            .Where(x => x.Value.Equals(minTime))
+            .Select(x => x.Key);
+    }
 }

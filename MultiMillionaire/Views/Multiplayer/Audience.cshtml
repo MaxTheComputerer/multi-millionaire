@@ -1,6 +1,4 @@
-﻿@model MultiplayerGame
-
-@{
+﻿@{
     ViewData["Title"] = "Audience";
     ViewData["Role"] = UserRole.Audience;
 }
@@ -9,7 +7,13 @@
     <partial name="_PlayersListPanel"/>
 </div>
 
+<div class="row mb-3" id="fastestFingerPanels" style="display: none">
+    <partial name="FastestFingerFirst/_DefaultPanel"/>
+    <partial name="FastestFingerFirst/_ResultsPanel"/>
+    <partial name="FastestFingerFirst/_Answers"/>
+</div>
 <partial name="FastestFingerFirst/_AnswerInput"/>
+
 
 <partial name="_QuestionAndAnswers"/>
 <partial name="FastestFingerFirst/_InputButtons"/>
@@ -22,7 +26,7 @@
 @* Temp script to set up game for testing *@
 <script>
 setTimeout(() => {
-    connection.invoke("SetName", "Max 2");
+    connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
     connection.invoke("JoinRandomAudience");
 }, 2000);
 </script>

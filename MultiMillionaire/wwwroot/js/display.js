@@ -52,6 +52,23 @@ function lock(id) {
     element.classList.add("disabled");
 }
 
+async function flash(id, flashCount = 5, delay = 150, startsOn = false, remainOn = true, className = "correct") {
+    const element = document.getElementById(id);
+    if (startsOn) {
+        element.classList.remove(className);
+        await sleep(delay);
+        flashCount--;
+    }
+
+    for (let i = 0; i < flashCount; i++) {
+        element.classList.add(className);
+        await sleep(delay);
+        element.classList.remove(className);
+        await sleep(delay);
+    }
+    if (remainOn) element.classList.add(className);
+}
+
 connection.on("Show", show);
 connection.on("Hide", hide);
 connection.on("SetText", setText);

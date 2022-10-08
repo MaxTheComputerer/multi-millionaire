@@ -104,7 +104,13 @@ body.bg-red-2 {
 
 .logo-small {
     width: 30%;
-    min-width: 200px;
+    min-width: 120px;
+}
+
+@media (min-width: 576px) {
+    .logo-small {
+        min-width: 200px;
+    }
 }
 
 .logo-large img, .logo-small img {

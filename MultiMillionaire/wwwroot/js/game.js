@@ -104,14 +104,17 @@
             },
 
             revealCorrectPlayers: async correctPlayerTimes => {
-                console.log(correctPlayerTimes);
-                for (const playerId of Object.keys(correctPlayerTimes)) {
+                for (const playerId of Object.keys(correctPlayerTimes).slice().reverse()) {
                     const listElement = document.getElementById(`fff-results-list-element_${playerId}`);
                     const rightText = listElement.querySelector(".player-list-right");
                     listElement.classList.add("correct");
                     rightText.innerText = correctPlayerTimes[playerId];
                     await sleep(250);
                 }
+            },
+
+            highlightWinner: async winner => {
+                await flash(`fff-results-list-element_${winner}`, 8, 115, true);
             },
 
             input: {
@@ -165,3 +168,4 @@ connection.on("EnableFastestFingerAnswering", game.rounds.fastestFinger.onStart.
 connection.on("ShowFastestFingerAnswer", game.rounds.fastestFinger.revealAnswer);
 connection.on("PopulateFastestFingerResults", game.rounds.fastestFinger.populateResultsPanel);
 connection.on("RevealCorrectFastestFingerPlayers", game.rounds.fastestFinger.revealCorrectPlayers);
+connection.on("HighlightFastestFingerWinner", game.rounds.fastestFinger.highlightWinner);
