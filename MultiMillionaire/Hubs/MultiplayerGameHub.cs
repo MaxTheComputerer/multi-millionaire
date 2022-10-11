@@ -18,8 +18,9 @@ public interface IMultiplayerGameHub
     Task SetText(string elementId, string text);
     Task SetAnswerText(string elementId, string text);
     Task SetOnClick(string elementId, string onclick);
-    Task Lock(string elementId);
-    Task Unlock(string elementId);
+    Task SetOnClick(string elementId, string onclick, char charArg);
+    Task Disable(string elementId);
+    Task Enable(string elementId);
     Task SetBackground(int imageNumber, bool useRedVariant = false);
 
     Task StartFastestFinger(Dictionary<char, string> answers);
@@ -39,6 +40,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
+
+    private static List<string> LockUnlockIds { get; } = new()
+    {
+        "answerA", "answerB", "answerC", "answerD",
+        "walkAwayBtn",
+        "lifeline-5050", "lifeline-phone", "lifeline-audience"
+    };
 
     // TEMP
     public async Task JoinRandomAudience()
@@ -190,8 +198,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Audience);
 
-        await Clients.Client(game.Host.ConnectionId).Unlock("playFastestFingerBtn");
-        await Clients.Client(game.Host.ConnectionId).Unlock("playMainGameBtn");
+        await Clients.Client(game.Host.ConnectionId).Enable("playFastestFingerBtn");
+        await Clients.Client(game.Host.ConnectionId).Enable("playMainGameBtn");
 
         await Clients.OthersInGroup(game.Id).PlayerJoined(user.ToViewModel());
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
@@ -232,8 +240,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (user.Name != null) await Clients.Group(game.Id).PlayerLeft(user.ToViewModel());
             if (game.Audience.Count < 1)
             {
-                await Clients.Client(game.Host.ConnectionId).Lock("playFastestFingerBtn");
-                await Clients.Client(game.Host.ConnectionId).Lock("playMainGameBtn");
+                await Clients.Client(game.Host.ConnectionId).Disable("playFastestFingerBtn");
+                await Clients.Client(game.Host.ConnectionId).Disable("playMainGameBtn");
             }
 
             await Clients.OthersInGroup(game.Id).Message($"{user.Name} has left the game.");
@@ -347,7 +355,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             {
                 await Clients.Group(game.Id).SetBackground(0, true);
 
-                await Clients.Caller.Lock("fffNextBtn");
+                await Clients.Caller.Disable("fffNextBtn");
                 await Clients.Group(game.Id).StartFastestFinger(round.Question.Answers);
                 await Clients.Clients(round.GetPlayerIds()).EnableFastestFingerAnswering();
                 await round.StartRoundAndWait();
@@ -381,7 +389,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Clients(players).DisableFastestFingerAnswering();
 
             await Clients.Caller.SetOnClick("fffNextBtn", "ShowFastestFingerAnswerPanel");
-            await Clients.Caller.Unlock("fffNextBtn");
+            await Clients.Caller.Enable("fffNextBtn");
         }
     }
 
@@ -567,7 +575,52 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             await Clients.Group(game.Id).SetText("question", round.GetCurrentQuestion().Question);
-            await Clients.Caller.SetOnClick("nextBtn", "FetchNextAnswer");
+            await Clients.Caller.SetOnClick("nextBtn", "FetchAnswer", 'A');
+        }
+    }
+
+    private async Task Lock(MillionaireRound round)
+    {
+        foreach (var id in LockUnlockIds) await Clients.Caller.Disable(id);
+        round.Locked = true;
+    }
+
+    private async Task Unlock(MillionaireRound round)
+    {
+        foreach (var id in LockUnlockIds) await Clients.Caller.Enable(id);
+        round.Locked = false;
+    }
+
+    public async Task FetchAnswer(char letter)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            var question = round.GetCurrentQuestion();
+            await Clients.Group(game.Id).SetAnswerText($"answer{letter}", question.Answers[letter]);
+            if (letter == 'D')
+            {
+                await Clients.Caller.Disable("nextBtn");
+                await Unlock(round);
+            }
+            else
+            {
+                await Clients.Caller.SetOnClick("nextBtn", "FetchAnswer", ++letter);
+            }
+        }
+    }
+
+    public async Task SubmitAnswer(char letter)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: false } round)
+        {
+            await Lock(round);
+            if (round.QuestionNumber <= 5)
+            {
+                // reveal answer
+            }
+            // final answer
         }
     }
 

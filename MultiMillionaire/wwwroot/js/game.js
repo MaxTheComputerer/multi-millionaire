@@ -136,27 +136,27 @@
                 cursor: 0,
 
                 unlock: () => {
-                    unlock("answerA");
-                    unlock("answerB");
-                    unlock("answerC");
-                    unlock("answerD");
-                    unlock("fffDeleteBtn");
-                    unlock("fffSubmitBtn");
+                    enable("answerA");
+                    enable("answerB");
+                    enable("answerC");
+                    enable("answerD");
+                    enable("fffDeleteBtn");
+                    enable("fffSubmitBtn");
                 },
 
                 lock: () => {
-                    lock("answerA");
-                    lock("answerB");
-                    lock("answerC");
-                    lock("answerD");
-                    lock("fffDeleteBtn");
-                    lock("fffSubmitBtn");
+                    disable("answerA");
+                    disable("answerB");
+                    disable("answerC");
+                    disable("answerD");
+                    disable("fffDeleteBtn");
+                    disable("fffSubmitBtn");
                 },
 
                 insert: function (letter) {
                     if (this.cursor < 4) {
                         setText(`fffInput${this.cursor++}`, letter);
-                        lock(`answer${letter}`);
+                        disable(`answer${letter}`);
                     }
                 },
 
@@ -166,7 +166,7 @@
                         const element = document.getElementById(id);
                         const letter = element.innerText;
                         setText(id, "\u{2002}");
-                        unlock(`answer${letter}`);
+                        enable(`answer${letter}`);
                     }
                 },
 
@@ -202,7 +202,9 @@
                 }
             },
 
-            letsPlay: async () => await connection.invoke("LetsPlay")
+            letsPlay: async () => await connection.invoke("LetsPlay"),
+
+            submitAnswer: async letter => await connection.invoke("SubmitAnswer", letter)
         }
     }
 }

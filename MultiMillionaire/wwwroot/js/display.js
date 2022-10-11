@@ -39,17 +39,19 @@ function setAnswerText(id, text) {
     element.style.visibility = "visible";
 }
 
-function setOnClick(id, methodName) {
+function setOnClick(id, methodName, charArg = null) {
     const element = document.getElementById(id);
-    element.onclick = async () => await connection.invoke(methodName);
+    element.onclick = charArg
+        ? async () => await connection.invoke(methodName, charArg)
+        : async () => await connection.invoke(methodName);
 }
 
-function unlock(id) {
+function enable(id) {
     const element = document.getElementById(id);
     element.classList.remove("disabled");
 }
 
-function lock(id) {
+function disable(id) {
     const element = document.getElementById(id);
     element.classList.add("disabled");
 }
@@ -80,6 +82,6 @@ connection.on("Hide", hide);
 connection.on("SetText", setText);
 connection.on("SetAnswerText", setAnswerText);
 connection.on("SetOnClick", setOnClick);
-connection.on("Lock", lock);
-connection.on("Unlock", unlock);
+connection.on("Disable", disable);
+connection.on("Enable", enable);
 connection.on("SetBackground", setBackground);
