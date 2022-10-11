@@ -2,7 +2,7 @@
     <question id="gameId"></question>
     <div class="row mb-2">
         <answer letter="A" position="left" text-style="transform: scaleX(0.9);" onclick="game.rounds.fastestFinger.request()">Play Fastest Finger First</answer>
-        <answer letter="B" position="right" onclick="new bootstrap.Modal('#choosePlayerModal').show()">Start game</answer>
+        <answer letter="B" position="right" onclick="game.rounds.millionaire.request()">Start game</answer>
     </div>
     <div class="row mb-2">
         <answer letter="C" position="left" onclick="new bootstrap.Modal('#editQuestionsModal').show()">Edit questions</answer>

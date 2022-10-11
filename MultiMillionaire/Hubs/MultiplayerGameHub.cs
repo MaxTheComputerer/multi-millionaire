@@ -30,6 +30,8 @@ public interface IMultiplayerGameHub
     Task RevealCorrectFastestFingerPlayers(Dictionary<string, double> correctUserTimes);
     Task HighlightFastestFingerWinner(string connectionId);
     Task ResetFastestFinger();
+
+    Task NoNextPlayer(IEnumerable<UserViewModel> players);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -491,6 +493,47 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Group(game.Id).SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
             await Clients.Group(game.Id).ResetFastestFinger();
         }
+    }
+
+    #endregion
+
+
+    #region MainGameMethods
+
+    public async Task RequestMainGame()
+    {
+        var game = GetCurrentGame();
+        if (game == null || !game.IsReadyForNewRound()) return;
+
+        if (game.NextPlayer == null)
+            await Clients.Caller.NoNextPlayer(game.Audience.Select(u => u.ToViewModel()));
+        else
+            await StartMainGame();
+    }
+
+    public async Task SetPlayerAndStart(string connectionId)
+    {
+        var game = GetCurrentGame();
+        if (game == null || !game.IsReadyForNewRound()) return;
+
+        var nextPlayer = Users.SingleOrDefault(u => u.ConnectionId == connectionId);
+        if (nextPlayer == null) return;
+
+        game.NextPlayer = nextPlayer;
+        await StartMainGame();
+    }
+
+    private async Task StartMainGame()
+    {
+        var game = GetCurrentGame();
+        game!.SetupMillionaireRound();
+
+        await Clients.Group(game.Id).SetBackground(0);
+        await Clients.Group(game.Id).Hide("gameSetupPanels");
+        await Clients.Group(game.Id).Show("mainGamePanels", "flex");
+
+        await Clients.Caller.Hide("hostMenu");
+        await Clients.Group(game.Id).Show("questionAndAnswers");
     }
 
     #endregion

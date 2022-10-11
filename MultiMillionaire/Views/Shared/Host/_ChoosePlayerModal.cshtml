@@ -8,16 +8,13 @@
                 <div class="mb-3">
                     There is no current valid Fastest Finger First winner. Please choose a player to play the main game.
                 </div>
-                <select class="form-select">
-                    <option selected disabled>Choose player</option>
-                    <option>Ogo</option>
-                    <option>Max 2</option>
-                    <option>Max 3</option>
+                <select class="form-select" id="choosePlayerSelect" required>
+                    <option value="" selected disabled>Choose player</option>
                 </select>
             </div>
             <div class="modal-footer">
                 <small-button data-bs-dismiss="modal">Cancel</small-button>
-                <small-button>Play</small-button>
+                <small-button onclick="game.rounds.millionaire.setPlayerAndStart()">Play</small-button>
             </div>
         </div>
     </div>

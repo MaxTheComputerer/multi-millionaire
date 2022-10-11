@@ -7,7 +7,8 @@
 
 const modals = {
     joinGameModal: new Modal('joinGameModal'),
-    gameEndedModal: new Modal('gameEndedModal')
+    gameEndedModal: new Modal('gameEndedModal'),
+    choosePlayerModal: new Modal('choosePlayerModal')
 }
 
 function sleep(ms) {

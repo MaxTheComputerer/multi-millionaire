@@ -40,6 +40,15 @@ public class MultiplayerGame
         };
     }
 
+    public void SetupMillionaireRound()
+    {
+        Round = new MillionaireRound
+        {
+            Player = NextPlayer,
+            Questions = QuestionBank.GenerateQuestionBank()
+        };
+    }
+
     public void ResetRound()
     {
         Round = null;

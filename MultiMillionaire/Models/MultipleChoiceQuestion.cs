@@ -2,26 +2,23 @@
 
 public class MultipleChoiceQuestion
 {
-    public static string GetValueFromQuestionNumber(int? questionNumber)
+    public string Question { get; init; } = string.Empty;
+    public Dictionary<char, string> Answers { get; } = new();
+    public char CorrectLetter { get; set; }
+
+    public static MultipleChoiceQuestion GenerateQuestion(int questionNumber)
     {
-        return questionNumber switch
+        return new MultipleChoiceQuestion
         {
-            1 => "£100",
-            2 => "£200",
-            3 => "£300",
-            4 => "£500",
-            5 => "£1,000",
-            6 => "£2,000",
-            7 => "£4,000",
-            8 => "£8,000",
-            9 => "£16,000",
-            10 => "£32,000",
-            11 => "£64,000",
-            12 => "£125,000",
-            13 => "£250,000",
-            14 => "£500,000",
-            15 => "£1 MILLION",
-            _ => ""
+            Question = "What is the name of the system of transmitting messages between computer terminals?",
+            Answers =
+            {
+                ['A'] = "B-Mail",
+                ['B'] = "C-Mail",
+                ['C'] = "E-Mail",
+                ['D'] = "D-Mail"
+            },
+            CorrectLetter = 'C'
         };
     }
 }

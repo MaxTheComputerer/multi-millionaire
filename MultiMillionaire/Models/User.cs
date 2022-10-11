@@ -17,7 +17,7 @@ public class User
 
     public string GetScore()
     {
-        return MultipleChoiceQuestion.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
+        return MillionaireRound.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
     }
 
     public UserViewModel ToViewModel()

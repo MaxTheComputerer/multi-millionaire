@@ -176,6 +176,31 @@
                     }
                 }
             }
+        },
+
+        millionaire: {
+            request: async () => await connection.invoke("RequestMainGame"),
+
+            noNextPlayer: players => {
+                const choosePlayerSelect = document.getElementById("choosePlayerSelect");
+                choosePlayerSelect.querySelectorAll("[value]:not([value=''])").forEach(e => e.remove());
+
+                for (const player of players) {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = player.connectionId;
+                    optionElement.innerText = player.name;
+                    choosePlayerSelect.appendChild(optionElement);
+                }
+
+                modals.choosePlayerModal.show();
+            },
+
+            setPlayerAndStart: async () => {
+                const choosePlayerSelect = document.getElementById("choosePlayerSelect");
+                if (choosePlayerSelect.value !== "") {
+                    await connection.invoke("SetPlayerAndStart", choosePlayerSelect.value);
+                }
+            }
         }
     }
 }
@@ -192,3 +217,5 @@ connection.on("PopulateFastestFingerResults", game.rounds.fastestFinger.populate
 connection.on("RevealCorrectFastestFingerPlayers", game.rounds.fastestFinger.revealCorrectPlayers);
 connection.on("HighlightFastestFingerWinner", game.rounds.fastestFinger.highlightWinner);
 connection.on("ResetFastestFinger", game.rounds.fastestFinger.reset.bind(game.rounds.fastestFinger));
+
+connection.on("NoNextPlayer", game.rounds.millionaire.noNextPlayer);

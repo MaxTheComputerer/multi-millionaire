@@ -8,7 +8,7 @@ public class FastestFingerFirst : GameRound
     public Dictionary<User, bool> GaveCorrectAnswer { get; } = new();
     public RoundState State { get; set; } = RoundState.Setup;
     private TaskCompletionSource AllPlayersAnsweredSignal { get; } = new();
-    public int AnswerRevealIndex { get; set; }
+    public int AnswerRevealIndex { get; private set; }
 
     public enum RoundState
     {
