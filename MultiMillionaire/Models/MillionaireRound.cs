@@ -4,6 +4,23 @@ public class MillionaireRound : GameRound
 {
     public User? Player { get; init; }
     public QuestionBank Questions { get; set; } = new();
+    public int QuestionNumber { get; set; } = 1;
+    public bool Locked { get; set; } = true;
+
+    public int GetBackgroundNumber()
+    {
+        return QuestionNumber switch
+        {
+            <= 5 => 1,
+            <= 10 => 2,
+            _ => 3
+        };
+    }
+
+    public MultipleChoiceQuestion GetCurrentQuestion()
+    {
+        return Questions.GetQuestion(QuestionNumber);
+    }
 
     public static string GetValueFromQuestionNumber(int? questionNumber)
     {

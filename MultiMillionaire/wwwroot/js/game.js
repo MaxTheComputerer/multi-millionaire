@@ -200,7 +200,9 @@
                 if (choosePlayerSelect.value !== "") {
                     await connection.invoke("SetPlayerAndStart", choosePlayerSelect.value);
                 }
-            }
+            },
+
+            letsPlay: async () => await connection.invoke("LetsPlay")
         }
     }
 }
@@ -219,3 +221,4 @@ connection.on("HighlightFastestFingerWinner", game.rounds.fastestFinger.highligh
 connection.on("ResetFastestFinger", game.rounds.fastestFinger.reset.bind(game.rounds.fastestFinger));
 
 connection.on("NoNextPlayer", game.rounds.millionaire.noNextPlayer);
+connection.on("DismissChoosePlayerModal", modals.choosePlayerModal.hide);

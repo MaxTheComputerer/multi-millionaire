@@ -32,6 +32,7 @@ public interface IMultiplayerGameHub
     Task ResetFastestFinger();
 
     Task NoNextPlayer(IEnumerable<UserViewModel> players);
+    Task DismissChoosePlayerModal();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -528,12 +529,37 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         game!.SetupMillionaireRound();
 
+        await Clients.Caller.DismissChoosePlayerModal();
         await Clients.Group(game.Id).SetBackground(0);
+
+        var player = (game.Round as MillionaireRound)!.Player;
+        await Clients.Caller.SetText("contestantName", player!.Name!);
+
         await Clients.Group(game.Id).Hide("gameSetupPanels");
         await Clients.Group(game.Id).Show("mainGamePanels", "flex");
 
         await Clients.Caller.Hide("hostMenu");
         await Clients.Group(game.Id).Show("questionAndAnswers");
+    }
+
+    public async Task LetsPlay()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            await Clients.Group(game.Id).SetBackground(round.GetBackgroundNumber());
+            await Clients.Caller.SetOnClick("nextBtn", "FetchNextQuestion");
+        }
+    }
+
+    public async Task FetchNextQuestion()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            await Clients.Group(game.Id).SetText("question", round.GetCurrentQuestion().Question);
+            await Clients.Caller.SetOnClick("nextBtn", "FetchNextAnswer");
+        }
     }
 
     #endregion
