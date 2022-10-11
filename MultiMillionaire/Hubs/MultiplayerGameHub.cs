@@ -20,6 +20,7 @@ public interface IMultiplayerGameHub
     Task SetOnClick(string elementId, string onclick);
     Task Lock(string elementId);
     Task Unlock(string elementId);
+    Task SetBackground(int imageNumber, bool useRedVariant = false);
 
     Task StartFastestFinger(Dictionary<char, string> answers);
     Task EnableFastestFingerAnswering();
@@ -289,6 +290,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         game.SetupFastestFingerRound();
 
+        await Clients.Group(game.Id).SetBackground(0);
         await Clients.Group(game.Id).Hide("gameSetupPanels");
         await Clients.Group(game.Id).Show("fastestFingerPanels", "flex");
 
@@ -311,6 +313,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                await Clients.Group(game.Id).SetBackground(1, true);
+
                 await Clients.Group(game.Id).SetText("question", round.Question.Question);
                 await Clients.Group(game.Id).SetText("fffQuestion", round.Question.Question);
                 await Clients.Caller.SetOnClick("fffNextBtn", "StartFastestFinger");
@@ -329,6 +333,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                await Clients.Group(game.Id).SetBackground(0, true);
+
                 await Clients.Caller.Lock("fffNextBtn");
                 await Clients.Group(game.Id).StartFastestFinger(round.Question.Answers);
                 await Clients.Clients(round.GetPlayerIds()).EnableFastestFingerAnswering();
@@ -357,6 +363,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal })
         {
+            await Clients.Group(game.Id).SetBackground(1);
+
             var players = ((FastestFingerFirst)game.Round!).GetPlayerIds();
             await Clients.Clients(players).DisableFastestFingerAnswering();
 
@@ -439,6 +447,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.ResultsReveal } round)
         {
             var winners = round.GetWinners();
+
+            if (winners.Count > 0)
+                await Clients.Group(game.Id).SetBackground(0);
+
             foreach (var winner in winners)
                 await Clients.Group(game.Id).HighlightFastestFingerWinner(winner.ConnectionId);
 
@@ -461,6 +473,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Group(game.Id).PopulatePlayerList(players);
 
             // Reset UI
+            await Clients.Group(game.Id).SetBackground(3);
+
             await Clients.Group(game.Id).Hide("fffResultsPanel");
             await Clients.Group(game.Id).Hide("fffAnswerPanel");
             await Clients.Group(game.Id).Hide("fastestFingerPanels");

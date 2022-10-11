@@ -69,6 +69,10 @@ async function flash(id, flashCount = 5, delay = 150, startsOn = false, remainOn
     if (remainOn) element.classList.add(className);
 }
 
+function setBackground(imageNumber, useRedVariant) {
+    document.body.className = "bg-" + (useRedVariant ? "red-" : "") + imageNumber;
+}
+
 connection.on("Show", show);
 connection.on("Hide", hide);
 connection.on("SetText", setText);
@@ -76,3 +80,4 @@ connection.on("SetAnswerText", setAnswerText);
 connection.on("SetOnClick", setOnClick);
 connection.on("Lock", lock);
 connection.on("Unlock", unlock);
+connection.on("SetBackground", setBackground);
