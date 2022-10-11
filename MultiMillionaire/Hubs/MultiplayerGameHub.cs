@@ -190,6 +190,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Audience);
 
+        await Clients.Client(game.Host.ConnectionId).Unlock("playFastestFingerBtn");
+        await Clients.Client(game.Host.ConnectionId).Unlock("playMainGameBtn");
+
         await Clients.OthersInGroup(game.Id).PlayerJoined(user.ToViewModel());
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
         await JoinSuccessful(game);
@@ -227,6 +230,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await RemoveUserFromGame(user);
             if (user.Name != null) await Clients.Group(game.Id).PlayerLeft(user.ToViewModel());
+            if (game.Audience.Count < 1)
+            {
+                await Clients.Client(game.Host.ConnectionId).Lock("playFastestFingerBtn");
+                await Clients.Client(game.Host.ConnectionId).Lock("playMainGameBtn");
+            }
+
             await Clients.OthersInGroup(game.Id).Message($"{user.Name} has left the game.");
             await Clients.Caller.Message($"You have left game {game.Id}");
         }
