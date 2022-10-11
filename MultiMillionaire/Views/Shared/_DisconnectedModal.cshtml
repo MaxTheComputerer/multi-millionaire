@@ -1,0 +1,20 @@
+﻿<div class="modal fade" id="disconnectedModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content box">
+            <div class="modal-header">
+                <h2 class="modal-title">Disconnected</h2>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    You have been disconnected from the game. Refresh the page to try reconnecting, or return to the main menu.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <small-button onclick="window.location.reload()">Refresh</small-button>
+                <a asp-controller="Home" asp-action="Index">
+                    <small-button>Main menu</small-button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,14 +2,29 @@
 
 const connection = new signalR.HubConnectionBuilder().withUrl("/multiplayerHub").build();
 
-connection.on("Message", msg => console.log(msg));
+function startConnection() {
+    connection.start().then(() => {
+        console.log("Connected");
+        modals.joinGameModal.show();
+    }).catch(async () => {
+        await sleep(5000);
+        startConnection();
+    });
+}
 
-connection.start().then(() => {
-    console.log("Connected");
-    modals.joinGameModal.show();
-}).catch(err => {
-    return console.error(err.toString());
+startConnection();
+
+connection.onclose(err => {
+    if (err) {
+        console.log("Connection closed with error: " + err);
+    } else {
+        console.log("Disconnected");
+    }
+    removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+    modals.disconnectedModal.show();
 });
+
+connection.on("Message", msg => console.log(msg));
 
 const beforeUnloadListener = (event) => {
     event.preventDefault();
