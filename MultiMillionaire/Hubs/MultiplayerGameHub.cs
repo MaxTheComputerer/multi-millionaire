@@ -37,7 +37,8 @@ public interface IMultiplayerGameHub
     Task SelectAnswer(char letter);
     Task FlashCorrectAnswer(char letter);
     Task HighlightCorrectAnswer(char letter);
-    Task SetWinnings(string amount);
+    Task ShowWinnings(string amount);
+    Task HideWinnings();
     Task SetMoneyTree(int questionNumber);
     Task ResetAnswerBackgrounds();
 }
@@ -661,16 +662,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 return;
             }
 
-            await Clients.Group(game.Id).SetWinnings(round.GetWinnings());
-            await Clients.Group(game.Id).Hide("questionAndAnswers");
-            await Clients.Group(game.Id).Show("winnings");
+            await Clients.Group(game.Id).ShowWinnings(round.GetWinnings());
             await Task.Delay(round.QuestionNumber is 5 or 10 ? 5000 : 2000);
-
             await ResetQuestion();
-            await Clients.Group(game.Id).Hide("winnings");
-            await Clients.Group(game.Id).Show("questionAndAnswers");
+            await Clients.Group(game.Id).HideWinnings();
 
-            await Clients.Caller.SetOnClick("nextBtn", round.QuestionNumber < 5 ? "FetchNextQuestion" : "LetsPlay");
+            await LetsPlay();
             await Clients.Caller.Enable("nextBtn");
 
             round.FinishQuestion();
@@ -686,10 +683,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game == null) return;
 
         await Clients.Group(game.Id).SetText("question", "");
-        await Clients.Group(game.Id).SetAnswerText("answerA", "");
-        await Clients.Group(game.Id).SetAnswerText("answerB", "");
-        await Clients.Group(game.Id).SetAnswerText("answerC", "");
-        await Clients.Group(game.Id).SetAnswerText("answerD", "");
+        await Clients.Group(game.Id).SetAnswerText("answerA", "\u00a0");
+        await Clients.Group(game.Id).SetAnswerText("answerB", "\u00a0");
+        await Clients.Group(game.Id).SetAnswerText("answerC", "\u00a0");
+        await Clients.Group(game.Id).SetAnswerText("answerD", "\u00a0");
         await Clients.Group(game.Id).ResetAnswerBackgrounds();
     }
 

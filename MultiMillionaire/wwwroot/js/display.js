@@ -28,13 +28,13 @@ function hide(id) {
 
 function setText(id, text) {
     const element = document.getElementById(id);
-    element.innerText = text;
+    element.textContent = text;
 }
 
 function setAnswerText(id, text) {
     const element = document.getElementById(id).querySelector(".answer-text");
     element.style.visibility = "hidden";
-    element.innerText = text;
+    element.textContent = text;
     scaleToFit(element);
     element.style.visibility = "visible";
 }

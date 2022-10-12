@@ -4,7 +4,7 @@
         this.id = id;
         const gameIdElement = document.getElementById("gameId");
         if (gameIdElement) {
-            gameIdElement.innerText = `Game ID: ${game.id}`;
+            gameIdElement.textContent = `Game ID: ${game.id}`;
         }
     },
 
@@ -80,7 +80,7 @@
 
                     const element = document.getElementById("fastestFingerInput");
                     const inputs = element.querySelectorAll(".fff-answer-input span");
-                    const answerOrder = Array.from(inputs).map(i => i.innerText);
+                    const answerOrder = Array.from(inputs).map(i => i.textContent);
 
                     await connection.invoke("SubmitFastestFingerAnswer", answerOrder, duration);
                 }
@@ -90,8 +90,8 @@
                 const rowElement = document.getElementById(`fffAnswer${index}`);
                 const letterElement = rowElement.querySelector(".answer-letter");
                 const textElement = rowElement.querySelector(".answer-text");
-                letterElement.innerText = `${letter}:`;
-                textElement.innerText = answer;
+                letterElement.textContent = `${letter}:`;
+                textElement.textContent = answer;
                 rowElement.classList.add("fff-slide-in");
             },
 
@@ -108,7 +108,7 @@
                     const listElement = document.getElementById(`fff-results-list-element_${playerId}`);
                     const rightText = listElement.querySelector(".player-list-right");
                     listElement.classList.add("correct");
-                    rightText.innerText = correctPlayerTimes[playerId].toFixed(2);
+                    rightText.textContent = correctPlayerTimes[playerId].toFixed(2);
                     await sleep(250);
                 }
             },
@@ -126,8 +126,8 @@
                     const rowElement = document.getElementById(`fffAnswer${i}`);
                     const letterElement = rowElement.querySelector(".answer-letter");
                     const textElement = rowElement.querySelector(".answer-text");
-                    letterElement.innerText = "";
-                    textElement.innerText = "";
+                    letterElement.textContent = "";
+                    textElement.textContent = "";
                     rowElement.classList.remove("fff-slide-in");
                 }
             },
@@ -164,7 +164,7 @@
                     if (this.cursor > 0) {
                         const id = `fffInput${--this.cursor}`;
                         const element = document.getElementById(id);
-                        const letter = element.innerText;
+                        const letter = element.textContent;
                         setText(id, "\u{2002}");
                         enable(`answer${letter}`);
                     }
@@ -188,7 +188,7 @@
                 for (const player of players) {
                     const optionElement = document.createElement("option");
                     optionElement.value = player.connectionId;
-                    optionElement.innerText = player.name;
+                    optionElement.textContent = player.name;
                     choosePlayerSelect.appendChild(optionElement);
                 }
 
@@ -218,8 +218,6 @@
                 },
 
                 flashCorrect: async letter => {
-                    const answerElement = document.getElementById(`answer${letter}`);
-                    answerElement.classList.remove("selected");
                     await flash(`answer${letter}`);
                 },
 
@@ -231,9 +229,16 @@
                 }
             },
 
-            setWinnings: amount => {
+            showWinnings: amount => {
                 const winningsRow = document.getElementById("winnings");
-                winningsRow.querySelector(".winnings-text").innerText = amount;
+                winningsRow.querySelector(".winnings-text").textContent = amount;
+                hide("questionAndAnswers");
+                show("winnings", "flex");
+            },
+
+            hideWinnings: () => {
+                hide("winnings");
+                show("questionAndAnswers");
             },
 
             setMoneyTree: questionNumber => {
@@ -267,6 +272,7 @@ connection.on("DismissChoosePlayerModal", modals.choosePlayerModal.hide);
 connection.on("SelectAnswer", game.rounds.millionaire.answers.select);
 connection.on("HighlightCorrectAnswer", game.rounds.millionaire.answers.highlightCorrect);
 connection.on("FlashCorrectAnswer", game.rounds.millionaire.answers.flashCorrect);
-connection.on("SetWinnings", game.rounds.millionaire.setWinnings);
+connection.on("ShowWinnings", game.rounds.millionaire.showWinnings);
+connection.on("HideWinnings", game.rounds.millionaire.hideWinnings);
 connection.on("SetMoneyTree", game.rounds.millionaire.setMoneyTree);
 connection.on("ResetAnswerBackgrounds", game.rounds.millionaire.answers.resetBackgrounds);

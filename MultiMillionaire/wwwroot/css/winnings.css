@@ -7,6 +7,10 @@
     padding-right: 10%;
 }
 
+#winnings {
+    min-height: 216px;
+}
+
 .total-prize {
     background-image: url("../images/total_prize.png");
     background-size: 100% 100%;
@@ -26,7 +30,7 @@
     font-weight: bold;
     letter-spacing: .02em;
     text-shadow: 0 0 8px black;
-    color: var(--orange);
+    color: var(--light-orange);
 }
 
 .winnings-text {
