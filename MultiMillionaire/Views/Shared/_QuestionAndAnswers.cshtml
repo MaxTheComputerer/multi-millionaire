@@ -4,7 +4,7 @@
     {
         return ViewData["Role"] switch
         {
-            UserRole.Host => $"game.rounds.millionaire.submitAnswer('{letter}')",
+            UserRole.Host => $"game.rounds.millionaire.answers.submit('{letter}')",
             UserRole.Audience => $"game.rounds.fastestFinger.input.insert('{letter}')",
             UserRole.Spectator => "console.log('Not allowed')",
             _ => "console.log('Unrecognised user role')"

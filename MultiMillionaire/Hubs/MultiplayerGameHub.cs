@@ -34,6 +34,12 @@ public interface IMultiplayerGameHub
 
     Task NoNextPlayer(IEnumerable<UserViewModel> players);
     Task DismissChoosePlayerModal();
+    Task SelectAnswer(char letter);
+    Task FlashCorrectAnswer(char letter);
+    Task HighlightCorrectAnswer(char letter);
+    Task SetWinnings(string amount);
+    Task SetMoneyTree(int questionNumber);
+    Task ResetAnswerBackgrounds();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -501,11 +507,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Group(game.Id).Show("gameSetupPanels");
             await Clients.Caller.Show("hostMenu");
 
-            await Clients.Group(game.Id).SetText("question", "");
-            await Clients.Group(game.Id).SetAnswerText("answerA", "");
-            await Clients.Group(game.Id).SetAnswerText("answerB", "");
-            await Clients.Group(game.Id).SetAnswerText("answerC", "");
-            await Clients.Group(game.Id).SetAnswerText("answerD", "");
+            await ResetQuestion();
 
             await Clients.Group(game.Id).SetText("fffQuestion", "");
             await Clients.Group(game.Id).SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
@@ -616,12 +618,79 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound { Locked: false } round)
         {
             await Lock(round);
+            round.SubmittedAnswer = letter;
+            await Clients.Group(game.Id).SelectAnswer(letter);
+
             if (round.QuestionNumber <= 5)
             {
-                // reveal answer
+                await RevealAnswer();
             }
-            // final answer
+            else
+            {
+                var correctLetter = round.GetCurrentQuestion().CorrectLetter;
+                await Clients.Caller.HighlightCorrectAnswer(correctLetter);
+                await Clients.Caller.SetOnClick("nextBtn", "RevealAnswer");
+                await Clients.Caller.Enable("nextBtn");
+            }
         }
+    }
+
+    public async Task RevealAnswer()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            var correctLetter = round.GetCurrentQuestion().CorrectLetter;
+            await Clients.Group(game.Id).FlashCorrectAnswer(correctLetter);
+
+            if (round.SubmittedAnswer == correctLetter) await CorrectAnswer();
+        }
+    }
+
+    private async Task CorrectAnswer()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            await Task.Delay(3000);
+            await Clients.Group(game.Id).SetMoneyTree(round.QuestionNumber);
+
+            if (round.QuestionNumber == 15)
+            {
+                await Clients.Caller.Message("win");
+                return;
+            }
+
+            await Clients.Group(game.Id).SetWinnings(round.GetWinnings());
+            await Clients.Group(game.Id).Hide("questionAndAnswers");
+            await Clients.Group(game.Id).Show("winnings");
+            await Task.Delay(round.QuestionNumber is 5 or 10 ? 5000 : 2000);
+
+            await ResetQuestion();
+            await Clients.Group(game.Id).Hide("winnings");
+            await Clients.Group(game.Id).Show("questionAndAnswers");
+
+            await Clients.Caller.SetOnClick("nextBtn", round.QuestionNumber < 5 ? "FetchNextQuestion" : "LetsPlay");
+            await Clients.Caller.Enable("nextBtn");
+
+            round.FinishQuestion();
+
+            await Clients.Group(game.Id).SetText("questionsAway", round.GetQuestionsAway().ToString());
+            await Clients.Group(game.Id).SetText("unsafeAmount", round.GetUnsafeAmount());
+        }
+    }
+
+    private async Task ResetQuestion()
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        await Clients.Group(game.Id).SetText("question", "");
+        await Clients.Group(game.Id).SetAnswerText("answerA", "");
+        await Clients.Group(game.Id).SetAnswerText("answerB", "");
+        await Clients.Group(game.Id).SetAnswerText("answerC", "");
+        await Clients.Group(game.Id).SetAnswerText("answerD", "");
+        await Clients.Group(game.Id).ResetAnswerBackgrounds();
     }
 
     #endregion

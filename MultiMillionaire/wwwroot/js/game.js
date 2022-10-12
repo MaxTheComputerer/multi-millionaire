@@ -204,7 +204,47 @@
 
             letsPlay: async () => await connection.invoke("LetsPlay"),
 
-            submitAnswer: async letter => await connection.invoke("SubmitAnswer", letter)
+            answers: {
+                submit: async letter => await connection.invoke("SubmitAnswer", letter),
+
+                select: letter => {
+                    const answerElement = document.getElementById(`answer${letter}`);
+                    answerElement.classList.add("selected");
+                },
+
+                highlightCorrect: async letter => {
+                    const answerElement = document.getElementById(`answer${letter}`);
+                    answerElement.classList.add("correct");
+                },
+
+                flashCorrect: async letter => {
+                    const answerElement = document.getElementById(`answer${letter}`);
+                    answerElement.classList.remove("selected");
+                    await flash(`answer${letter}`);
+                },
+
+                resetBackgrounds: () => {
+                    ["answerA", "answerB", "answerC", "answerD"].forEach(id => {
+                        const element = document.getElementById(id);
+                        element.classList.remove("correct", "selected");
+                    })
+                }
+            },
+
+            setWinnings: amount => {
+                const winningsRow = document.getElementById("winnings");
+                winningsRow.querySelector(".winnings-text").innerText = amount;
+            },
+
+            setMoneyTree: questionNumber => {
+                if (questionNumber > 1) {
+                    const previousRow = document.getElementById(`tree-${questionNumber - 1}`);
+                    previousRow.classList.remove("tree-selected");
+                }
+
+                const currentRow = document.getElementById(`tree-${questionNumber}`);
+                currentRow.classList.add("tree-selected");
+            }
         }
     }
 }
@@ -224,3 +264,9 @@ connection.on("ResetFastestFinger", game.rounds.fastestFinger.reset.bind(game.ro
 
 connection.on("NoNextPlayer", game.rounds.millionaire.noNextPlayer);
 connection.on("DismissChoosePlayerModal", modals.choosePlayerModal.hide);
+connection.on("SelectAnswer", game.rounds.millionaire.answers.select);
+connection.on("HighlightCorrectAnswer", game.rounds.millionaire.answers.highlightCorrect);
+connection.on("FlashCorrectAnswer", game.rounds.millionaire.answers.flashCorrect);
+connection.on("SetWinnings", game.rounds.millionaire.setWinnings);
+connection.on("SetMoneyTree", game.rounds.millionaire.setMoneyTree);
+connection.on("ResetAnswerBackgrounds", game.rounds.millionaire.answers.resetBackgrounds);

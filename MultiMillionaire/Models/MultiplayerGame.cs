@@ -45,7 +45,7 @@ public class MultiplayerGame
         Round = new MillionaireRound
         {
             Player = NextPlayer,
-            Questions = QuestionBank.GenerateQuestionBank()
+            QuestionBank = QuestionBank.GenerateQuestionBank()
         };
     }
 

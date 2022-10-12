@@ -94,6 +94,10 @@ body.bg-red-2 {
     color: white;
 }
 
+#playFastestFingerBtn.disabled span, #playMainGameBtn.disabled span {
+    opacity: 0.5;
+}
+
 
 /* Logo */
 
