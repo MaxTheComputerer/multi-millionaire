@@ -7,6 +7,7 @@ public class MillionaireRound : GameRound
     public int QuestionNumber { get; set; } = 1;
     public char? SubmittedAnswer { get; set; }
     public bool Locked { get; set; } = true;
+    public bool HasWalkedAway { get; set; }
 
     public int GetBackgroundNumber()
     {
@@ -37,6 +38,17 @@ public class MillionaireRound : GameRound
     public int GetQuestionsAway()
     {
         return 16 - QuestionNumber;
+    }
+
+    public string GetTotalPrize()
+    {
+        if (HasWalkedAway) return GetValueFromQuestionNumber(QuestionNumber - 1);
+        return QuestionNumber switch
+        {
+            > 10 => "£32,000",
+            > 5 => "£1,000",
+            _ => "£0"
+        };
     }
 
     public string GetUnsafeAmount()

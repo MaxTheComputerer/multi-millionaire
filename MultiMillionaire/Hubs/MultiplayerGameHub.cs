@@ -41,6 +41,7 @@ public interface IMultiplayerGameHub
     Task HideWinnings();
     Task SetMoneyTree(int questionNumber);
     Task ResetAnswerBackgrounds();
+    Task ShowTotalPrize(string amount);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -616,23 +617,37 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task SubmitAnswer(char letter)
     {
         var game = GetCurrentGame();
-        if (game?.Round is MillionaireRound { Locked: false } round)
+        if (game?.Round is MillionaireRound round)
+        {
+            await SelectAnswer(letter);
+
+            if (round.QuestionNumber > 5 || round.HasWalkedAway)
+                await ShowHostCorrectAnswer();
+            else
+                await RevealAnswer();
+        }
+    }
+
+    private async Task SelectAnswer(char letter)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
         {
             await Lock(round);
             round.SubmittedAnswer = letter;
             await Clients.Group(game.Id).SelectAnswer(letter);
+        }
+    }
 
-            if (round.QuestionNumber <= 5)
-            {
-                await RevealAnswer();
-            }
-            else
-            {
-                var correctLetter = round.GetCurrentQuestion().CorrectLetter;
-                await Clients.Caller.HighlightCorrectAnswer(correctLetter);
-                await Clients.Caller.SetOnClick("nextBtn", "RevealAnswer");
-                await Clients.Caller.Enable("nextBtn");
-            }
+    private async Task ShowHostCorrectAnswer()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            var correctLetter = round.GetCurrentQuestion().CorrectLetter;
+            await Clients.Caller.HighlightCorrectAnswer(correctLetter);
+            await Clients.Caller.SetOnClick("nextBtn", "RevealAnswer");
+            await Clients.Caller.Enable("nextBtn");
         }
     }
 
@@ -641,10 +656,24 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
+            await Clients.Caller.Disable("nextBtn");
+
             var correctLetter = round.GetCurrentQuestion().CorrectLetter;
             await Clients.Group(game.Id).FlashCorrectAnswer(correctLetter);
+            if (round.QuestionNumber >= 5) await Clients.Group(game.Id).SetBackground(0);
 
-            if (round.SubmittedAnswer == correctLetter) await CorrectAnswer();
+            if (round.HasWalkedAway)
+            {
+                await Clients.Caller.SetOnClick("nextBtn", "GameOver");
+                await Clients.Caller.Enable("nextBtn");
+            }
+            else
+            {
+                if (round.SubmittedAnswer == correctLetter)
+                    await CorrectAnswer();
+                else
+                    await WrongAnswer();
+            }
         }
     }
 
@@ -667,14 +696,23 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await ResetQuestion();
             await Clients.Group(game.Id).HideWinnings();
 
+            round.FinishQuestion();
+
             await LetsPlay();
             await Clients.Caller.Enable("nextBtn");
 
-            round.FinishQuestion();
-
+            await Clients.Group(game.Id).SetText("questionNumber", round.QuestionNumber.ToString());
             await Clients.Group(game.Id).SetText("questionsAway", round.GetQuestionsAway().ToString());
             await Clients.Group(game.Id).SetText("unsafeAmount", round.GetUnsafeAmount());
         }
+    }
+
+    private async Task WrongAnswer()
+    {
+        await Clients.Caller.Message("wrong answer");
+
+        await Clients.Caller.SetOnClick("nextBtn", "GameOver");
+        await Clients.Caller.Enable("nextBtn");
     }
 
     private async Task ResetQuestion()
@@ -688,6 +726,30 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Clients.Group(game.Id).SetAnswerText("answerC", "\u00a0");
         await Clients.Group(game.Id).SetAnswerText("answerD", "\u00a0");
         await Clients.Group(game.Id).ResetAnswerBackgrounds();
+    }
+
+    public async Task WalkAway()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: false } round)
+        {
+            await Lock(round);
+            round.HasWalkedAway = true;
+            foreach (var id in new List<string> { "answerA", "answerB", "answerC", "answerD" })
+                await Clients.Caller.Enable(id);
+            await Clients.Group(game.Id).SetBackground(0);
+        }
+    }
+
+    public async Task GameOver()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+        {
+            await Clients.Group(game.Id).SetBackground(3);
+            await Clients.Group(game.Id).ShowTotalPrize(round.GetTotalPrize());
+            await Clients.Caller.SetOnClick("nextBtn", "EndMainGameRound");
+        }
     }
 
     #endregion

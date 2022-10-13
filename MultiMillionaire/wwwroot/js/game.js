@@ -241,6 +241,13 @@
                 show("questionAndAnswers");
             },
 
+            showTotalPrize: amount => {
+                const prizeRow = document.getElementById("totalPrize");
+                prizeRow.querySelector(".total-prize-text").textContent = amount;
+                hide("questionAndAnswers");
+                show("totalPrize", "flex");
+            },
+
             setMoneyTree: questionNumber => {
                 if (questionNumber > 1) {
                     const previousRow = document.getElementById(`tree-${questionNumber - 1}`);
@@ -249,7 +256,9 @@
 
                 const currentRow = document.getElementById(`tree-${questionNumber}`);
                 currentRow.classList.add("tree-selected");
-            }
+            },
+
+            walkAway: async () => await connection.invoke("WalkAway")
         }
     }
 }
@@ -274,5 +283,6 @@ connection.on("HighlightCorrectAnswer", game.rounds.millionaire.answers.highligh
 connection.on("FlashCorrectAnswer", game.rounds.millionaire.answers.flashCorrect);
 connection.on("ShowWinnings", game.rounds.millionaire.showWinnings);
 connection.on("HideWinnings", game.rounds.millionaire.hideWinnings);
+connection.on("ShowTotalPrize", game.rounds.millionaire.showTotalPrize);
 connection.on("SetMoneyTree", game.rounds.millionaire.setMoneyTree);
 connection.on("ResetAnswerBackgrounds", game.rounds.millionaire.answers.resetBackgrounds);
