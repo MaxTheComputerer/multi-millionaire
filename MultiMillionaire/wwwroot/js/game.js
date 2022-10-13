@@ -229,23 +229,34 @@
                 }
             },
 
-            showWinnings: amount => {
-                const winningsRow = document.getElementById("winnings");
-                winningsRow.querySelector(".winnings-text").textContent = amount;
-                hide("questionAndAnswers");
-                show("winnings", "flex");
-            },
+            banners: {
+                winnings: {
+                    show: amount => {
+                        const winningsRow = document.getElementById("winnings");
+                        winningsRow.querySelector(".winnings-text").textContent = amount;
+                        hide("questionAndAnswers");
+                        show("winnings", "flex");
+                    },
 
-            hideWinnings: () => {
-                hide("winnings");
-                show("questionAndAnswers");
-            },
+                    hide: () => {
+                        hide("winnings");
+                        show("questionAndAnswers");
+                    },
+                },
 
-            showTotalPrize: amount => {
-                const prizeRow = document.getElementById("totalPrize");
-                prizeRow.querySelector(".total-prize-text").textContent = amount;
-                hide("questionAndAnswers");
-                show("totalPrize", "flex");
+                showTotalPrize: amount => {
+                    const prizeRow = document.getElementById("totalPrize");
+                    prizeRow.querySelector(".total-prize-text").textContent = amount;
+                    hide("questionAndAnswers");
+                    show("totalPrize", "flex");
+                },
+
+                showMillionaire: name => {
+                    const prizeRow = document.getElementById("millionairePrize");
+                    prizeRow.querySelector(".millionaire-prize-text").textContent = name.toUpperCase();
+                    hide("questionAndAnswers");
+                    show("millionairePrize", "flex");
+                }
             },
 
             setMoneyTree: questionNumber => {
@@ -281,8 +292,9 @@ connection.on("DismissChoosePlayerModal", modals.choosePlayerModal.hide);
 connection.on("SelectAnswer", game.rounds.millionaire.answers.select);
 connection.on("HighlightCorrectAnswer", game.rounds.millionaire.answers.highlightCorrect);
 connection.on("FlashCorrectAnswer", game.rounds.millionaire.answers.flashCorrect);
-connection.on("ShowWinnings", game.rounds.millionaire.showWinnings);
-connection.on("HideWinnings", game.rounds.millionaire.hideWinnings);
-connection.on("ShowTotalPrize", game.rounds.millionaire.showTotalPrize);
+connection.on("ShowWinnings", game.rounds.millionaire.banners.winnings.show);
+connection.on("HideWinnings", game.rounds.millionaire.banners.winnings.hide);
+connection.on("ShowTotalPrize", game.rounds.millionaire.banners.showTotalPrize);
+connection.on("ShowMillionaireBanner", game.rounds.millionaire.banners.showMillionaire);
 connection.on("SetMoneyTree", game.rounds.millionaire.setMoneyTree);
 connection.on("ResetAnswerBackgrounds", game.rounds.millionaire.answers.resetBackgrounds);

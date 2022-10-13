@@ -42,6 +42,7 @@ public interface IMultiplayerGameHub
     Task SetMoneyTree(int questionNumber);
     Task ResetAnswerBackgrounds();
     Task ShowTotalPrize(string amount);
+    Task ShowMillionaireBanner(string playerName);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -687,7 +688,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             if (round.QuestionNumber == 15)
             {
-                await Clients.Caller.Message("win");
+                await Win();
                 return;
             }
 
@@ -749,6 +750,19 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Group(game.Id).SetBackground(3);
             await Clients.Group(game.Id).ShowTotalPrize(round.GetTotalPrize());
             await Clients.Caller.SetOnClick("nextBtn", "EndMainGameRound");
+        }
+    }
+
+    private async Task Win()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { QuestionNumber: 15 } round)
+        {
+            await Clients.Group(game.Id).ShowMillionaireBanner(round.Player?.Name ?? "");
+            await Clients.Caller.SetOnClick("nextBtn", "EndMainGameRound");
+            await Task.Delay(21000);
+            await Clients.Caller.Enable("nextBtn");
+            await Clients.Group(game.Id).SetBackground(3);
         }
     }
 
