@@ -53,4 +53,9 @@ public class MultiplayerGame
     {
         Round = null;
     }
+
+    public void SaveScore(User player, int score)
+    {
+        Scores[player] = score;
+    }
 }

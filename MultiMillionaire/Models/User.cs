@@ -15,9 +15,10 @@ public class User
     public MultiplayerGame? Game { get; set; }
     public UserRole? Role { get; set; }
 
-    public string GetScore()
+    private string GetScore()
     {
-        return MillionaireRound.GetValueFromQuestionNumber(Game?.Scores.GetValueOrDefault(this));
+        if (Game == null || !Game.Scores.ContainsKey(this)) return "";
+        return MillionaireRound.FormatValueAsString(Game.Scores[this]);
     }
 
     public UserViewModel ToViewModel()

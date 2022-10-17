@@ -259,14 +259,21 @@
                 }
             },
 
-            setMoneyTree: questionNumber => {
-                if (questionNumber > 1) {
-                    const previousRow = document.getElementById(`tree-${questionNumber - 1}`);
-                    previousRow.classList.remove("tree-selected");
-                }
+            moneyTree: {
+                set: questionNumber => {
+                    if (questionNumber > 1) {
+                        const previousRow = document.getElementById(`tree-${questionNumber - 1}`);
+                        previousRow.classList.remove("tree-selected");
+                    }
 
-                const currentRow = document.getElementById(`tree-${questionNumber}`);
-                currentRow.classList.add("tree-selected");
+                    const currentRow = document.getElementById(`tree-${questionNumber}`);
+                    currentRow.classList.add("tree-selected");
+                },
+
+                reset: () => {
+                    const elements = document.querySelectorAll(".tree-selected");
+                    elements.forEach(e => e.classList.remove("tree-selected"));
+                }
             },
 
             walkAway: async () => await connection.invoke("WalkAway")
@@ -296,5 +303,6 @@ connection.on("ShowWinnings", game.rounds.millionaire.banners.winnings.show);
 connection.on("HideWinnings", game.rounds.millionaire.banners.winnings.hide);
 connection.on("ShowTotalPrize", game.rounds.millionaire.banners.showTotalPrize);
 connection.on("ShowMillionaireBanner", game.rounds.millionaire.banners.showMillionaire);
-connection.on("SetMoneyTree", game.rounds.millionaire.setMoneyTree);
+connection.on("SetMoneyTree", game.rounds.millionaire.moneyTree.set);
+connection.on("ResetMoneyTree", game.rounds.millionaire.moneyTree.reset);
 connection.on("ResetAnswerBackgrounds", game.rounds.millionaire.answers.resetBackgrounds);

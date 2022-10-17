@@ -40,6 +40,7 @@ public interface IMultiplayerGameHub
     Task ShowWinnings(string amount);
     Task HideWinnings();
     Task SetMoneyTree(int questionNumber);
+    Task ResetMoneyTree();
     Task ResetAnswerBackgrounds();
     Task ShowTotalPrize(string amount);
     Task ShowMillionaireBanner(string playerName);
@@ -748,7 +749,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             await Clients.Group(game.Id).SetBackground(3);
-            await Clients.Group(game.Id).ShowTotalPrize(round.GetTotalPrize());
+            await Clients.Group(game.Id).ShowTotalPrize(round.GetTotalPrizeString());
             await Clients.Caller.SetOnClick("nextBtn", "EndMainGameRound");
         }
     }
@@ -760,9 +761,44 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             await Clients.Group(game.Id).ShowMillionaireBanner(round.Player?.Name ?? "");
             await Clients.Caller.SetOnClick("nextBtn", "EndMainGameRound");
-            await Task.Delay(21000);
             await Clients.Caller.Enable("nextBtn");
+            await Task.Delay(21000);
             await Clients.Group(game.Id).SetBackground(3);
+        }
+    }
+
+    private async Task ResetStatusBox()
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+        await Clients.Group(game.Id).SetText("questionNumber", "1");
+        await Clients.Group(game.Id).SetText("questionsAway", "15");
+        await Clients.Group(game.Id).SetText("unsafeAmount", "£0");
+    }
+
+    public async Task EndMainGameRound()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Player: { } } round)
+        {
+            game.SaveScore(round.Player!, round.GetTotalPrize());
+            game.ResetRound();
+            game.NextPlayer = null;
+
+            var players = game.GetPlayers().Select(u => u.ToViewModel()).ToList();
+            await Clients.Group(game.Id).PopulatePlayerList(players);
+
+            await Clients.Group(game.Id).Hide("mainGamePanels");
+            await Clients.Group(game.Id).Show("gameSetupPanels");
+            await Clients.Caller.Show("hostMenu");
+
+            await ResetQuestion();
+            await ResetStatusBox();
+
+            await Clients.Group(game.Id).ResetMoneyTree();
+            await Clients.Caller.SetOnClick("nextBtn", "LetsPlay");
+            await Clients.Group(game.Id).Hide("totalPrize");
+            await Clients.Group(game.Id).Hide("millionairePrize");
         }
     }
 

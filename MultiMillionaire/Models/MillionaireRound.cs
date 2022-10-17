@@ -26,7 +26,7 @@ public class MillionaireRound : GameRound
 
     public string GetWinnings()
     {
-        return GetValueFromQuestionNumber(QuestionNumber);
+        return GetValueStringFromQuestionNumber(QuestionNumber);
     }
 
     public void FinishQuestion()
@@ -40,15 +40,20 @@ public class MillionaireRound : GameRound
         return 16 - QuestionNumber;
     }
 
-    public string GetTotalPrize()
+    public int GetTotalPrize()
     {
         if (HasWalkedAway) return GetValueFromQuestionNumber(QuestionNumber - 1);
         return QuestionNumber switch
         {
-            > 10 => "£32,000",
-            > 5 => "£1,000",
-            _ => "£0"
+            > 10 => 32000,
+            > 5 => 1000,
+            _ => 0
         };
+    }
+
+    public string GetTotalPrizeString()
+    {
+        return FormatValueAsString(GetTotalPrize());
     }
 
     public string GetUnsafeAmount()
@@ -74,26 +79,55 @@ public class MillionaireRound : GameRound
         };
     }
 
-    public static string GetValueFromQuestionNumber(int? questionNumber)
+    public static string GetValueStringFromQuestionNumber(int? questionNumber)
+    {
+        return FormatValueAsString(GetValueFromQuestionNumber(questionNumber));
+    }
+
+    public static string FormatValueAsString(int? value)
+    {
+        return value switch
+        {
+            0 => "£0",
+            100 => "£100",
+            200 => "£200",
+            300 => "£300",
+            500 => "£500",
+            1000 => "£1,000",
+            2000 => "£2,000",
+            4000 => "£4,000",
+            8000 => "£8,000",
+            16000 => "£16,000",
+            32000 => "£32,000",
+            64000 => "£64,000",
+            125000 => "£125,000",
+            250000 => "£250,000",
+            500000 => "£500,000",
+            1000000 => "£1 MILLION",
+            _ => ""
+        };
+    }
+
+    public static int GetValueFromQuestionNumber(int? questionNumber)
     {
         return questionNumber switch
         {
-            1 => "£100",
-            2 => "£200",
-            3 => "£300",
-            4 => "£500",
-            5 => "£1,000",
-            6 => "£2,000",
-            7 => "£4,000",
-            8 => "£8,000",
-            9 => "£16,000",
-            10 => "£32,000",
-            11 => "£64,000",
-            12 => "£125,000",
-            13 => "£250,000",
-            14 => "£500,000",
-            15 => "£1 MILLION",
-            _ => ""
+            1 => 100,
+            2 => 200,
+            3 => 300,
+            4 => 500,
+            5 => 1000,
+            6 => 2000,
+            7 => 4000,
+            8 => 8000,
+            9 => 16000,
+            10 => 32000,
+            11 => 64000,
+            12 => 125000,
+            13 => 250000,
+            14 => 500000,
+            15 => 1000000,
+            _ => 0
         };
     }
 }
