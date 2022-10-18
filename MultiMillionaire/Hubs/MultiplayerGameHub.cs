@@ -575,11 +575,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var player = (game.Round as MillionaireRound)!.Player;
         await Host(game).SetText("contestantName", player!.Name!);
 
+        await Spectators(game).Show("moneyTreePanel");
         await Clients.Group(game.Id).Hide("gameSetupPanels");
         await Clients.Group(game.Id).Show("mainGamePanels", "flex");
 
         await Host(game).Hide("hostMenu");
-        await Clients.Group(game.Id).Show("questionAndAnswers");
+        await Spectators(game).Show("questionAndAnswers");
     }
 
     public async Task LetsPlay()
@@ -597,7 +598,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await Clients.Group(game.Id).SetText("question", round.GetCurrentQuestion().Question);
+            await Spectators(game).SetText("question", round.GetCurrentQuestion().Question);
             await Host(game).SetOnClick("nextBtn", "FetchAnswer", 'A');
         }
     }
@@ -620,7 +621,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             var question = round.GetCurrentQuestion();
-            await Clients.Group(game.Id).SetAnswerText($"answer{letter}", question.Answers[letter]);
+            await Spectators(game).SetAnswerText($"answer{letter}", question.Answers[letter]);
             if (letter == 'D')
             {
                 await Host(game).Disable("nextBtn");
@@ -654,7 +655,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             await Lock(round);
             round.SubmittedAnswer = letter;
-            await Clients.Group(game.Id).SelectAnswer(letter);
+            await Spectators(game).SelectAnswer(letter);
         }
     }
 
@@ -678,7 +679,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Host(game).Disable("nextBtn");
 
             var correctLetter = round.GetCurrentQuestion().CorrectLetter;
-            await Clients.Group(game.Id).FlashCorrectAnswer(correctLetter);
+            await Spectators(game).FlashCorrectAnswer(correctLetter);
             if (round.QuestionNumber >= 5) await Clients.Group(game.Id).SetBackground(0);
 
             if (round.HasWalkedAway)
@@ -702,7 +703,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             await Task.Delay(3000);
-            await Clients.Group(game.Id).SetMoneyTree(round.QuestionNumber);
+            await Spectators(game).SetMoneyTree(round.QuestionNumber);
 
             if (round.QuestionNumber == 15)
             {
@@ -710,19 +711,19 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 return;
             }
 
-            await Clients.Group(game.Id).ShowWinnings(round.GetWinnings());
+            await Spectators(game).ShowWinnings(round.GetWinnings());
             await Task.Delay(round.QuestionNumber is 5 or 10 ? 5000 : 2000);
             await ResetQuestion();
-            await Clients.Group(game.Id).HideWinnings();
+            await Spectators(game).HideWinnings();
 
             round.FinishQuestion();
 
             await LetsPlay();
             await Host(game).Enable("nextBtn");
 
-            await Clients.Group(game.Id).SetText("questionNumber", round.QuestionNumber.ToString());
-            await Clients.Group(game.Id).SetText("questionsAway", round.GetQuestionsAway().ToString());
-            await Clients.Group(game.Id).SetText("unsafeAmount", round.GetUnsafeAmount());
+            await Host(game).SetText("questionNumber", round.QuestionNumber.ToString());
+            await Host(game).SetText("questionsAway", round.GetQuestionsAway().ToString());
+            await Host(game).SetText("unsafeAmount", round.GetUnsafeAmount());
         }
     }
 
@@ -769,7 +770,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             await Clients.Group(game.Id).SetBackground(3);
-            await Clients.Group(game.Id).ShowTotalPrize(round.GetTotalPrizeString());
+            await Spectators(game).ShowTotalPrize(round.GetTotalPrizeString());
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
         }
     }
@@ -779,7 +780,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound { QuestionNumber: 15 } round)
         {
-            await Clients.Group(game.Id).ShowMillionaireBanner(round.Player?.Name ?? "");
+            await Spectators(game).ShowMillionaireBanner(round.Player?.Name ?? "");
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
             await Host(game).Enable("nextBtn");
             await Task.Delay(21000);
@@ -791,9 +792,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     {
         var game = GetCurrentGame();
         if (game == null) return;
-        await Clients.Group(game.Id).SetText("questionNumber", "1");
-        await Clients.Group(game.Id).SetText("questionsAway", "15");
-        await Clients.Group(game.Id).SetText("unsafeAmount", "£0");
+        await Host(game).SetText("questionNumber", "1");
+        await Host(game).SetText("questionsAway", "15");
+        await Host(game).SetText("unsafeAmount", "£0");
     }
 
     public async Task EndMainGameRound()
@@ -815,10 +816,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await ResetQuestion();
             await ResetStatusBox();
 
-            await Clients.Group(game.Id).ResetMoneyTree();
+            await Spectators(game).ResetMoneyTree();
             await Host(game).SetOnClick("nextBtn", "LetsPlay");
-            await Clients.Group(game.Id).Hide("totalPrize");
-            await Clients.Group(game.Id).Hide("millionairePrize");
+            await Spectators(game).Hide("totalPrize");
+            await Spectators(game).Hide("millionairePrize");
+            await Spectators(game).Hide("moneyTreePanel");
         }
     }
 
