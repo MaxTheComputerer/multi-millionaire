@@ -2,6 +2,10 @@
     <div class="box p-3 lh-base mb-4">
         <h2 class="mb-3">Settings</h2>
         <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="audienceAreSpectators" onchange="settings.updateSwitchSetting('audienceAreSpectators')" checked>
+            <label class="form-check-label" for="audienceAreSpectators">Audience are also spectators</label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="muteHostSound" onchange="settings.updateSwitchSetting('muteHostSound')" checked>
             <label class="form-check-label" for="muteHostSound">Mute sound for host</label>
         </div>

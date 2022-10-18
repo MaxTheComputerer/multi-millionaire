@@ -31,13 +31,14 @@ public class MultiplayerGame
         return Round == null && Audience.Count > 0;
     }
 
-    public void SetupFastestFingerRound()
+    public FastestFingerFirst SetupFastestFingerRound()
     {
         Round = new FastestFingerFirst
         {
             Players = GetNotPlayedPlayers().ToList(),
             Question = OrderQuestion.GenerateQuestion()
         };
+        return (FastestFingerFirst)Round;
     }
 
     public void SetupMillionaireRound()
