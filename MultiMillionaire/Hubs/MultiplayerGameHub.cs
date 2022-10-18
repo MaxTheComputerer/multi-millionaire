@@ -257,6 +257,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         await Clients.OthersInGroup(game.Id).PlayerJoined(user.ToViewModel());
         await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
+        await SynchroniseView(game);
         await JoinSuccessful(game);
     }
 
@@ -277,6 +278,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         // Join game
         await LeaveGame();
         await AddUserToGame(user, game, UserRole.Spectator);
+        await SynchroniseView(game);
         await JoinSuccessful(game);
     }
 
@@ -322,6 +324,94 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var players = game.GetPlayers().Select(u => u.ToViewModel());
         await Clients.Caller.PopulatePlayerList(players);
         await Clients.Caller.JoinSuccessful(game.Id);
+    }
+
+    private async Task SynchroniseView(MultiplayerGame game)
+    {
+        switch (game.Round)
+        {
+            case MillionaireRound round:
+            {
+                await SynchroniseMillionaireRoundView(game, round);
+                break;
+            }
+            case FastestFingerFirst round:
+                await SynchroniseFastestFingerRoundView(game, round);
+                break;
+        }
+    }
+
+    private async Task SynchroniseMillionaireRoundView(MultiplayerGame game, MillionaireRound round)
+    {
+        var user = GetCurrentUser();
+        if (user?.Role is UserRole.Spectator ||
+            (user?.Role is UserRole.Audience && game.Settings.AudienceAreSpectators))
+        {
+            if (round.QuestionNumber > 1) await Clients.Caller.SetMoneyTree(round.QuestionNumber - 1);
+            await Clients.Caller.SetText("question", round.GetCurrentQuestion().Question);
+            await Clients.Caller.SetAnswerText("answerA", round.GetCurrentQuestion().Answers['A']);
+            await Clients.Caller.SetAnswerText("answerB", round.GetCurrentQuestion().Answers['B']);
+            await Clients.Caller.SetAnswerText("answerC", round.GetCurrentQuestion().Answers['C']);
+            await Clients.Caller.SetAnswerText("answerD", round.GetCurrentQuestion().Answers['D']);
+            await Clients.Caller.Show("moneyTreePanel");
+            await Clients.Caller.Show("questionAndAnswers");
+        }
+
+        await Clients.Caller.SetBackground(round.GetBackgroundNumber());
+        await Clients.Caller.Hide("gameSetupPanels");
+        await Clients.Caller.Show("mainGamePanels", "flex");
+    }
+
+    private async Task SynchroniseFastestFingerRoundView(MultiplayerGame game, FastestFingerFirst round)
+    {
+        var user = GetCurrentUser();
+        if (user?.Role is UserRole.Spectator ||
+            (user?.Role is UserRole.Audience && game.Settings.AudienceAreSpectators))
+        {
+            switch (round.State)
+            {
+                case FastestFingerFirst.RoundState.InProgress:
+                    await Clients.Caller.SetText("question", round.Question?.Question ?? "");
+                    await Clients.Caller.SetAnswerText("answerA", round.Question?.Answers['A'] ?? "");
+                    await Clients.Caller.SetAnswerText("answerB", round.Question?.Answers['B'] ?? "");
+                    await Clients.Caller.SetAnswerText("answerC", round.Question?.Answers['C'] ?? "");
+                    await Clients.Caller.SetAnswerText("answerD", round.Question?.Answers['D'] ?? "");
+                    await Clients.Caller.Show("questionAndAnswers");
+                    await Clients.Caller.SetBackground(0, true);
+                    break;
+                case FastestFingerFirst.RoundState.AnswerReveal or FastestFingerFirst.RoundState.ResultsReveal:
+                {
+                    for (var i = 0; i < 4; i++)
+                    {
+                        var letter = round.Question!.CorrectOrder[i];
+                        var answer = round.Question.Answers[letter];
+                        await Clients.Caller.ShowFastestFingerAnswer(i, letter, answer);
+                    }
+
+                    await Clients.Caller.Show("fffAnswerPanel");
+
+                    if (round.State is FastestFingerFirst.RoundState.ResultsReveal)
+                    {
+                        await Clients.Caller
+                            .PopulateFastestFingerResults(round.Players.Select(u => u.ToViewModel())
+                                .OrderBy(u => u.Name));
+                        await Clients.Caller.Show("fffResultsPanel", "flex");
+                        await Clients.Caller.Hide("fffDefaultPanel");
+                    }
+
+                    await Clients.Caller.SetBackground(1);
+                    break;
+                }
+                default:
+                    await Clients.Caller.SetBackground(1, true);
+                    break;
+            }
+
+            await Clients.Caller.SetText("fffQuestion", round.Question?.Question ?? "");
+        }
+
+        await Clients.Caller.Hide("gameSetupPanels");
+        await Clients.Caller.Show("fastestFingerPanels", "flex");
     }
 
     #endregion
