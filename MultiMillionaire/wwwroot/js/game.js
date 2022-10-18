@@ -118,7 +118,6 @@
             },
 
             reset: function () {
-                this.input.reset();
                 const resultsPanel = document.getElementById("fffResultsPanel");
                 resultsPanel.replaceChildren();
 
@@ -174,6 +173,7 @@
                     while (this.cursor > 0) {
                         this.delete();
                     }
+                    this.lock();
                 }
             }
         },
@@ -293,6 +293,7 @@ connection.on("PopulateFastestFingerResults", game.rounds.fastestFinger.populate
 connection.on("RevealCorrectFastestFingerPlayers", game.rounds.fastestFinger.revealCorrectPlayers);
 connection.on("HighlightFastestFingerWinner", game.rounds.fastestFinger.highlightWinner);
 connection.on("ResetFastestFinger", game.rounds.fastestFinger.reset.bind(game.rounds.fastestFinger));
+connection.on("ResetFastestFingerInput", game.rounds.fastestFinger.input.reset.bind(game.rounds.fastestFinger.input));
 
 connection.on("NoNextPlayer", game.rounds.millionaire.noNextPlayer);
 connection.on("DismissChoosePlayerModal", modals.choosePlayerModal.hide);
