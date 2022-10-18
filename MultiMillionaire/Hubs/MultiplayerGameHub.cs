@@ -65,6 +65,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await JoinGameAudience(Games.First().Id);
     }
 
+    public async Task JoinRandomSpectators()
+    {
+        await SpectateGame(Games.First().Id);
+    }
+
     #region MiscellaneousMethods
 
     public async Task Echo(string message)
@@ -85,6 +90,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return game.Settings.AudienceAreSpectators
             ? Everyone(game)
             : Clients.GroupExcept(game.Id, nonPlayingAudience.Select(u => u.ConnectionId));
+    }
+
+    private IMultiplayerGameHub SpectatorsExceptHost(MultiplayerGame game, FastestFingerFirst round)
+    {
+        return game.Settings.AudienceAreSpectators
+            ? Clients.GroupExcept(game.Id, game.Host.ConnectionId)
+            : Clients.GroupExcept(game.Id, game.Audience.Append(game.Host).Select(u => u.ConnectionId));
     }
 
     private IMultiplayerGameHub Players(FastestFingerFirst round)
@@ -485,7 +497,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Spectators(game)
                 .PopulateFastestFingerResults(round.Players.Select(u => u.ToViewModel()).OrderBy(u => u.Name));
             await Spectators(game).Show("fffResultsPanel", "flex");
-            if (game.Settings.AudienceAreSpectators) await Players(round).Hide("fffDefaultPanel");
+            await SpectatorsExceptHost(game, round).Hide("fffDefaultPanel");
             await Host(game).SetOnClick("fffNextBtn", "RevealCorrectFastestFingerPlayers");
         }
     }
@@ -546,7 +558,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await Spectators(game).SetText("fffQuestion", "");
             await Host(game).SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
-            if (game.Settings.AudienceAreSpectators) await Players(round).Show("fffDefaultPanel");
+            await SpectatorsExceptHost(game, round).Show("fffDefaultPanel");
             await SpectatorsAndPlayers(game, round).ResetFastestFinger();
             await Players(round).ResetFastestFingerInput();
         }

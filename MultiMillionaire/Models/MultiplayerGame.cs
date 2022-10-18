@@ -65,5 +65,6 @@ public class MultiplayerGame
         Audience.Remove(user);
         Spectators.Remove(user);
         Scores.Remove(user);
+        if (NextPlayer == user) NextPlayer = null;
     }
 }

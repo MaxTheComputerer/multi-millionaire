@@ -1,11 +1,40 @@
 ﻿@{
     ViewData["Title"] = "Spectate";
+    ViewData["Role"] = UserRole.Spectator;
 }
 
-multiplayer spectate
+<div class="row mb-3" id="gameSetupPanels">
+    <partial name="_PlayersListPanel"/>
+</div>
 
-<label for="gameIdInput" class="form-label">Game Id</label>
-<input type="text" id="gameIdInput" class="form-control">
-<button type="button" class="btn" onclick="spectateGame()">Spectate game</button>
+<div class="row mb-3" id="fastestFingerPanels" style="display: none">
+    <partial name="FastestFingerFirst/_DefaultPanel"/>
+    <partial name="FastestFingerFirst/_ResultsPanel"/>
+    <partial name="FastestFingerFirst/_Answers"/>
+</div>
+
+<div class="row mb-3" id="mainGamePanels" style="display: none">
+    <partial name="_DefaultPanel"/>
+    <partial name="_AskTheAudiencePanel"/>
+    <partial name="_PhoneAFriendPanel"/>
+
+    <partial name="_MoneyTree"/>
+</div>
+
+
+<partial name="_QuestionAndAnswers"/>
+<partial name="_Winnings"/>
+
+<partial name="_JoinGameModal"/>
+<partial name="_GameEndedModal"/>
+<partial name="_DisconnectedModal"/>
 
 <partial name="_MultiplayerScripts"/>
+
+@* Temp script to set up game for testing *@
+<script>
+setTimeout(() => {
+    connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
+    connection.invoke("JoinRandomSpectators");
+}, 2000);
+</script>
