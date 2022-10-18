@@ -21,21 +21,21 @@ public class MultiplayerGame
         return Audience.OrderByDescending(u => Scores.GetValueOrDefault(u)).Prepend(Host);
     }
 
+    private IEnumerable<User> GetNotPlayedPlayers()
+    {
+        return Audience.FindAll(u => !Scores.ContainsKey(u));
+    }
+
     public bool IsReadyForNewRound()
     {
         return Round == null && Audience.Count > 0;
-    }
-
-    private List<User> GetNotPlayedPlayers()
-    {
-        return Audience.FindAll(u => !Scores.ContainsKey(u)).ToList();
     }
 
     public void SetupFastestFingerRound()
     {
         Round = new FastestFingerFirst
         {
-            Players = GetNotPlayedPlayers(),
+            Players = GetNotPlayedPlayers().ToList(),
             Question = OrderQuestion.GenerateQuestion()
         };
     }
@@ -57,5 +57,12 @@ public class MultiplayerGame
     public void SaveScore(User player, int score)
     {
         Scores[player] = score;
+    }
+
+    public void RemoveUser(User user)
+    {
+        Audience.Remove(user);
+        Spectators.Remove(user);
+        Scores.Remove(user);
     }
 }

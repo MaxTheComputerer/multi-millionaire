@@ -71,6 +71,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Clients.Caller.Message(message);
     }
 
+    private IMultiplayerGameHub Spectators(MultiplayerGame game)
+    {
+        return game.Settings.AudienceAreSpectators
+            ? Clients.Group(game.Id)
+            : Clients.GroupExcept(game.Id, game.Audience.Select(u => u.ConnectionId));
+    }
+
     #endregion
 
 
@@ -133,6 +140,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (user.Game == null) return;
         await Groups.RemoveFromGroupAsync(user.ConnectionId, user.Game.Id);
         user.Game = null;
+        user.Role = null;
     }
 
     public void SetName(string name)
@@ -247,6 +255,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (game.Host == user) await EndGame(game);
 
             await RemoveUserFromGame(user);
+            game.RemoveUser(user);
             if (user.Name != null) await Clients.Group(game.Id).PlayerLeft(user.ToViewModel());
             if (game.Audience.Count < 1)
             {
@@ -413,7 +422,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Group(game.Id).Hide("questionAndAnswers");
             await Clients.Clients(players).Hide("fastestFingerBtns");
             await Clients.Clients(players).Hide("fastestFingerInput");
-            await Clients.Group(game.Id).Show("fffAnswerPanel");
+            await Spectators(game).Show("fffAnswerPanel");
             await Clients.Caller.SetOnClick("fffNextBtn", "RevealNextFastestFingerAnswer");
         }
     }
@@ -430,7 +439,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 var index = round.AnswerRevealIndex;
                 var letter = round.GetNextAnswer();
                 var answer = round.Question.Answers[letter];
-                await Clients.Group(game.Id).ShowFastestFingerAnswer(index, letter, answer);
+                await Spectators(game).ShowFastestFingerAnswer(index, letter, answer);
 
                 if (index == 3) await Clients.Caller.SetOnClick("fffNextBtn", "ShowFastestFingerResultsPanel");
             }
@@ -451,10 +460,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             round.State = FastestFingerFirst.RoundState.ResultsReveal;
 
             var players = ((FastestFingerFirst)game.Round!).GetPlayerIds();
-            await Clients.Group(game.Id)
+            await Spectators(game)
                 .PopulateFastestFingerResults(round.Players.Select(u => u.ToViewModel()).OrderBy(u => u.Name));
-            await Clients.Group(game.Id).Show("fffResultsPanel", "flex");
-            await Clients.Clients(players).Hide("fffDefaultPanel");
+            await Spectators(game).Show("fffResultsPanel", "flex");
+            if (game.Settings.AudienceAreSpectators) await Clients.Clients(players).Hide("fffDefaultPanel");
             await Clients.Caller.SetOnClick("fffNextBtn", "RevealCorrectFastestFingerPlayers");
         }
     }
@@ -466,7 +475,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             var correctUserTimes =
                 round.GetTimesForCorrectPlayers().ToDictionary(x => x.Key.ConnectionId, v => v.Value);
-            await Clients.Group(game.Id).RevealCorrectFastestFingerPlayers(correctUserTimes);
+            await Spectators(game).RevealCorrectFastestFingerPlayers(correctUserTimes);
             await Clients.Caller.SetOnClick("fffNextBtn", "RevealFastestFingerWinners");
         }
     }
@@ -482,7 +491,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 await Clients.Group(game.Id).SetBackground(0);
 
             foreach (var winner in winners)
-                await Clients.Group(game.Id).HighlightFastestFingerWinner(winner.ConnectionId);
+                await Spectators(game).HighlightFastestFingerWinner(winner.ConnectionId);
 
             await Clients.Caller.SetOnClick("fffNextBtn", "EndFastestFingerRound");
         }
@@ -505,8 +514,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             // Reset UI
             await Clients.Group(game.Id).SetBackground(3);
 
-            await Clients.Group(game.Id).Hide("fffResultsPanel");
-            await Clients.Group(game.Id).Hide("fffAnswerPanel");
+            await Spectators(game).Hide("fffResultsPanel");
+            await Spectators(game).Hide("fffAnswerPanel");
             await Clients.Group(game.Id).Hide("fastestFingerPanels");
             await Clients.Group(game.Id).Show("gameSetupPanels");
             await Clients.Caller.Show("hostMenu");
@@ -514,7 +523,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await ResetQuestion();
 
             await Clients.Group(game.Id).SetText("fffQuestion", "");
-            await Clients.Group(game.Id).SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
+            await Clients.Caller.SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
             await Clients.Group(game.Id).ResetFastestFinger();
         }
     }
