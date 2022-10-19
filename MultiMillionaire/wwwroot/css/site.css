@@ -144,10 +144,12 @@ body.bg-red-2 {
     line-height: 1.5;
 }
 
-.small-button:hover {
-    background: linear-gradient(var(--orange), var(--orange)) padding-box,
-    linear-gradient(to right, var(--blue), var(--pale-blue), var(--blue)) border-box;
-    color: black;
+@media (hover: hover) {
+    .small-button:hover {
+        background: linear-gradient(var(--orange), var(--orange)) padding-box,
+        linear-gradient(to right, var(--blue), var(--pale-blue), var(--blue)) border-box;
+        color: black;
+    }
 }
 
 .small-button.disabled {

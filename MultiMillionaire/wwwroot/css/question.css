@@ -38,7 +38,21 @@
     cursor: pointer;
 }
 
-.answer:hover, .answer.selected, .menu-button-sm:hover, .menu-button-lg:hover {
+@media (hover: hover) {
+    .answer:hover {
+        background-position: 0 50%;
+    }
+
+    .answer:hover .answer-diamond, .answer:hover .answer-letter {
+        color: white;
+    }
+
+    .answer:hover .answer-text {
+        color: black;
+    }
+}
+
+.answer.selected, .menu-button-sm:hover, .menu-button-lg:hover {
     background-position: 0 50%;
 }
 
@@ -46,11 +60,11 @@
     background-position: 0 100%;
 }
 
-.answer:hover .answer-diamond, .answer:hover .answer-letter, .answer.selected .answer-diamond, .answer.selected .answer-letter, .answer.correct .answer-diamond, .answer.correct .answer-letter {
+.answer.selected .answer-diamond, .answer.selected .answer-letter, .answer.correct .answer-diamond, .answer.correct .answer-letter {
     color: white;
 }
 
-.answer:hover .answer-text, .answer.selected .answer-text, .answer.correct .answer-text, .menu-button-lg:hover, .menu-button-sm:hover {
+.answer.selected .answer-text, .answer.correct .answer-text, .menu-button-lg:hover, .menu-button-sm:hover {
     color: black;
 }
 

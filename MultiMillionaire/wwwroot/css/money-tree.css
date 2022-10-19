@@ -27,10 +27,12 @@
     transition: transform .2s ease-out;
 }
 
-.lifeline:hover {
-    background-position: 0 100%;
-    cursor: pointer;
-    transform: scale(1.2);
+@media (hover: hover) {
+    .lifeline:hover {
+        background-position: 0 100%;
+        cursor: pointer;
+        transform: scale(1.2);
+    }
 }
 
 .lifeline.disabled {
