@@ -1,9 +1,9 @@
 ﻿<div class="col-sm-auto order-first order-sm-last ms-auto ms-lg-0 mb-3 p-0" id="moneyTreePanel" style="display: none">
     <div class="money-tree p-2">
         <div class="row m-2 mb-4">
-            <span class="col lifeline lifeline-5050 mx-1 disabled" id="lifeline-5050"></span>
-            <span class="col lifeline lifeline-phone mx-1 disabled" id="lifeline-phone"></span>
-            <span class="col lifeline lifeline-audience mx-1 disabled" id="lifeline-audience"></span>
+            <span class="col lifeline lifeline-5050 mx-1 disabled" id="lifeline-5050" onclick="@(ViewData["Role"] is UserRole.Host ? "millionaire.lifelines.fiftyFifty.request()" : "")"></span>
+            <span class="col lifeline lifeline-phone mx-1 disabled" id="lifeline-phone" onclick="@(ViewData["Role"] is UserRole.Host ? "millionaire.lifelines.phone.request()" : "")"></span>
+            <span class="col lifeline lifeline-audience mx-1 disabled" id="lifeline-audience" onclick="@(ViewData["Role"] is UserRole.Host ? "millionaire.lifelines.audience.request()" : "")"></span>
         </div>
 
         <table class="m-2 d-none d-sm-table">

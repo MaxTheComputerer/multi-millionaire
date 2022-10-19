@@ -98,7 +98,33 @@
 
     walkAway: async () => await connection.invoke("WalkAway"),
 
-    lifelines: {}
+    lifelines: {
+        reset: () => {
+            ["lifeline-5050", "lifeline-phone", "lifeline-audience"].forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.remove("used");
+            })
+        },
+
+        fiftyFifty: {
+            request: async () => await connection.invoke("RequestFiftyFifty"),
+
+            use: answers => {
+                const lifeline = document.getElementById("lifeline-5050");
+                lifeline.classList.add("used", "disabled");
+
+                answers.forEach(letter => {
+                    const id = `answer${letter}`;
+                    disable(id);
+                    setAnswerText(id, "\u00a0");
+                });
+            }
+        },
+
+        phone: {},
+
+        audience: {}
+    }
 }
 
 connection.on("NoNextPlayer", millionaire.noNextPlayer);
@@ -113,3 +139,6 @@ connection.on("ShowMillionaireBanner", millionaire.banners.showMillionaire);
 connection.on("SetMoneyTree", millionaire.moneyTree.set);
 connection.on("ResetMoneyTree", millionaire.moneyTree.reset);
 connection.on("ResetAnswerBackgrounds", millionaire.answers.resetBackgrounds);
+
+connection.on("ResetLifelines", millionaire.lifelines.reset);
+connection.on("UseFiftyFifty", millionaire.lifelines.fiftyFifty.use);

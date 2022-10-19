@@ -8,6 +8,11 @@ public class MillionaireRound : GameRound
     public char? SubmittedAnswer { get; set; }
     public bool Locked { get; set; } = true;
     public bool HasWalkedAway { get; set; }
+    public bool UsedFiftyFifty { get; set; }
+    public bool UsedPhoneAFriend { get; set; }
+    public bool UsedAskTheAudience { get; set; }
+    public List<char> FiftyFiftyRemovedAnswers { get; set; } = new();
+    private static Random Random { get; } = new();
 
     public int GetBackgroundNumber()
     {
@@ -33,6 +38,7 @@ public class MillionaireRound : GameRound
     {
         SubmittedAnswer = null;
         QuestionNumber++;
+        FiftyFiftyRemovedAnswers.Clear();
     }
 
     public int GetQuestionsAway()
@@ -54,6 +60,18 @@ public class MillionaireRound : GameRound
     public string GetTotalPrizeString()
     {
         return FormatValueAsString(GetTotalPrize());
+    }
+
+    public IEnumerable<char> GetFiftyFiftyAnswers()
+    {
+        if (UsedFiftyFifty) return FiftyFiftyRemovedAnswers;
+
+        UsedFiftyFifty = true;
+        var correctLetter = GetCurrentQuestion().CorrectLetter;
+        var letters = new List<char> { 'A', 'B', 'C', 'D' };
+        letters.Remove(correctLetter);
+        FiftyFiftyRemovedAnswers = letters.OrderBy(l => Random.Next()).Take(2).ToList();
+        return FiftyFiftyRemovedAnswers;
     }
 
     public string GetUnsafeAmount()

@@ -45,6 +45,9 @@ public interface IMultiplayerGameHub
     Task ResetAnswerBackgrounds();
     Task ShowTotalPrize(string amount);
     Task ShowMillionaireBanner(string playerName);
+
+    Task UseFiftyFifty(IEnumerable<char> answersToRemove);
+    Task ResetLifelines();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -755,8 +758,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task SubmitAnswer(char letter)
     {
         var game = GetCurrentGame();
-        if (game?.Round is MillionaireRound round)
+        if (game?.Round is MillionaireRound { Locked: false } round)
         {
+            if (round.FiftyFiftyRemovedAnswers.Contains(letter)) return;
+
             await SelectAnswer(letter);
 
             if (round.QuestionNumber > 5 || round.HasWalkedAway)
@@ -934,11 +939,28 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await ResetQuestion();
             await ResetStatusBox();
 
+            await Spectators(game).ResetLifelines();
             await Spectators(game).ResetMoneyTree();
+
             await Host(game).SetOnClick("nextBtn", "LetsPlay");
             await Spectators(game).Hide("totalPrize");
             await Spectators(game).Hide("millionairePrize");
             await Spectators(game).Hide("moneyTreePanel");
+        }
+    }
+
+    #endregion
+
+
+    #region LifelineMethods
+
+    public async Task RequestFiftyFifty()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: false, UsedFiftyFifty: false } round)
+        {
+            var answersToRemove = round.GetFiftyFiftyAnswers();
+            await Spectators(game).UseFiftyFifty(answersToRemove);
         }
     }
 
