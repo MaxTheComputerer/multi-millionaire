@@ -1,8 +1,8 @@
 ﻿<div id="hostMenu">
     <question id="gameId"></question>
     <div class="row mb-2">
-        <answer letter="A" position="left" class="disabled" text-style="transform: scaleX(0.9);" id="playFastestFingerBtn" onclick="game.rounds.fastestFinger.request()">Play Fastest Finger First</answer>
-        <answer letter="B" position="right" class="disabled" id="playMainGameBtn" onclick="game.rounds.millionaire.request()">Start game</answer>
+        <answer letter="A" position="left" class="disabled" text-style="transform: scaleX(0.9);" id="playFastestFingerBtn" onclick="fastestFinger.request()">Play Fastest Finger First</answer>
+        <answer letter="B" position="right" class="disabled" id="playMainGameBtn" onclick="millionaire.request()">Start game</answer>
     </div>
     <div class="row mb-2">
         <answer letter="C" position="left" onclick="new bootstrap.Modal('#editQuestionsModal').show()">Edit questions</answer>
