@@ -12,4 +12,9 @@ public static class Extensions
             (list[k], list[n]) = (list[n], list[k]);
         }
     }
+
+    public static T ChooseRandom<T>(this IList<T> list, Random rng)
+    {
+        return list[rng.Next(list.Count)];
+    }
 }

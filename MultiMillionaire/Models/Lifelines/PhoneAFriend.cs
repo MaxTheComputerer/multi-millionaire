@@ -1,13 +1,26 @@
-﻿using Weighted_Randomizer;
+﻿using Newtonsoft.Json;
+using Weighted_Randomizer;
 
 namespace MultiMillionaire.Models.Lifelines;
 
 public class PhoneAFriend : Lifeline
 {
+    private static readonly Random _rnd = new();
+
+    static PhoneAFriend()
+    {
+        using var r = new StreamReader("data/phone_responses.json");
+        var json = r.ReadToEnd();
+        Responses = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)!.ToDictionary(
+            kvp => ParseConfidenceString(kvp.Key), kvp => kvp.Value);
+    }
+
     public bool InProgress { get; set; }
     public bool UseAi { get; set; }
     private ConfidenceLevel? Confidence { get; set; }
-    private static readonly Random _rnd = new();
+
+    private static Dictionary<ConfidenceLevel, List<string>> Responses { get; }
+
 
     public IEnumerable<char> ChooseLetters(List<char> remainingAnswers, char correctAnswer)
     {
@@ -55,6 +68,10 @@ public class PhoneAFriend : Lifeline
 
     public string GenerateResponse(List<string> answers)
     {
-        return $"Either {answers.FirstOrDefault()} or {answers.LastOrDefault()}";
+        var responses = Responses[Confidence!.Value];
+        var chosenResponse = responses.ChooseRandom(_rnd);
+        return chosenResponse
+            .Replace("ANS1", answers.FirstOrDefault())
+            .Replace("ANS2", answers.LastOrDefault());
     }
 }

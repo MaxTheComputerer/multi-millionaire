@@ -10,7 +10,8 @@ public class FiftyFifty : Lifeline
         var correctLetter = question.CorrectLetter;
         var letters = new List<char> { 'A', 'B', 'C', 'D' };
         letters.Remove(correctLetter);
-        RemovedAnswers = letters.OrderBy(l => _rnd.Next()).Take(2).ToList();
+        letters.Shuffle(_rnd);
+        RemovedAnswers = letters.Take(2).ToList();
         return RemovedAnswers;
     }
 
