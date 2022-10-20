@@ -64,7 +64,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         "lifeline-5050", "lifeline-phone", "lifeline-audience"
     };
 
-    private static Random Random { get; } = new();
+    private static readonly Random _rnd = new();
 
     // TEMP
     public async Task JoinRandomAudience()
@@ -1012,8 +1012,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (round.PhoneAFriend.UseAi)
             {
                 await Spectators(game).SetText("phoneAiResponseText", "Thinking...");
-                await Task.Delay(Random.Next(5000, 10000));
-                await Spectators(game).SetText("phoneAiResponseText", "Idk lol");
+                await Task.Delay(_rnd.Next(5000, 10000));
+
+                var response = round.GeneratePhoneAiResponse();
+                await Spectators(game).SetText("phoneAiResponseText", response);
             }
 
             await Host(game).Enable("phoneDismissBtn");

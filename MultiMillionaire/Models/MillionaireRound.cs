@@ -75,6 +75,16 @@ public class MillionaireRound : GameRound
         PhoneAFriend.InProgress = true;
     }
 
+    public string GeneratePhoneAiResponse()
+    {
+        var question = GetCurrentQuestion();
+        var remainingAnswers = new List<char> { 'A', 'B', 'C', 'D' }.Where(l => !FiftyFifty.RemovedAnswers.Contains(l))
+            .ToList();
+        var chosenLetters = PhoneAFriend.ChooseLetters(remainingAnswers, question.CorrectLetter);
+        var chosenAnswers = chosenLetters.Select(l => question.Answers[l]).ToList();
+        return PhoneAFriend.GenerateResponse(chosenAnswers);
+    }
+
     public void EndPhoneAFriend()
     {
         PhoneAFriend.InProgress = false;
