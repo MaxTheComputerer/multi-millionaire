@@ -1,4 +1,6 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models.Lifelines;
+
+namespace MultiMillionaire.Models;
 
 public class MillionaireRound : GameRound
 {
@@ -8,11 +10,10 @@ public class MillionaireRound : GameRound
     public char? SubmittedAnswer { get; set; }
     public bool Locked { get; set; } = true;
     public bool HasWalkedAway { get; set; }
-    public bool UsedFiftyFifty { get; set; }
-    public bool UsedPhoneAFriend { get; set; }
+
+    public FiftyFifty FiftyFifty { get; set; } = new();
+    public PhoneAFriend PhoneAFriend { get; set; } = new();
     public bool UsedAskTheAudience { get; set; }
-    public List<char> FiftyFiftyRemovedAnswers { get; set; } = new();
-    private static Random Random { get; } = new();
 
     public int GetBackgroundNumber()
     {
@@ -38,7 +39,7 @@ public class MillionaireRound : GameRound
     {
         SubmittedAnswer = null;
         QuestionNumber++;
-        FiftyFiftyRemovedAnswers.Clear();
+        FiftyFifty.Reset();
     }
 
     public int GetQuestionsAway()
@@ -64,14 +65,19 @@ public class MillionaireRound : GameRound
 
     public IEnumerable<char> GetFiftyFiftyAnswers()
     {
-        if (UsedFiftyFifty) return FiftyFiftyRemovedAnswers;
+        FiftyFifty.IsUsed = true;
+        return FiftyFifty.RemoveAnswersFromQuestion(GetCurrentQuestion());
+    }
 
-        UsedFiftyFifty = true;
-        var correctLetter = GetCurrentQuestion().CorrectLetter;
-        var letters = new List<char> { 'A', 'B', 'C', 'D' };
-        letters.Remove(correctLetter);
-        FiftyFiftyRemovedAnswers = letters.OrderBy(l => Random.Next()).Take(2).ToList();
-        return FiftyFiftyRemovedAnswers;
+    public void StartPhoneAFriend()
+    {
+        PhoneAFriend.IsUsed = true;
+        PhoneAFriend.InProgress = true;
+    }
+
+    public void EndPhoneAFriend()
+    {
+        PhoneAFriend.InProgress = false;
     }
 
     public string GetUnsafeAmount()

@@ -47,6 +47,8 @@ public interface IMultiplayerGameHub
     Task ShowMillionaireBanner(string playerName);
 
     Task UseFiftyFifty(IEnumerable<char> answersToRemove);
+    Task UsePhoneAFriend();
+    Task StartPhoneClock();
     Task ResetLifelines();
 }
 
@@ -61,6 +63,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         "walkAwayBtn",
         "lifeline-5050", "lifeline-phone", "lifeline-audience"
     };
+
+    private static Random Random { get; } = new();
 
     // TEMP
     public async Task JoinRandomAudience()
@@ -95,7 +99,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             : Clients.GroupExcept(game.Id, nonPlayingAudience.Select(u => u.ConnectionId));
     }
 
-    private IMultiplayerGameHub SpectatorsExceptHost(MultiplayerGame game, FastestFingerFirst round)
+    private IMultiplayerGameHub SpectatorsExceptHost(MultiplayerGame game)
     {
         return game.Settings.AudienceAreSpectators
             ? Clients.GroupExcept(game.Id, game.Host.ConnectionId)
@@ -590,7 +594,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Spectators(game)
                 .PopulateFastestFingerResults(round.Players.Select(u => u.ToViewModel()).OrderBy(u => u.Name));
             await Spectators(game).Show("fffResultsPanel", "flex");
-            await SpectatorsExceptHost(game, round).Hide("fffDefaultPanel");
+            await SpectatorsExceptHost(game).Hide("fffDefaultPanel");
             await Host(game).SetOnClick("fffNextBtn", "RevealCorrectFastestFingerPlayers");
         }
     }
@@ -651,7 +655,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await Spectators(game).SetText("fffQuestion", "");
             await Host(game).SetOnClick("fffNextBtn", "FetchFastestFingerQuestion");
-            await SpectatorsExceptHost(game, round).Show("fffDefaultPanel");
+            await SpectatorsExceptHost(game).Show("fffDefaultPanel");
             await SpectatorsAndPlayers(game, round).ResetFastestFinger();
             await Players(round).ResetFastestFingerInput();
         }
@@ -760,7 +764,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound { Locked: false } round)
         {
-            if (round.FiftyFiftyRemovedAnswers.Contains(letter)) return;
+            if (round.FiftyFifty.IsAnswerRemoved(letter)) return;
 
             await SelectAnswer(letter);
 
@@ -938,6 +942,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await ResetQuestion();
             await ResetStatusBox();
+            await ResetPhoneAFriend();
 
             await Spectators(game).ResetLifelines();
             await Spectators(game).ResetMoneyTree();
@@ -957,11 +962,86 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task RequestFiftyFifty()
     {
         var game = GetCurrentGame();
-        if (game?.Round is MillionaireRound { Locked: false, UsedFiftyFifty: false } round)
+        if (game?.Round is MillionaireRound { Locked: false, FiftyFifty.IsUsed: false } round)
         {
             var answersToRemove = round.GetFiftyFiftyAnswers();
             await Spectators(game).UseFiftyFifty(answersToRemove);
         }
+    }
+
+    public async Task RequestPhoneAFriend()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: false, PhoneAFriend.IsUsed: false } round)
+        {
+            await Lock(round);
+            round.StartPhoneAFriend();
+            await Spectators(game).UsePhoneAFriend();
+            await Host(game).Hide("phoneClockPanel");
+            await Host(game).Hide("defaultPanel");
+            await Host(game).Show("phonePanel");
+        }
+    }
+
+    public async Task ChooseWhoToPhone(bool useAi)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: true, PhoneAFriend.InProgress: true } round)
+        {
+            if (useAi)
+            {
+                round.PhoneAFriend.UseAi = true;
+                await Spectators(game).Show("phoneAiResponse", "flex");
+            }
+
+            await Host(game).Hide("phoneSetupPanel");
+            await Host(game).Show("phoneClockPanel");
+            await SpectatorsExceptHost(game).Hide("defaultPanel");
+            await SpectatorsExceptHost(game).Show("phonePanel");
+        }
+    }
+
+    public async Task PhoneStartClock()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: true, PhoneAFriend.InProgress: true } round)
+        {
+            await Host(game).Disable("phoneStartBtn");
+            await Spectators(game).StartPhoneClock();
+
+            if (round.PhoneAFriend.UseAi)
+            {
+                await Spectators(game).SetText("phoneAiResponseText", "Thinking...");
+                await Task.Delay(Random.Next(5000, 10000));
+                await Spectators(game).SetText("phoneAiResponseText", "Idk lol");
+            }
+
+            await Host(game).Enable("phoneDismissBtn");
+        }
+    }
+
+    public async Task DismissPhoneAFriend()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: true, PhoneAFriend.InProgress: true } round)
+        {
+            round.EndPhoneAFriend();
+            await Spectators(game).Hide("phonePanel");
+            await Spectators(game).Show("defaultPanel", "flex");
+            await Unlock(round);
+        }
+    }
+
+    private async Task ResetPhoneAFriend()
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        await Spectators(game).SetText("phoneAiResponseText", "Ringing...");
+        await Spectators(game).Hide("phoneAiResponse");
+        await Host(game).Show("phoneSetupPanel");
+        await Host(game).Disable("phoneDismissBtn");
+        await Host(game).Enable("phoneStartBtn");
     }
 
     #endregion

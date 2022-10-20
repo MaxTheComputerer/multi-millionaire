@@ -99,11 +99,12 @@
     walkAway: async () => await connection.invoke("WalkAway"),
 
     lifelines: {
-        reset: () => {
+        reset: function () {
             ["lifeline-5050", "lifeline-phone", "lifeline-audience"].forEach(id => {
                 const element = document.getElementById(id);
                 element.classList.remove("used");
-            })
+            });
+            this.phone.reset();
         },
 
         fiftyFifty: {
@@ -111,7 +112,7 @@
 
             use: answers => {
                 const lifeline = document.getElementById("lifeline-5050");
-                lifeline.classList.add("used", "disabled");
+                lifeline.classList.add("used");
 
                 answers.forEach(letter => {
                     const id = `answer${letter}`;
@@ -121,7 +122,32 @@
             }
         },
 
-        phone: {},
+        phone: {
+            request: async () => await connection.invoke("RequestPhoneAFriend"),
+
+            use: () => {
+                const lifeline = document.getElementById("lifeline-phone");
+                lifeline.classList.add("used");
+            },
+
+            phoneFriend: async () => await connection.invoke("ChooseWhoToPhone", false),
+
+            phoneAi: async () => await connection.invoke("ChooseWhoToPhone", true),
+
+            startClock: async () => await connection.invoke("PhoneStartClock"),
+
+            onStart: () => {
+                const clockElement = document.getElementById("phoneClockImg");
+                clockElement.src = "../images/clock.gif";
+            },
+
+            dismiss: async () => await connection.invoke("DismissPhoneAFriend"),
+
+            reset: () => {
+                const clockElement = document.getElementById("phoneClockImg");
+                clockElement.src = "../images/clock.png";
+            }
+        },
 
         audience: {}
     }
@@ -140,5 +166,7 @@ connection.on("SetMoneyTree", millionaire.moneyTree.set);
 connection.on("ResetMoneyTree", millionaire.moneyTree.reset);
 connection.on("ResetAnswerBackgrounds", millionaire.answers.resetBackgrounds);
 
-connection.on("ResetLifelines", millionaire.lifelines.reset);
+connection.on("ResetLifelines", millionaire.lifelines.reset.bind(millionaire.lifelines));
 connection.on("UseFiftyFifty", millionaire.lifelines.fiftyFifty.use);
+connection.on("UsePhoneAFriend", millionaire.lifelines.phone.use);
+connection.on("StartPhoneClock", millionaire.lifelines.phone.onStart);

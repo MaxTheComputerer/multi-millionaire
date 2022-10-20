@@ -1,18 +1,23 @@
 ﻿<div class="col-auto col-md-6 mx-auto" id="phonePanel" style="display: none">
     <div class="box text-center py-3">
-        <div id="phoneSetupPanel">
-            <textbox>Who would you like to phone?</textbox>
-            <small-button>Friend</small-button>
-            <small-button>AI</small-button>
-        </div>
-
-        <div id="phoneClockPanel" style="display: none">
-            <div class="clock mt-4 mb-5">
-                <img src="~/images/clock.gif" alt="Phone-a-friend countdown clock" id="phoneClockImg"/>
+        @if (ViewData["Role"] is UserRole.Host)
+        {
+            <div id="phoneSetupPanel">
+                <textbox>Who would you like to phone?</textbox>
+                <small-button onclick="millionaire.lifelines.phone.phoneFriend()">Friend</small-button>
+                <small-button onclick="millionaire.lifelines.phone.phoneAi()">AI</small-button>
             </div>
-            <textbox id="phone-ai-response">Ringing...</textbox>
-            <small-button>Start clock</small-button>
-            <small-button>OK</small-button>
+        }
+        <div id="phoneClockPanel">
+            <div class="clock mt-4 mb-5">
+                <img src="~/images/clock.png" alt="Phone-a-friend countdown clock" id="phoneClockImg"/>
+            </div>
+            <textbox row-id="phoneAiResponse" id="phoneAiResponseText" style="display: none">Ringing...</textbox>
+            @if (ViewData["Role"] is UserRole.Host)
+            {
+                <small-button id="phoneStartBtn" onclick="millionaire.lifelines.phone.startClock()">Start clock</small-button>
+                <small-button class="disabled" id="phoneDismissBtn" onclick="millionaire.lifelines.phone.dismiss()">OK</small-button>
+            }
         </div>
     </div>
 </div>
