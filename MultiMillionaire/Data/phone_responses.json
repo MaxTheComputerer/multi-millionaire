@@ -3,41 +3,41 @@
     "It's definitely ANS1. 100%.",
     "Yeah that's ANS1.",
     "I'm 95% sure the answer is ANS1. Pretty certain it's not ANS2.",
-    "I'd go with ANS1 if I were you. Yeah I'm 100% sure.",
-    "It can't be any of the others so the answer must be ANS1.",
+    "I'd go with ANS1 if I were you. Yeah, I'm 100% sure.",
+    "It can't be any of the others, so the answer must be ANS1.",
     "I know this one. It's ANS1, I can promise you.",
-    "Yep it's got to be ANS1.",
+    "Yep, it's got to be ANS1.",
     "It's ANS1. No question.",
     "I was reading about this the other day. It's ANS1.",
     "You should know this! It's ANS1!"
   ],
   "prettySure": [
     "It could be ANS2, but I'm pretty sure it's ANS1.",
-    "Yeah that's not easy. But I'm pretty certain it's ANS1.",
+    "Yeah that's not easy. But I'm fairly confident it's ANS1.",
     "At first I thought ANS2, but now I reckon it's ANS1.",
     "Probably ANS1. I'm about 75% sure. That's the best I can do.",
     "My first thought was ANS1 before you read the answers. Yeah, I'd say ANS1.",
     "I think the answer is ANS1. It's the only one I've heard of.",
     "Oh yeah I'm quite confident on this. I think it's ANS1.",
-    "80% sure it's ANS1. Maybe ANS2 but I think it's unlikely.",
+    "80% sure it's ANS1. Maybe ANS2, but I think it's unlikely.",
     "I think it's ANS1. Good luck.",
     "I'm fairly confident the answer's ANS1."
   ],
   "fiftyFifty": [
-    "I'm not sure. It could be ANS1 or ANS2 but I can't help any more than that.",
-    "I don't know for certain but it might be ANS1. About 50% sure.",
+    "I'm not sure. It could be ANS1 or ANS2, but I can't help any more than that.",
+    "I don't know for certain, but it might be ANS1. About 50% sure.",
     "I've only heard of ANS1 and ANS2 so I'd guess one of those.",
     "I can't decide between ANS1 and ANS2.",
-    "Either ANS1 or ANS2. Definitely not the others. That's all I know I'm afraid.",
+    "Either ANS1 or ANS2. Definitely not the others. That's all I know, I'm afraid.",
     "That's tricky. I'm about 50% confident it's ANS2.",
     "I think ANS1 and ANS2 sound more right than the other two. So maybe it's one of those?",
     "I would guess ANS1. Although ANS2 sounds quite plausible too.",
     "Maybe ANS1? I'm 50% sure the answer's ANS1.",
-    "50:50 as to whether I'd go ANS1 or ANS2."
+    "Fifty-fifty between ANS1 and ANS2."
   ],
   "guess": [
     "I'm really sorry but I don't know. It might be ANS1 but that would be a complete guess.",
-    "I was reading about this just yesterday but I have absolutely no clue.",
+    "I was reading about this just yesterday, but I have absolutely no clue.",
     "That's tricky. It could be ANS1 but I'm only 25% sure.",
     "I've heard of ANS1 but I don't know if it's the right answer.",
     "I don't know at all. Sorry, good luck.",
@@ -45,6 +45,6 @@
     "Not really my area of expertise. I'd maybe make a gamble on ANS1.",
     "I'd be entirely guessing but I'd go with ANS1. Or maybe ANS2. I'm sorry, I just don't know.",
     "I don't know. Sorry mate.",
-    "Not a clue! Any other question and I would've got it."
+    "Not a clue! Any other question and I would've known it."
   ]
 }
