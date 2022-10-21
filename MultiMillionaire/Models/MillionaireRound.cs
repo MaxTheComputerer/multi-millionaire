@@ -13,7 +13,7 @@ public class MillionaireRound : GameRound
 
     public FiftyFifty FiftyFifty { get; set; } = new();
     public PhoneAFriend PhoneAFriend { get; set; } = new();
-    public bool UsedAskTheAudience { get; set; }
+    public AskTheAudience AskTheAudience { get; set; } = new();
 
     public int GetBackgroundNumber()
     {
@@ -69,6 +69,11 @@ public class MillionaireRound : GameRound
         return FiftyFifty.RemoveAnswersFromQuestion(GetCurrentQuestion());
     }
 
+    public List<char> GetRemainingAnswers()
+    {
+        return new List<char> { 'A', 'B', 'C', 'D' }.Except(FiftyFifty.RemovedAnswers).ToList();
+    }
+
     public void StartPhoneAFriend()
     {
         PhoneAFriend.IsUsed = true;
@@ -78,9 +83,7 @@ public class MillionaireRound : GameRound
     public string GeneratePhoneAiResponse()
     {
         var question = GetCurrentQuestion();
-        var remainingAnswers = new List<char> { 'A', 'B', 'C', 'D' }.Where(l => !FiftyFifty.RemovedAnswers.Contains(l))
-            .ToList();
-        var chosenLetters = PhoneAFriend.ChooseLetters(remainingAnswers, question.CorrectLetter);
+        var chosenLetters = PhoneAFriend.ChooseLetters(GetRemainingAnswers(), question.CorrectLetter);
         var chosenAnswers = chosenLetters.Select(l => question.Answers[l]).ToList();
         return PhoneAFriend.GenerateResponse(chosenAnswers);
     }
@@ -88,6 +91,11 @@ public class MillionaireRound : GameRound
     public void EndPhoneAFriend()
     {
         PhoneAFriend.InProgress = false;
+    }
+
+    public void StartAskTheAudience()
+    {
+        AskTheAudience.IsUsed = true;
     }
 
     public string GetUnsafeAmount()

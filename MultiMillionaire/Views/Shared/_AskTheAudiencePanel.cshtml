@@ -1,12 +1,15 @@
 ﻿<div class="col-auto mx-auto" id="audiencePanel" style="display: none">
     <div class="box text-center py-3">
-        <div id="audienceSetupPanel">
-            <textbox>Which audience would you like to ask?</textbox>
-            <small-button>Live audience</small-button>
-            <small-button>AI audience</small-button>
-        </div>
+        @if (ViewData["Role"] is UserRole.Host)
+        {
+            <div id="audienceSetupPanel">
+                <textbox>Which audience would you like to ask?</textbox>
+                <small-button id="chooseLiveAudienceBtn" onclick="millionaire.lifelines.audience.askLive()">Live audience</small-button>
+                <small-button onclick="millionaire.lifelines.audience.askAi()">AI audience</small-button>
+            </div>
+        }
 
-        <div class="px-4" id="audienceGraphPanel" style="display: none;">
+        <div class="px-4" id="audienceGraphPanel">
             <table class="audience-graph-text audience-results mx-auto my-3">
                 <tbody>
                 <tr>
@@ -34,7 +37,11 @@
                 </tbody>
             </table>
 
-            <small-button>OK</small-button>
+            @if (ViewData["Role"] is UserRole.Host)
+            {
+                <small-button id="audienceStartBtn" onclick="millionaire.lifelines.audience.start()">Start</small-button>
+                <small-button class="disabled" id="audienceDismissBtn" onclick="millionaire.lifelines.audience.dismiss()">OK</small-button>
+            }
         </div>
     </div>
 </div>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
+using MultiMillionaire.Models.Lifelines;
 
 namespace MultiMillionaire.Hubs;
 
@@ -48,21 +49,19 @@ public interface IMultiplayerGameHub
 
     Task UseFiftyFifty(IEnumerable<char> answersToRemove);
     Task UsePhoneAFriend();
+    Task UseAskTheAudience();
     Task StartPhoneClock();
+    Task SetAudienceAnswersOnClick();
+    Task ResetAudienceAnswersOnClick();
     Task ResetLifelines();
+    Task DrawAudienceGraphGrid();
+    Task LockAudienceSubmission();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
-
-    private static List<string> LockUnlockIds { get; } = new()
-    {
-        "answerA", "answerB", "answerC", "answerD",
-        "walkAwayBtn",
-        "lifeline-5050", "lifeline-phone", "lifeline-audience"
-    };
 
     private static readonly Random _rnd = new();
 
@@ -109,6 +108,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private IMultiplayerGameHub Players(FastestFingerFirst round)
     {
         return Clients.Clients(round.GetPlayerIds());
+    }
+
+    private IMultiplayerGameHub AudienceExceptPlayer(MultiplayerGame game, MillionaireRound round)
+    {
+        return Clients.Clients(game.Audience.Where(u => u != round.Player).Select(u => u.ConnectionId));
     }
 
     private IMultiplayerGameHub Host(MultiplayerGame game)
@@ -723,20 +727,30 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await Spectators(game).SetText("question", round.GetCurrentQuestion().Question);
+            await Everyone(game).SetText("question", round.GetCurrentQuestion().Question);
             await Host(game).SetOnClick("nextBtn", "FetchAnswer", 'A');
         }
     }
 
     private async Task Lock(MillionaireRound round)
     {
-        foreach (var id in LockUnlockIds) await Clients.Caller.Disable(id);
+        var ids = new List<string>
+        {
+            "answerA", "answerB", "answerC", "answerD",
+            "walkAwayBtn",
+            "lifeline-5050", "lifeline-phone", "lifeline-audience"
+        };
+        foreach (var id in ids) await Clients.Caller.Disable(id);
         round.Locked = true;
     }
 
     private async Task Unlock(MillionaireRound round)
     {
-        foreach (var id in LockUnlockIds) await Clients.Caller.Enable(id);
+        var ids = new List<string> { "walkAwayBtn", "lifeline-5050", "lifeline-phone", "lifeline-audience" };
+        foreach (var id in ids) await Clients.Caller.Enable(id);
+
+        var letters = new List<char> { 'A', 'B', 'C', 'D' }.Where(l => !round.FiftyFifty.IsAnswerRemoved(l));
+        foreach (var letter in letters) await Clients.Caller.Enable($"answer{letter}");
         round.Locked = false;
     }
 
@@ -746,7 +760,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound round)
         {
             var question = round.GetCurrentQuestion();
-            await Spectators(game).SetAnswerText($"answer{letter}", question.Answers[letter]);
+            await Everyone(game).SetAnswerText($"answer{letter}", question.Answers[letter]);
             if (letter == 'D')
             {
                 await Host(game).Disable("nextBtn");
@@ -943,6 +957,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await ResetQuestion();
             await ResetStatusBox();
             await ResetPhoneAFriend();
+            await ResetAskTheAudience();
 
             await Spectators(game).ResetLifelines();
             await Spectators(game).ResetMoneyTree();
@@ -965,7 +980,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound { Locked: false, FiftyFifty.IsUsed: false } round)
         {
             var answersToRemove = round.GetFiftyFiftyAnswers();
-            await Spectators(game).UseFiftyFifty(answersToRemove);
+            await Everyone(game).UseFiftyFifty(answersToRemove);
         }
     }
 
@@ -1044,6 +1059,133 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Host(game).Show("phoneSetupPanel");
         await Host(game).Disable("phoneDismissBtn");
         await Host(game).Enable("phoneStartBtn");
+    }
+
+    public async Task RequestAskTheAudience()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { Locked: false, AskTheAudience.IsUsed: false } round)
+        {
+            await Lock(round);
+            round.StartAskTheAudience();
+            await Spectators(game).UseAskTheAudience();
+
+            if (game.Audience.Count <= 1) await Host(game).Disable("chooseLiveAudienceBtn");
+
+            await Host(game).Hide("audienceGraphPanel");
+            await Host(game).Hide("defaultPanel");
+            await Host(game).Show("audiencePanel");
+        }
+    }
+
+    public async Task ChooseAudienceToAsk(bool useAi)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound
+            {
+                Locked: true, AskTheAudience.CurrentState: AskTheAudience.State.Setup
+            } round)
+        {
+            if (useAi)
+            {
+                round.AskTheAudience.UseAi = useAi;
+            }
+            else
+            {
+                await AudienceExceptPlayer(game, round).SetAudienceAnswersOnClick();
+                await AudienceExceptPlayer(game, round).Show("questionAndAnswers");
+            }
+
+            await Spectators(game).DrawAudienceGraphGrid();
+
+            await Host(game).Hide("audienceSetupPanel");
+            await Host(game).Show("audienceGraphPanel");
+            await SpectatorsExceptHost(game).Hide("defaultPanel");
+            await SpectatorsExceptHost(game).Show("audiencePanel");
+            await Everyone(game).SetBackground(0);
+        }
+    }
+
+    public async Task StartAudienceVoting()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound
+            {
+                Locked: true, AskTheAudience.CurrentState: AskTheAudience.State.Setup
+            } round)
+        {
+            await Host(game).Disable("audienceStartBtn");
+
+            if (round.AskTheAudience.UseAi)
+            {
+                await Task.Delay(_rnd.Next(5000, 10000));
+                round.AskTheAudience.GenerateAiResponses();
+            }
+            else
+            {
+                var letters = new List<char> { 'A', 'B', 'C', 'D' }.Where(l => !round.FiftyFifty.IsAnswerRemoved(l));
+                foreach (var letter in letters) await AudienceExceptPlayer(game, round).Enable($"answer{letter}");
+
+                await round.AskTheAudience.StartVotingAndWait(game.Audience.Count - 1);
+                await StopAudienceVoting(game, round);
+            }
+
+            await DisplayAudienceGraphResults();
+        }
+    }
+
+    public async Task SubmitAudienceGuess(char letter)
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound
+            {
+                AskTheAudience.UseAi: false, AskTheAudience.CurrentState: AskTheAudience.State.InProgress
+            } round)
+        {
+            await Clients.Caller.LockAudienceSubmission();
+            round.AskTheAudience.SubmitVote(letter);
+        }
+    }
+
+    private async Task StopAudienceVoting(MultiplayerGame game, MillionaireRound round)
+    {
+        await AudienceExceptPlayer(game, round).LockAudienceSubmission();
+        if (!game.Settings.AudienceAreSpectators) await AudienceExceptPlayer(game, round).Hide("questionAndAnswers");
+        await AudienceExceptPlayer(game, round).ResetAudienceAnswersOnClick();
+    }
+
+    private async Task DisplayAudienceGraphResults()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound { AskTheAudience.CurrentState: AskTheAudience.State.ResultsReveal } round)
+        {
+            await Everyone(game).SetBackground(round.GetBackgroundNumber());
+            await Host(game).Enable("audienceDismissBtn");
+        }
+    }
+
+    public async Task DismissAskTheAudience()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound
+            {
+                Locked: true, AskTheAudience.CurrentState: AskTheAudience.State.ResultsReveal
+            } round)
+        {
+            await Spectators(game).Hide("audiencePanel");
+            await Spectators(game).Show("defaultPanel", "flex");
+            await Unlock(round);
+        }
+    }
+
+    private async Task ResetAskTheAudience()
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        await Host(game).Show("audienceSetupPanel");
+        await Host(game).Disable("audienceDismissBtn");
+        await Host(game).Enable("audienceStartBtn");
     }
 
     #endregion

@@ -45,7 +45,7 @@
             ["answerA", "answerB", "answerC", "answerD"].forEach(id => {
                 const element = document.getElementById(id);
                 element.classList.remove("correct", "selected");
-            })
+            });
         }
     },
 
@@ -149,7 +149,69 @@
             }
         },
 
-        audience: {}
+        audience: {
+            request: async () => await connection.invoke("RequestAskTheAudience"),
+
+            use: () => {
+                const lifeline = document.getElementById("lifeline-audience");
+                lifeline.classList.add("used");
+            },
+
+            askLive: async () => await connection.invoke("ChooseAudienceToAsk", false),
+
+            askAi: async () => await connection.invoke("ChooseAudienceToAsk", true),
+
+            submit: async letter => await connection.invoke("SubmitAudienceGuess", letter),
+
+            lock: () => {
+                disable("answerA");
+                disable("answerB");
+                disable("answerC");
+                disable("answerD");
+            },
+
+            setAnswersOnClick: () => {
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    const element = document.getElementById(`answer${letter}`);
+                    element.onclick = async () => await millionaire.lifelines.audience.submit(letter);
+                })
+            },
+
+            resetAnswersOnClick: () => {
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    const element = document.getElementById(`answer${letter}`);
+                    element.onclick = () => fastestFinger.input.insert(letter);
+                })
+            },
+
+            start: async () => await connection.invoke("StartAudienceVoting"),
+
+            dismiss: async () => await connection.invoke("DismissAskTheAudience"),
+
+            graph: {
+                drawGrid: () => {
+                    const canvas = document.getElementById("audienceGraph");
+                    const ctx = canvas.getContext("2d");
+                    ctx.globalCompositeOperation = 'source-over';
+
+                    ctx.shadowBlur = 3;
+                    ctx.shadowColor = "#2b88e7";
+                    ctx.strokeStyle = "#2b88e7";
+                    ctx.lineWidth = 2;
+
+                    let i;
+                    for (i = 1.5; i <= 376.5; i = i + 37.5) {
+                        ctx.moveTo(1.5, i);
+                        ctx.lineTo(301.5, i);
+                    }
+                    for (i = 1.5; i <= 301.5; i = i + 37.5) {
+                        ctx.moveTo(i, 1.5);
+                        ctx.lineTo(i, 376.5);
+                    }
+                    ctx.stroke();
+                }
+            }
+        }
     }
 }
 
@@ -169,4 +231,9 @@ connection.on("ResetAnswerBackgrounds", millionaire.answers.resetBackgrounds);
 connection.on("ResetLifelines", millionaire.lifelines.reset.bind(millionaire.lifelines));
 connection.on("UseFiftyFifty", millionaire.lifelines.fiftyFifty.use);
 connection.on("UsePhoneAFriend", millionaire.lifelines.phone.use);
+connection.on("UseAskTheAudience", millionaire.lifelines.audience.use);
 connection.on("StartPhoneClock", millionaire.lifelines.phone.onStart);
+connection.on("SetAudienceAnswersOnClick", millionaire.lifelines.audience.setAnswersOnClick);
+connection.on("ResetAudienceAnswersOnClick", millionaire.lifelines.audience.resetAnswersOnClick);
+connection.on("DrawAudienceGraphGrid", millionaire.lifelines.audience.graph.drawGrid);
+connection.on("LockAudienceSubmission", millionaire.lifelines.audience.lock);
