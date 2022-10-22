@@ -9,19 +9,13 @@ public class AskTheAudience : Lifeline
         ResultsReveal
     }
 
-    public State CurrentState { get; set; } = State.Setup;
+    public State CurrentState { get; private set; } = State.Setup;
     public bool UseAi { get; set; }
 
-    public Dictionary<char, int> Votes { get; set; } = new()
-    {
-        ['A'] = 0,
-        ['B'] = 0,
-        ['C'] = 0,
-        ['D'] = 0
-    };
+    private Dictionary<char, int> Votes { get; } = new();
 
     private TaskCompletionSource AllPlayersAnsweredSignal { get; } = new();
-    public int AudienceSize { get; set; }
+    private int AudienceSize { get; set; }
 
     public async Task StartVotingAndWait(int audienceSize)
     {
@@ -36,23 +30,51 @@ public class AskTheAudience : Lifeline
 
     public void SubmitVote(char letter)
     {
-        if (!Votes.ContainsKey(letter)) return;
-        Votes[letter]++;
+        if (Votes.ContainsKey(letter))
+            Votes[letter]++;
+        else
+            Votes.Add(letter, 1);
         CheckAllAudienceAnswered();
     }
 
     private void CheckAllAudienceAnswered()
     {
-        if (Votes.Sum(kvp => kvp.Value) == AudienceSize)
+        if (TotalVotes() == AudienceSize)
             AllPlayersAnsweredSignal.SetResult();
     }
 
     public void GenerateAiResponses()
     {
-        Votes['A'] = 10;
-        Votes['B'] = 20;
-        Votes['C'] = 28;
-        Votes['D'] = 3;
+        Votes.Add('A', 10);
+        Votes.Add('B', 20);
+        Votes.Add('C', 28);
+        Votes.Add('D', 3);
         CurrentState = State.ResultsReveal;
+    }
+
+    private int TotalVotes()
+    {
+        return Votes.Sum(kvp => kvp.Value);
+    }
+
+    public Dictionary<char, int> GetPercentages()
+    {
+        var totalVotes = TotalVotes();
+        var answerCount = Votes.Count;
+
+        // Use integer division to get value <= 100
+        var percentages = Votes.ToDictionary(kvp => kvp.Key, kvp => 100 * kvp.Value / totalVotes);
+        var difference = 100 - percentages.Sum(kvp => kvp.Value);
+
+        // Distribute remaining % points arbitrarily between answers
+        while (difference > 0)
+        {
+            var index = difference % answerCount;
+            var key = percentages.ElementAt(index).Key;
+            percentages[key]++;
+            difference--;
+        }
+
+        return percentages;
     }
 }

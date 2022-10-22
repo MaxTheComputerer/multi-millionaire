@@ -189,16 +189,19 @@
             dismiss: async () => await connection.invoke("DismissAskTheAudience"),
 
             graph: {
-                drawGrid: () => {
+                getContext: () => {
                     const canvas = document.getElementById("audienceGraph");
                     const ctx = canvas.getContext("2d");
                     ctx.globalCompositeOperation = 'source-over';
-
                     ctx.shadowBlur = 3;
                     ctx.shadowColor = "#2b88e7";
                     ctx.strokeStyle = "#2b88e7";
                     ctx.lineWidth = 2;
+                    return ctx;
+                },
 
+                drawGrid: function () {
+                    const ctx = this.getContext();
                     let i;
                     for (i = 1.5; i <= 376.5; i = i + 37.5) {
                         ctx.moveTo(1.5, i);
@@ -209,6 +212,23 @@
                         ctx.lineTo(i, 376.5);
                     }
                     ctx.stroke();
+                },
+
+                drawResults: function (percentages) {
+                    const ctx = this.getContext();
+                    for (const letter of Object.keys(percentages)) {
+                        const value = percentages[letter];
+                        setText(`audienceResults${letter}`, value + "%");
+
+                        const pos = 375 - Math.round((value / 100) * 375);
+                        const xPosition = letter.charCodeAt(0) - 'A'.charCodeAt(0);
+
+                        const grd = ctx.createLinearGradient(0, 1 + pos, 0, 376);
+                        grd.addColorStop(0, "#3ddbff");
+                        grd.addColorStop(1, "#a45de0");
+                        ctx.fillStyle = grd;
+                        ctx.fillRect(13.75 + (xPosition * 75), 1 + pos, 50.5, 376);
+                    }
                 }
             }
         }
@@ -235,5 +255,6 @@ connection.on("UseAskTheAudience", millionaire.lifelines.audience.use);
 connection.on("StartPhoneClock", millionaire.lifelines.phone.onStart);
 connection.on("SetAudienceAnswersOnClick", millionaire.lifelines.audience.setAnswersOnClick);
 connection.on("ResetAudienceAnswersOnClick", millionaire.lifelines.audience.resetAnswersOnClick);
-connection.on("DrawAudienceGraphGrid", millionaire.lifelines.audience.graph.drawGrid);
+connection.on("DrawAudienceGraphGrid", millionaire.lifelines.audience.graph.drawGrid.bind(millionaire.lifelines.audience.graph));
+connection.on("DrawAudienceGraphResults", millionaire.lifelines.audience.graph.drawResults.bind(millionaire.lifelines.audience.graph));
 connection.on("LockAudienceSubmission", millionaire.lifelines.audience.lock);

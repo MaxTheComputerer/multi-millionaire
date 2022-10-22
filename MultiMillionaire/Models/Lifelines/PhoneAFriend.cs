@@ -5,7 +5,7 @@ namespace MultiMillionaire.Models.Lifelines;
 
 public class PhoneAFriend : Lifeline
 {
-    private static readonly Random _rnd = new();
+    private static readonly Random Rnd = new();
 
     static PhoneAFriend()
     {
@@ -42,7 +42,7 @@ public class PhoneAFriend : Lifeline
         var guesses = new List<char> { randomizer.NextWithRemoval(), randomizer.NextWithRemoval() };
 
         // Shuffle if 5050
-        if (Confidence == ConfidenceLevel.FiftyFifty) guesses.Shuffle(_rnd);
+        if (Confidence == ConfidenceLevel.FiftyFifty) guesses.Shuffle(Rnd);
         return guesses;
     }
 
@@ -69,7 +69,7 @@ public class PhoneAFriend : Lifeline
     public string GenerateResponse(List<string> answers)
     {
         var responses = Responses[Confidence!.Value];
-        var chosenResponse = responses.ChooseRandom(_rnd);
+        var chosenResponse = responses.ChooseRandom(Rnd);
         return chosenResponse
             .Replace("ANS1", answers.FirstOrDefault())
             .Replace("ANS2", answers.LastOrDefault());
