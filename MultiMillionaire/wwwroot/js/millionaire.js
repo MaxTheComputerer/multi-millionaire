@@ -215,12 +215,14 @@
                 },
 
                 drawResults: function (percentages) {
+                    ['A', 'B', 'C', 'D'].forEach(letter => {
+                        const value = percentages[letter] ? percentages[letter] : 0;
+                        setText(`audienceResults${letter}`, value + "%");
+                    });
+
                     const ctx = this.getContext();
                     for (const letter of Object.keys(percentages)) {
-                        const value = percentages[letter];
-                        setText(`audienceResults${letter}`, value + "%");
-
-                        const pos = 375 - Math.round((value / 100) * 375);
+                        const pos = 375 - Math.round((percentages[letter] / 100) * 375);
                         const xPosition = letter.charCodeAt(0) - 'A'.charCodeAt(0);
 
                         const grd = ctx.createLinearGradient(0, 1 + pos, 0, 376);
@@ -229,6 +231,10 @@
                         ctx.fillStyle = grd;
                         ctx.fillRect(13.75 + (xPosition * 75), 1 + pos, 50.5, 376);
                     }
+                },
+
+                reset: function () {
+                    this.getContext().clearRect(0, 0, 303, 378);
                 }
             }
         }
@@ -257,4 +263,5 @@ connection.on("SetAudienceAnswersOnClick", millionaire.lifelines.audience.setAns
 connection.on("ResetAudienceAnswersOnClick", millionaire.lifelines.audience.resetAnswersOnClick);
 connection.on("DrawAudienceGraphGrid", millionaire.lifelines.audience.graph.drawGrid.bind(millionaire.lifelines.audience.graph));
 connection.on("DrawAudienceGraphResults", millionaire.lifelines.audience.graph.drawResults.bind(millionaire.lifelines.audience.graph));
+connection.on("ResetAudienceGraph", millionaire.lifelines.audience.graph.reset.bind(millionaire.lifelines.audience.graph));
 connection.on("LockAudienceSubmission", millionaire.lifelines.audience.lock);

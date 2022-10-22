@@ -1,9 +1,7 @@
-﻿namespace MultiMillionaire.Models;
+﻿namespace MultiMillionaire.Models.Questions;
 
-public class OrderQuestion
+public class OrderQuestion : QuestionBase
 {
-    public string Question { get; init; } = string.Empty;
-    public Dictionary<char, string> Answers { get; } = new();
     public List<char> CorrectOrder { get; } = new();
 
     public static OrderQuestion GenerateQuestion()

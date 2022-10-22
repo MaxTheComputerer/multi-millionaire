@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using MultiMillionaire.Models.Questions;
+using Newtonsoft.Json;
 
 namespace MultiMillionaire.Models.Lifelines;
 
 public class PhoneAFriend : Lifeline
 {
-    private static readonly Random Rnd = new();
     private static Dictionary<ConfidenceLevel, List<string>> Responses { get; }
 
     static PhoneAFriend()
@@ -21,11 +21,11 @@ public class PhoneAFriend : Lifeline
     public string GenerateAiResponse(MultipleChoiceQuestion question, List<char> remainingAnswers)
     {
         var confidence = LifelineAi.GenerateConfidenceLevel(remainingAnswers.Count == 2);
-        var chosenLetters = LifelineAi.ChooseLetters(remainingAnswers, question.CorrectLetter, confidence, Rnd);
+        var chosenLetters = LifelineAi.ChooseLetters(remainingAnswers, question.CorrectLetter, confidence);
         var chosenAnswers = chosenLetters.Select(l => question.Answers[l]).ToList();
 
         var responses = Responses[confidence];
-        var chosenResponse = responses.ChooseRandom(Rnd);
+        var chosenResponse = responses.ChooseRandom(Random.Shared);
         return chosenResponse
             .Replace("ANS1", chosenAnswers.FirstOrDefault())
             .Replace("ANS2", chosenAnswers.LastOrDefault());

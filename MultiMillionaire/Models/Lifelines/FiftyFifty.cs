@@ -1,16 +1,17 @@
-﻿namespace MultiMillionaire.Models.Lifelines;
+﻿using MultiMillionaire.Models.Questions;
+
+namespace MultiMillionaire.Models.Lifelines;
 
 public class FiftyFifty : Lifeline
 {
-    public List<char> RemovedAnswers { get; set; } = new();
-    private static readonly Random Rnd = new();
+    public List<char> RemovedAnswers { get; private set; } = new();
 
     public IEnumerable<char> RemoveAnswersFromQuestion(MultipleChoiceQuestion question)
     {
         var correctLetter = question.CorrectLetter;
-        var letters = new List<char> { 'A', 'B', 'C', 'D' };
+        var letters = new List<char>(MultiplayerGame.AnswerLetters);
         letters.Remove(correctLetter);
-        letters.Shuffle(Rnd);
+        letters.Shuffle(Random.Shared);
         RemovedAnswers = letters.Take(2).ToList();
         return RemovedAnswers;
     }

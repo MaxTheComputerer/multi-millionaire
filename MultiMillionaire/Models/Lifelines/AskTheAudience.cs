@@ -1,4 +1,7 @@
-﻿namespace MultiMillionaire.Models.Lifelines;
+﻿using MultiMillionaire.Models.Questions;
+using Weighted_Randomizer;
+
+namespace MultiMillionaire.Models.Lifelines;
 
 public class AskTheAudience : Lifeline
 {
@@ -30,11 +33,16 @@ public class AskTheAudience : Lifeline
 
     public void SubmitVote(char letter)
     {
+        AddVoteToDictionary(letter);
+        CheckAllAudienceAnswered();
+    }
+
+    private void AddVoteToDictionary(char letter)
+    {
         if (Votes.ContainsKey(letter))
             Votes[letter]++;
         else
             Votes.Add(letter, 1);
-        CheckAllAudienceAnswered();
     }
 
     private void CheckAllAudienceAnswered()
@@ -43,12 +51,40 @@ public class AskTheAudience : Lifeline
             AllPlayersAnsweredSignal.SetResult();
     }
 
-    public void GenerateAiResponses()
+    public void GenerateAiResponses(MultipleChoiceQuestion question, List<char> remainingAnswers)
     {
-        Votes.Add('A', 10);
-        Votes.Add('B', 20);
-        Votes.Add('C', 28);
-        Votes.Add('D', 3);
+        // Generate audience's confidence
+        var confidence = LifelineAi.GenerateConfidenceLevel(remainingAnswers.Count == 2);
+
+        // Set up voting weights according to confidence
+        var randomizer = new StaticWeightedRandomizer<char>();
+        foreach (var letter in remainingAnswers) randomizer[letter] = 1;
+        var chosenLetters = LifelineAi.ChooseLetters(remainingAnswers, question.CorrectLetter, confidence);
+        switch (confidence)
+        {
+            case ConfidenceLevel.Certain:
+                randomizer[question.CorrectLetter] = 10;
+                break;
+            case ConfidenceLevel.PrettySure:
+                randomizer[chosenLetters.First()] = 20;
+                randomizer[chosenLetters.Last()] = 10;
+                break;
+            case ConfidenceLevel.FiftyFifty:
+                randomizer[chosenLetters.First()] = 10;
+                randomizer[chosenLetters.Last()] = 10;
+                break;
+            case ConfidenceLevel.Guess:
+            default:
+                break;
+        }
+
+        // Cast votes
+        for (var i = 0; i < 200; i++)
+        {
+            var letter = randomizer.NextWithReplacement();
+            AddVoteToDictionary(letter);
+        }
+
         CurrentState = State.ResultsReveal;
     }
 

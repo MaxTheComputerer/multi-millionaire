@@ -1,10 +1,10 @@
 ﻿namespace MultiMillionaire.Models.Lifelines;
 
-public class Lifeline
+public abstract class Lifeline
 {
     public bool IsUsed { get; set; }
 
-    public static ConfidenceLevel ParseConfidenceString(string value)
+    protected static ConfidenceLevel ParseConfidenceString(string value)
     {
         return value switch
         {

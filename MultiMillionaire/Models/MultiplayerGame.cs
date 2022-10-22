@@ -1,15 +1,19 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models.Questions;
+using MultiMillionaire.Models.Rounds;
+
+namespace MultiMillionaire.Models;
 
 public class MultiplayerGame
 {
-    public string Id { get; set; } = string.Empty;
-    public GameSettings Settings { get; set; } = new();
-    public User Host { get; set; } = null!;
-    public List<User> Audience { get; set; } = new();
-    public List<User> Spectators { get; set; } = new();
-    public Dictionary<User, int> Scores { get; set; } = new();
-    public GameRound? Round { get; set; }
+    public string Id { get; init; } = string.Empty;
+    public GameSettings Settings { get; } = new();
+    public User Host { get; init; } = null!;
+    public List<User> Audience { get; } = new();
+    public List<User> Spectators { get; } = new();
+    public Dictionary<User, int> Scores { get; } = new();
+    public GameRound? Round { get; private set; }
     public User? NextPlayer { get; set; }
+    public static readonly List<char> AnswerLetters = new() { 'A', 'B', 'C', 'D' };
 
     public static string GenerateRoomId()
     {

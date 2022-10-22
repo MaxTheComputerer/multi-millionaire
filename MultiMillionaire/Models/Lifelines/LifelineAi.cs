@@ -4,8 +4,8 @@ namespace MultiMillionaire.Models.Lifelines;
 
 public class LifelineAi
 {
-    public static IEnumerable<char> ChooseLetters(List<char> remainingAnswers, char correctAnswer,
-        ConfidenceLevel confidence, Random rnd)
+    public static List<char> ChooseLetters(List<char> remainingAnswers, char correctAnswer,
+        ConfidenceLevel confidence)
     {
         var randomizer = new StaticWeightedRandomizer<char>();
 
@@ -24,7 +24,7 @@ public class LifelineAi
         var guesses = new List<char> { randomizer.NextWithRemoval(), randomizer.NextWithRemoval() };
 
         // Shuffle if 5050
-        if (confidence == ConfidenceLevel.FiftyFifty) guesses.Shuffle(rnd);
+        if (confidence == ConfidenceLevel.FiftyFifty) guesses.Shuffle(Random.Shared);
         return guesses;
     }
 

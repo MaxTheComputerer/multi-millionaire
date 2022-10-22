@@ -1,19 +1,20 @@
 ﻿using MultiMillionaire.Models.Lifelines;
+using MultiMillionaire.Models.Questions;
 
-namespace MultiMillionaire.Models;
+namespace MultiMillionaire.Models.Rounds;
 
 public class MillionaireRound : GameRound
 {
     public User? Player { get; init; }
-    public QuestionBank QuestionBank { get; set; } = new();
-    public int QuestionNumber { get; set; } = 1;
+    public QuestionBank QuestionBank { get; init; } = new();
+    public int QuestionNumber { get; private set; } = 1;
     public char? SubmittedAnswer { get; set; }
     public bool Locked { get; set; } = true;
     public bool HasWalkedAway { get; set; }
 
-    public FiftyFifty FiftyFifty { get; set; } = new();
-    public PhoneAFriend PhoneAFriend { get; set; } = new();
-    public AskTheAudience AskTheAudience { get; set; } = new();
+    public FiftyFifty FiftyFifty { get; } = new();
+    public PhoneAFriend PhoneAFriend { get; } = new();
+    public AskTheAudience AskTheAudience { get; } = new();
 
     public int GetBackgroundNumber()
     {
@@ -71,7 +72,7 @@ public class MillionaireRound : GameRound
 
     public List<char> GetRemainingAnswers()
     {
-        return new List<char> { 'A', 'B', 'C', 'D' }.Except(FiftyFifty.RemovedAnswers).ToList();
+        return MultiplayerGame.AnswerLetters.Except(FiftyFifty.RemovedAnswers).ToList();
     }
 
     public void StartPhoneAFriend()
@@ -93,6 +94,11 @@ public class MillionaireRound : GameRound
     public void StartAskTheAudience()
     {
         AskTheAudience.IsUsed = true;
+    }
+
+    public void GenerateAudienceAiResponse()
+    {
+        AskTheAudience.GenerateAiResponses(GetCurrentQuestion(), GetRemainingAnswers());
     }
 
     public string GetUnsafeAmount()

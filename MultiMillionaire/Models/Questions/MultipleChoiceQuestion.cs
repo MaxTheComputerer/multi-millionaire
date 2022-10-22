@@ -1,10 +1,8 @@
-﻿namespace MultiMillionaire.Models;
+﻿namespace MultiMillionaire.Models.Questions;
 
-public class MultipleChoiceQuestion
+public class MultipleChoiceQuestion : QuestionBase
 {
-    public string Question { get; init; } = string.Empty;
-    public Dictionary<char, string> Answers { get; } = new();
-    public char CorrectLetter { get; set; }
+    public char CorrectLetter { get; private init; }
 
     public static MultipleChoiceQuestion GenerateQuestion(int questionNumber)
     {

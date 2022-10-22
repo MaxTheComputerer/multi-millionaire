@@ -1,4 +1,6 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models.Questions;
+
+namespace MultiMillionaire.Models;
 
 public class QuestionBank
 {

@@ -1,11 +1,13 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models.Questions;
+
+namespace MultiMillionaire.Models.Rounds;
 
 public class FastestFingerFirst : GameRound
 {
     public List<User> Players { get; init; } = new();
     public OrderQuestion? Question { get; init; }
-    public Dictionary<User, double> Times { get; } = new();
-    public Dictionary<User, bool> GaveCorrectAnswer { get; } = new();
+    private Dictionary<User, double> Times { get; } = new();
+    private Dictionary<User, bool> GaveCorrectAnswer { get; } = new();
     public RoundState State { get; set; } = RoundState.Setup;
     private TaskCompletionSource AllPlayersAnsweredSignal { get; } = new();
     public int AnswerRevealIndex { get; private set; }

@@ -1,4 +1,6 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models.Rounds;
+
+namespace MultiMillionaire.Models;
 
 public class User
 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
+using MultiMillionaire.Models.Rounds;
 
 namespace MultiMillionaire.Hubs;
 
@@ -57,14 +58,13 @@ public interface IMultiplayerGameHub
     Task DrawAudienceGraphGrid();
     Task DrawAudienceGraphResults(Dictionary<char, int> percentages);
     Task LockAudienceSubmission();
+    Task ResetAudienceGraph();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
-
-    private static readonly Random Rnd = new();
 
     // TEMP
     public async Task JoinRandomAudience()
@@ -361,10 +361,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             if (round.QuestionNumber > 1) await Clients.Caller.SetMoneyTree(round.QuestionNumber - 1);
             await Clients.Caller.SetText("question", round.GetCurrentQuestion().Question);
-            await Clients.Caller.SetAnswerText("answerA", round.GetCurrentQuestion().Answers['A']);
-            await Clients.Caller.SetAnswerText("answerB", round.GetCurrentQuestion().Answers['B']);
-            await Clients.Caller.SetAnswerText("answerC", round.GetCurrentQuestion().Answers['C']);
-            await Clients.Caller.SetAnswerText("answerD", round.GetCurrentQuestion().Answers['D']);
+            foreach (var letter in MultiplayerGame.AnswerLetters)
+                await Clients.Caller.SetAnswerText($"answer{letter}", round.GetCurrentQuestion().Answers[letter]);
             await Clients.Caller.Show("moneyTreePanel");
             await Clients.Caller.Show("questionAndAnswers");
         }
@@ -384,10 +382,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             {
                 case FastestFingerFirst.RoundState.InProgress:
                     await Clients.Caller.SetText("question", round.Question?.Question ?? "");
-                    await Clients.Caller.SetAnswerText("answerA", round.Question?.Answers['A'] ?? "");
-                    await Clients.Caller.SetAnswerText("answerB", round.Question?.Answers['B'] ?? "");
-                    await Clients.Caller.SetAnswerText("answerC", round.Question?.Answers['C'] ?? "");
-                    await Clients.Caller.SetAnswerText("answerD", round.Question?.Answers['D'] ?? "");
+                    foreach (var letter in MultiplayerGame.AnswerLetters)
+                        await Clients.Caller.SetAnswerText($"answer{letter}", round.Question?.Answers[letter] ?? "");
                     await Clients.Caller.Show("questionAndAnswers");
                     await Clients.Caller.SetBackground(0, true);
                     break;
@@ -710,6 +706,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Everyone(game).Show("mainGamePanels", "flex");
 
         await Host(game).Hide("hostMenu");
+        await Everyone(game).ResetAnswerBackgrounds();
         await Spectators(game).Show("questionAndAnswers");
     }
 
@@ -1027,7 +1024,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (round.PhoneAFriend.UseAi)
             {
                 await Spectators(game).SetText("phoneAiResponseText", "Thinking...");
-                await Task.Delay(Rnd.Next(5000, 10000));
+                await Task.Delay(Random.Shared.Next(5000, 10000));
 
                 var response = round.GeneratePhoneAiResponse();
                 await Spectators(game).SetText("phoneAiResponseText", response);
@@ -1118,8 +1115,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             if (round.AskTheAudience.UseAi)
             {
-                await Task.Delay(Rnd.Next(5000, 10000));
-                round.AskTheAudience.GenerateAiResponses();
+                await Task.Delay(Random.Shared.Next(5000, 10000));
+                round.GenerateAudienceAiResponse();
             }
             else
             {
@@ -1184,6 +1181,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     {
         var game = GetCurrentGame();
         if (game == null) return;
+
+        await Spectators(game).ResetAudienceGraph();
+        foreach (var letter in MultiplayerGame.AnswerLetters)
+            await Spectators(game).SetText($"audienceResults{letter}", "\u00a0");
 
         await Host(game).Show("audienceSetupPanel");
         await Host(game).Disable("audienceDismissBtn");
