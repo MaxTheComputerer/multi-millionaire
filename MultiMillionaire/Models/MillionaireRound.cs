@@ -82,10 +82,7 @@ public class MillionaireRound : GameRound
 
     public string GeneratePhoneAiResponse()
     {
-        var question = GetCurrentQuestion();
-        var chosenLetters = PhoneAFriend.ChooseLetters(GetRemainingAnswers(), question.CorrectLetter);
-        var chosenAnswers = chosenLetters.Select(l => question.Answers[l]).ToList();
-        return PhoneAFriend.GenerateResponse(chosenAnswers);
+        return PhoneAFriend.GenerateAiResponse(GetCurrentQuestion(), GetRemainingAnswers());
     }
 
     public void EndPhoneAFriend()
