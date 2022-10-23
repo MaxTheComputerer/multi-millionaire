@@ -59,6 +59,10 @@ public interface IMultiplayerGameHub
     Task DrawAudienceGraphResults(Dictionary<char, int> percentages);
     Task LockAudienceSubmission();
     Task ResetAudienceGraph();
+
+    Task PlaySound(string path, double attack = 40);
+    Task StopSound(string path);
+    Task FadeOutSound(string path, double duration = 400);
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -124,6 +128,15 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private IMultiplayerGameHub Everyone(MultiplayerGame game)
     {
         return Clients.Group(game.Id);
+    }
+
+    private IMultiplayerGameHub Listeners(MultiplayerGame game)
+    {
+        List<User> listeners = new();
+        if (!game.Settings.MuteHostSound) listeners.Add(game.Host);
+        if (!game.Settings.MuteAudienceSound) listeners.AddRange(game.Audience);
+        if (!game.Settings.MuteSpectatorSound) listeners.AddRange(game.Spectators);
+        return Clients.Clients(listeners.Select(u => u.ConnectionId));
     }
 
     private async Task SetBackground(int imageNumber, bool useRedVariant = false)
@@ -714,12 +727,19 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Spectators(game).Show("questionAndAnswers");
     }
 
-    public async Task LetsPlay()
+    public async Task LightsDown()
     {
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await SetBackground(round.GetBackgroundNumber());
+            var questionNumber = round.QuestionNumber;
+            if (questionNumber is 1 or > 5)
+            {
+                await Listeners(game).PlaySound($"questions.lightsDown.{questionNumber}");
+                await Task.Delay(1000);
+                await SetBackground(round.GetBackgroundNumber());
+            }
+
             await Host(game).SetOnClick("nextBtn", "FetchNextQuestion");
         }
     }
@@ -729,6 +749,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
+            await Listeners(game).PlaySound($"questions.music.{round.QuestionNumber}");
+            await Listeners(game).FadeOutSound($"questions.lightsDown.{round.QuestionNumber}");
+
             await Everyone(game).SetText("question", round.GetCurrentQuestion().Question);
             await Host(game).SetOnClick("nextBtn", "FetchAnswer", 'A');
         }
@@ -861,7 +884,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             round.FinishQuestion();
 
-            await LetsPlay();
+            await LightsDown();
             await Host(game).Enable("nextBtn");
 
             await Host(game).SetText("questionNumber", round.QuestionNumber.ToString());
@@ -964,7 +987,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Spectators(game).ResetLifelines();
             await Spectators(game).ResetMoneyTree();
 
-            await Host(game).SetOnClick("nextBtn", "LetsPlay");
+            await Host(game).SetOnClick("nextBtn", "LightsDown");
             await Spectators(game).Hide("totalPrize");
             await Spectators(game).Hide("millionairePrize");
             await Spectators(game).Hide("moneyTreePanel");

@@ -22,7 +22,7 @@
         }
     },
 
-    letsPlay: async () => await connection.invoke("LetsPlay"),
+    lightsDown: async () => await connection.invoke("LightsDown"),
 
     answers: {
         submit: async letter => await connection.invoke("SubmitAnswer", letter),
