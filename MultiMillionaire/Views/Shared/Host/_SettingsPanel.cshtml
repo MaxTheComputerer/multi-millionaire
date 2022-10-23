@@ -1,21 +1,30 @@
 ﻿<div class="col-auto col-md-6 mx-auto" id="settingsPanel" style="display: none;">
     <div class="box p-3 lh-base mb-4">
         <h2 class="mb-3">Settings</h2>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="audienceAreSpectators" onchange="settings.updateSwitchSetting('audienceAreSpectators')" checked>
-            <label class="form-check-label" for="audienceAreSpectators">Audience are also spectators</label>
+        <div class="mb-3">
+            <settings-toggle id="audienceAreSpectators">Audience are also spectators</settings-toggle>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteHostSound" onchange="settings.updateSwitchSetting('muteHostSound')" checked>
-            <label class="form-check-label" for="muteHostSound">Mute sound for host</label>
+        <div class="mb-3">
+            <settings-toggle id="muteHostSound" checked="true">Mute sound for host</settings-toggle>
+            <settings-toggle id="muteAudienceSound" checked="true">Mute sound for audience</settings-toggle>
+            <settings-toggle id="muteSpectatorSound">Mute sound for spectators</settings-toggle>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteAudienceSound" onchange="settings.updateSwitchSetting('muteAudienceSound')" checked>
-            <label class="form-check-label" for="muteAudienceSound">Mute sound for audience</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="muteSpectatorSound" onchange="settings.updateSwitchSetting('muteSpectatorSound')">
-            <label class="form-check-label" for="muteSpectatorSound">Mute sound for spectators</label>
-        </div>
+        @{
+            var ipAddress = Context.Connection.RemoteIpAddress?.ToString();
+            if (ipAddress != null && (ipAddress.StartsWith("192.168.0.") || ipAddress.StartsWith("::1")))
+            {
+                <div class="mb-3">
+                    <settings-toggle id="useLifxLight" class="mb-2">Use Lifx light</settings-toggle>
+                    <div class="row">
+                        <div class="col-auto mb-2">
+                            <input type="text" class="form-control" id="lifxLightIp" value="192.168.0.9"/>
+                        </div>
+                        <div class="col mb-2">
+                            <small-button class="h-100" no-margin="true" onclick="settings.updateTextSetting('lifxLightIp')">Apply</small-button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
     </div>
 </div>

@@ -126,6 +126,15 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return Clients.Group(game.Id);
     }
 
+    private async Task SetBackground(int imageNumber, bool useRedVariant = false)
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        await Everyone(game).SetBackground(imageNumber, useRedVariant);
+        if (game.Settings.UseLifxLight) await Host(game).Message("set light colour");
+    }
+
     #endregion
 
 
@@ -234,7 +243,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task HostGame()
     {
         var user = GetCurrentUser();
-        if (user == null || user.Name == null) return;
+        if (user?.Name == null) return;
 
         // Create game
         var game = CreateGame(user);
@@ -249,7 +258,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task JoinGameAudience(string gameId)
     {
         var user = GetCurrentUser();
-        if (user == null || user.Name == null) return;
+        if (user?.Name == null) return;
 
         var game = GetGameById(gameId);
         if (game == null)
@@ -432,26 +441,21 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null) return;
 
-        switch (settingName)
-        {
-            case "audienceAreSpectators":
-                game.Settings.AudienceAreSpectators = value;
-                break;
-            case "muteHostSound":
-                game.Settings.MuteHostSound = value;
-                break;
-            case "muteAudienceSound":
-                game.Settings.MuteAudienceSound = value;
-                break;
-            case "muteSpectatorSound":
-                game.Settings.MuteSpectatorSound = value;
-                break;
-            default:
-                await Clients.Caller.Message("Setting not found");
-                return;
-        }
+        if (game.Settings.TryUpdateSwitchSetting(settingName, value))
+            await Clients.Caller.Message("Settings updated successfully");
+        else
+            await Clients.Caller.Message("Setting not found");
+    }
 
-        await Clients.Caller.Message("Settings updated successfully");
+    public async Task UpdateTextSetting(string settingName, string value)
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        if (game.Settings.TryUpdateTextSetting(settingName, value))
+            await Clients.Caller.Message("Settings updated successfully");
+        else
+            await Clients.Caller.Message("Setting not found");
     }
 
     #endregion
@@ -466,7 +470,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         var round = game.SetupFastestFingerRound();
 
-        await Everyone(game).SetBackground(0);
+        await SetBackground(0);
         await Everyone(game).Hide("gameSetupPanels");
         await Everyone(game).Show("fastestFingerPanels", "flex");
 
@@ -488,7 +492,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
-                await Everyone(game).SetBackground(1, true);
+                await SetBackground(1, true);
 
                 await SpectatorsAndPlayers(game, round).SetText("question", round.Question.Question);
                 await Spectators(game).SetText("fffQuestion", round.Question.Question);
@@ -508,7 +512,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
-                await Everyone(game).SetBackground(0, true);
+                await SetBackground(0, true);
 
                 await Host(game).Disable("fffNextBtn");
                 await SpectatorsAndPlayers(game, round).StartFastestFinger(round.Question.Answers);
@@ -538,7 +542,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal } round)
         {
-            await Everyone(game).SetBackground(1);
+            await SetBackground(1);
 
             await Players(round).DisableFastestFingerAnswering();
 
@@ -620,7 +624,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             var winners = round.GetWinners();
 
             if (winners.Count > 0)
-                await Everyone(game).SetBackground(0);
+                await SetBackground(0);
 
             foreach (var winner in winners)
                 await Spectators(game).HighlightFastestFingerWinner(winner.ConnectionId);
@@ -644,7 +648,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Everyone(game).PopulatePlayerList(players);
 
             // Reset UI
-            await Everyone(game).SetBackground(3);
+            await SetBackground(3);
 
             await Spectators(game).Hide("fffResultsPanel");
             await Spectators(game).Hide("fffAnswerPanel");
@@ -696,7 +700,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         game!.SetupMillionaireRound();
 
         await Clients.Caller.DismissChoosePlayerModal();
-        await Everyone(game).SetBackground(0);
+        await SetBackground(0);
 
         var player = (game.Round as MillionaireRound)!.Player;
         await Host(game).SetText("contestantName", player!.Name!);
@@ -715,7 +719,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await Everyone(game).SetBackground(round.GetBackgroundNumber());
+            await SetBackground(round.GetBackgroundNumber());
             await Host(game).SetOnClick("nextBtn", "FetchNextQuestion");
         }
     }
@@ -773,8 +777,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task SubmitAnswer(char letter)
     {
         var game = GetCurrentGame();
-        if (game?.Round is MillionaireRound { Locked: false } round)
+        if (game?.Round is MillionaireRound round)
         {
+            if (round.Locked && !round.HasWalkedAway) return;
             if (round.FiftyFifty.IsAnswerRemoved(letter)) return;
 
             await SelectAnswer(letter);
@@ -818,7 +823,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             var correctLetter = round.GetCurrentQuestion().CorrectLetter;
             await Spectators(game).FlashCorrectAnswer(correctLetter);
-            if (round.QuestionNumber >= 5) await Everyone(game).SetBackground(0);
+            if (round.QuestionNumber >= 5) await SetBackground(0);
 
             if (round.HasWalkedAway)
             {
@@ -898,7 +903,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             round.HasWalkedAway = true;
             foreach (var id in new List<string> { "answerA", "answerB", "answerC", "answerD" })
                 await Host(game).Enable(id);
-            await Everyone(game).SetBackground(0);
+            await SetBackground(0);
         }
     }
 
@@ -907,7 +912,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await Everyone(game).SetBackground(3);
+            await SetBackground(3);
             await Spectators(game).ShowTotalPrize(round.GetTotalPrizeString());
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
         }
@@ -922,7 +927,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
             await Host(game).Enable("nextBtn");
             await Task.Delay(21000);
-            await Everyone(game).SetBackground(3);
+            await SetBackground(3);
         }
     }
 
@@ -1099,7 +1104,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Host(game).Show("audienceGraphPanel");
             await SpectatorsExceptHost(game).Hide("defaultPanel");
             await SpectatorsExceptHost(game).Show("audiencePanel");
-            await Everyone(game).SetBackground(0);
+            await SetBackground(0);
         }
     }
 
@@ -1156,7 +1161,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound { AskTheAudience.CurrentState: AskTheAudience.State.ResultsReveal } round)
         {
-            await Everyone(game).SetBackground(round.GetBackgroundNumber());
+            await SetBackground(round.GetBackgroundNumber());
             var percentages = round.AskTheAudience.GetPercentages();
             await Spectators(game).DrawAudienceGraphResults(percentages);
             await Host(game).Enable("audienceDismissBtn");
