@@ -7,7 +7,7 @@
     --orange: #f99b1c;
     --light-orange: #efab41;
     --dark-orange: #bf6b1d;
-    --background: #030d13;
+    --background: #00081c;
 }
 
 
@@ -84,6 +84,24 @@ body.bg-red-2 {
 
 #settingsPanel .box {
     min-height: 50vh;
+}
+
+.loading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background);
+    z-index: 1060;
+    font-family: Copperplate Gothic Regular, Copperplate Gothic, Conduit ITC, serif;
+    color: var(--orange);
+    font-size: 4rem;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
 }
 
 

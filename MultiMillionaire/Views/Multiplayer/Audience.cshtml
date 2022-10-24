@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Audience";
+    ViewData["Mode"] = "Multiplayer";
     ViewData["Role"] = UserRole.Audience;
 }
 
@@ -35,8 +36,10 @@
 
 @* Temp script to set up game for testing *@
 <script>
-setTimeout(() => {
-    connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
-    connection.invoke("JoinRandomAudience");
-}, 2000);
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
+        connection.invoke("JoinRandomAudience");
+    }, 2000);
+});
 </script>

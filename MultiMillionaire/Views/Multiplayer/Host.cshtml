@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Host";
+    ViewData["Mode"] = "Multiplayer";
     ViewData["Role"] = UserRole.Host;
 }
 
@@ -35,8 +36,10 @@
 
 @* Temp script to set up game for testing *@
 <script>
-setTimeout(() => {
-    connection.invoke("SetName", "Max");
-    connection.invoke("HostGame");
-}, 1000);
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        connection.invoke("SetName", "Max");
+        connection.invoke("HostGame");
+    }, 1000);
+});
 </script>

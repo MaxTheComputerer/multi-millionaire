@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Spectate";
+    ViewData["Mode"] = "Multiplayer";
     ViewData["Role"] = UserRole.Spectator;
 }
 
@@ -33,8 +34,10 @@
 
 @* Temp script to set up game for testing *@
 <script>
-setTimeout(() => {
-    connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
-    connection.invoke("JoinRandomSpectators");
-}, 2000);
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
+        connection.invoke("JoinRandomSpectators");
+    }, 2000);
+});
 </script>
