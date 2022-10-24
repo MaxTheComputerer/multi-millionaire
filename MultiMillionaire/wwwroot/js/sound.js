@@ -65,6 +65,18 @@ const sounds = {
 
 const soundLibrary = {
     music: {
+        hotSeat: sounds.create("music/hotseat.mp3"),
+
+        walk: sounds.create("music/walk.mp3", false, 1, async () => {
+            await sleep(1000);
+            sounds.play("music.closing");
+        }),
+
+        gameOver: sounds.create("music/gameover.mp3", false, 1, async () => {
+            await sleep(1000);
+            sounds.play("music.closing");
+        }),
+
         closing: sounds.create("music/closing.mp3")
     },
 

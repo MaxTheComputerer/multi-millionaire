@@ -713,6 +713,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         game!.SetupMillionaireRound();
 
         await Clients.Caller.DismissChoosePlayerModal();
+
+        await Listeners(game).FadeOutSound("music.closing");
+        await Listeners(game).PlaySound("music.hotSeat");
         await SetBackground(0);
 
         var player = (game.Round as MillionaireRound)!.Player;
@@ -736,8 +739,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (questionNumber is 1 or > 5)
             {
                 await Listeners(game).PlaySound($"questions.lightsDown.{questionNumber}");
-                if (questionNumber > 1)
+
+                if (questionNumber == 1)
+                    await Listeners(game).FadeOutSound("music.hotSeat");
+                else
                     await Listeners(game).FadeOutSound($"questions.correct.{questionNumber - 1}");
+
                 await Task.Delay(1000);
                 await SetBackground(round.GetBackgroundNumber());
             }
@@ -942,9 +949,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             await Lock(round);
             round.HasWalkedAway = true;
+            await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
+            await SetBackground(0);
             foreach (var id in new List<string> { "answerA", "answerB", "answerC", "answerD" })
                 await Host(game).Enable(id);
-            await SetBackground(0);
         }
     }
 
@@ -953,6 +961,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
+            await Listeners(game).PlaySound(round.HasWalkedAway ? "music.walk" : "music.gameOver");
             await SetBackground(3);
             await Spectators(game).ShowTotalPrize(round.GetTotalPrizeString());
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
@@ -969,6 +978,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Host(game).Enable("nextBtn");
             await Task.Delay(21000);
             await SetBackground(3);
+            await Listeners(game).PlaySound("music.closing");
+            await Listeners(game).StopSound("questions.correct.15");
         }
     }
 
