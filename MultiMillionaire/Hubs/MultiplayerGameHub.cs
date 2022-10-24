@@ -52,6 +52,7 @@ public interface IMultiplayerGameHub
     Task UsePhoneAFriend();
     Task UseAskTheAudience();
     Task StartPhoneClock();
+    Task StopPhoneClockMusic();
     Task SetAudienceAnswersOnClick();
     Task ResetAudienceAnswersOnClick();
     Task ResetLifelines();
@@ -63,6 +64,7 @@ public interface IMultiplayerGameHub
     Task PlaySound(string path, double attack = 40);
     Task StopSound(string path);
     Task FadeOutSound(string path, double duration = 400);
+    Task StopAllSounds();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -132,11 +134,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     private IMultiplayerGameHub Listeners(MultiplayerGame game)
     {
-        List<User> listeners = new();
-        if (!game.Settings.MuteHostSound) listeners.Add(game.Host);
-        if (!game.Settings.MuteAudienceSound) listeners.AddRange(game.Audience);
-        if (!game.Settings.MuteSpectatorSound) listeners.AddRange(game.Spectators);
-        return Clients.Clients(listeners.Select(u => u.ConnectionId));
+        return Clients.Clients(game.GetListeners().Select(u => u.ConnectionId));
     }
 
     private async Task SetBackground(int imageNumber, bool useRedVariant = false)
@@ -389,6 +387,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Caller.Show("questionAndAnswers");
         }
 
+        if (round.SubmittedAnswer != null && !round.HasWalkedAway && game.GetListeners().Contains(user!))
+            await Clients.Caller.PlaySound($"questions.music.{round.QuestionNumber}");
+
         await Clients.Caller.SetBackground(round.GetBackgroundNumber());
         await Clients.Caller.Hide("gameSetupPanels");
         await Clients.Caller.Show("mainGamePanels", "flex");
@@ -455,7 +456,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game == null) return;
 
         if (game.Settings.TryUpdateSwitchSetting(settingName, value))
+        {
             await Clients.Caller.Message("Settings updated successfully");
+            await Clients.Group(game.Id).StopAllSounds();
+        }
         else
             await Clients.Caller.Message("Setting not found");
     }
@@ -1034,6 +1038,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound { Locked: false, FiftyFifty.IsUsed: false } round)
         {
             var answersToRemove = round.GetFiftyFiftyAnswers();
+            await Listeners(game).PlaySound("lifelines.fiftyFifty");
             await Everyone(game).UseFiftyFifty(answersToRemove);
         }
     }
@@ -1063,6 +1068,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 await Spectators(game).Show("phoneAiResponse", "flex");
             }
 
+            await Listeners(game).PlaySound("lifelines.phone.start");
+            await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
+
             await Host(game).Hide("phoneSetupPanel");
             await Host(game).Show("phoneClockPanel");
             await SpectatorsExceptHost(game).Hide("defaultPanel");
@@ -1076,6 +1084,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound { Locked: true, PhoneAFriend.InProgress: true } round)
         {
             await Host(game).Disable("phoneStartBtn");
+            await Listeners(game).StopSound("lifelines.phone.start");
+            await Listeners(game).PlaySound("lifelines.phone.clock");
             await Spectators(game).StartPhoneClock();
 
             if (round.PhoneAFriend.UseAi)
@@ -1091,12 +1101,20 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         }
     }
 
+    public async Task RequestQuestionMusic()
+    {
+        var game = GetCurrentGame();
+        if (game?.Round is MillionaireRound round)
+            await Listeners(game).PlaySound($"questions.music.{round.QuestionNumber}");
+    }
+
     public async Task DismissPhoneAFriend()
     {
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound { Locked: true, PhoneAFriend.InProgress: true } round)
         {
             round.EndPhoneAFriend();
+            await Listeners(game).StopPhoneClockMusic();
             await Spectators(game).Hide("phonePanel");
             await Spectators(game).Show("defaultPanel", "flex");
             await Unlock(round);
@@ -1150,6 +1168,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 await AudienceExceptPlayer(game, round).Show("questionAndAnswers");
             }
 
+            await Listeners(game).PlaySound("lifelines.audience.start");
+            await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
+
             await Spectators(game).DrawAudienceGraphGrid();
 
             await Host(game).Hide("audienceSetupPanel");
@@ -1169,6 +1190,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             } round)
         {
             await Host(game).Disable("audienceStartBtn");
+
+            await Listeners(game).PlaySound("lifelines.audience.vote");
+            await Listeners(game).FadeOutSound("lifelines.audience.start");
 
             if (round.AskTheAudience.UseAi)
             {
@@ -1213,10 +1237,16 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound { AskTheAudience.CurrentState: AskTheAudience.State.ResultsReveal } round)
         {
+            await Listeners(game).PlaySound("lifelines.audience.results");
+            await Listeners(game).StopSound("lifelines.audience.vote");
             await SetBackground(round.GetBackgroundNumber());
+
             var percentages = round.AskTheAudience.GetPercentages();
             await Spectators(game).DrawAudienceGraphResults(percentages);
             await Host(game).Enable("audienceDismissBtn");
+
+            await Task.Delay(1000);
+            await Listeners(game).PlaySound($"questions.music.{round.QuestionNumber}");
         }
     }
 

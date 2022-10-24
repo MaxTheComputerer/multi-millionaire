@@ -22,7 +22,7 @@ connection.onclose(err => {
     }
     removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
     modals.disconnectedModal.show();
-    Howler.stop();
+    sounds.stopAll();
 });
 
 connection.on("Message", msg => console.log(msg));

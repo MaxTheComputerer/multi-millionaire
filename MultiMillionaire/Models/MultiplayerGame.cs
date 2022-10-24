@@ -30,6 +30,15 @@ public class MultiplayerGame
         return Audience.FindAll(u => !Scores.ContainsKey(u));
     }
 
+    public List<User> GetListeners()
+    {
+        List<User> listeners = new();
+        if (!Settings.MuteHostSound) listeners.Add(Host);
+        if (!Settings.MuteAudienceSound) listeners.AddRange(Audience);
+        if (!Settings.MuteSpectatorSound) listeners.AddRange(Spectators);
+        return listeners;
+    }
+
     public bool IsReadyForNewRound()
     {
         return Round == null && Audience.Count > 0;

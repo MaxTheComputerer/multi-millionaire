@@ -141,6 +141,13 @@
                 clockElement.src = "../images/clock.gif";
             },
 
+            stopClockMusic: () => {
+                if (sounds.isPlaying("lifelines.phone.clock")) {
+                    sounds.play("lifelines.phone.earlyEnd");
+                }
+                sounds.stop("lifelines.phone.clock");
+            },
+
             dismiss: async () => await connection.invoke("DismissPhoneAFriend"),
 
             reset: () => {
@@ -259,6 +266,7 @@ connection.on("UseFiftyFifty", millionaire.lifelines.fiftyFifty.use);
 connection.on("UsePhoneAFriend", millionaire.lifelines.phone.use);
 connection.on("UseAskTheAudience", millionaire.lifelines.audience.use);
 connection.on("StartPhoneClock", millionaire.lifelines.phone.onStart);
+connection.on("StopPhoneClockMusic", millionaire.lifelines.phone.stopClockMusic);
 connection.on("SetAudienceAnswersOnClick", millionaire.lifelines.audience.setAnswersOnClick);
 connection.on("ResetAudienceAnswersOnClick", millionaire.lifelines.audience.resetAnswersOnClick);
 connection.on("DrawAudienceGraphGrid", millionaire.lifelines.audience.graph.drawGrid.bind(millionaire.lifelines.audience.graph));

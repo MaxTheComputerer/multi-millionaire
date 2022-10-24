@@ -8,12 +8,14 @@
 
 const sounds = {
     create: (src, loop = false, volume = 1, onend = () => {
+    }, onstop = () => {
     }) => {
         return new Howl({
             src: ["/sounds/" + src],
             loop: loop,
             volume: volume,
-            onend: onend
+            onend: onend,
+            onstop: onstop
         });
     },
 
@@ -55,10 +57,18 @@ const sounds = {
                 this.stop();
                 this.volume(volume);
             });
-            await sleep(1000);
+            await sleep(500);
             sound.fade(sound.volume(), 0, duration);
         });
     },
+
+    isPlaying: function (path) {
+        return this.getObjectFromCacheOrPath(path, sound => {
+            return sound.playing();
+        });
+    },
+
+    stopAll: () => Howler.stop(),
 
     pathCache: []
 }
@@ -72,8 +82,7 @@ const soundLibrary = {
             sounds.play("music.closing");
         }),
 
-        gameOver: sounds.create("music/gameover.mp3", false, 1, async () => {
-            await sleep(1000);
+        gameOver: sounds.create("music/gameover.mp3", false, 1, () => {
             sounds.play("music.closing");
         }),
 
@@ -153,9 +162,26 @@ const soundLibrary = {
             14: nineFourteen,
             15: sounds.create("questions/incorrect/15.mp3"),
         }.init()
+    },
+
+    lifelines: {
+        fiftyFifty: sounds.create("lifelines/50-50.mp3"),
+
+        phone: {
+            start: sounds.create("lifelines/phone-start.mp3"),
+            clock: sounds.create("lifelines/phone-clock.mp3", false, 1, (nextFn = async () => await connection.invoke("RequestQuestionMusic")), nextFn),
+            earlyEnd: sounds.create("lifelines/phone-early-end.mp3")
+        },
+
+        audience: {
+            start: sounds.create("lifelines/audience-start.mp3"),
+            vote: sounds.create("lifelines/audience-vote.mp3"),
+            results: sounds.create("lifelines/audience-results.mp3")
+        }
     }
 }
 
 connection.on("PlaySound", sounds.play.bind(sounds));
 connection.on("StopSound", sounds.stop.bind(sounds));
 connection.on("FadeOutSound", sounds.fadeOut.bind(sounds));
+connection.on("StopAllSounds", sounds.stopAll);

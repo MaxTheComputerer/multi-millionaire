@@ -52,7 +52,7 @@
     ended: () => {
         removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
         modals.gameEndedModal.show();
-        Howler.stop();
+        sounds.stopAll();
     }
 }
 
