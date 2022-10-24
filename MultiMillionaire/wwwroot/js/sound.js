@@ -47,7 +47,7 @@ const sounds = {
     },
 
     fadeOut: function (path, duration = 400) {
-        this.getObjectFromCacheOrPath(path, sound => {
+        this.getObjectFromCacheOrPath(path, async sound => {
             if (!sound.playing()) return;
 
             const volume = sound.volume();
@@ -55,6 +55,7 @@ const sounds = {
                 this.stop();
                 this.volume(volume);
             });
+            await sleep(1000);
             sound.fade(sound.volume(), 0, duration);
         });
     },

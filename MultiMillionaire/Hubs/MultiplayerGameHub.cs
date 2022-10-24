@@ -736,6 +736,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (questionNumber is 1 or > 5)
             {
                 await Listeners(game).PlaySound($"questions.lightsDown.{questionNumber}");
+                if (questionNumber > 1)
+                    await Listeners(game).FadeOutSound($"questions.correct.{questionNumber - 1}");
                 await Task.Delay(1000);
                 await SetBackground(round.GetBackgroundNumber());
             }
@@ -822,6 +824,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Lock(round);
             round.SubmittedAnswer = letter;
             await Spectators(game).SelectAnswer(letter);
+
+            if (round.QuestionNumber > 5)
+            {
+                await Listeners(game).PlaySound($"questions.final.{round.QuestionNumber}");
+                await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
+            }
         }
     }
 
@@ -855,6 +863,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                if (round.QuestionNumber == 5)
+                    await Listeners(game).StopSound($"questions.music.{round.QuestionNumber}");
+
                 if (round.SubmittedAnswer == correctLetter)
                     await CorrectAnswer();
                 else
@@ -868,17 +879,21 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is MillionaireRound round)
         {
-            await Task.Delay(3000);
-            await Spectators(game).SetMoneyTree(round.QuestionNumber);
+            var questionNumber = round.QuestionNumber;
+            await Listeners(game).PlaySound($"questions.correct.{questionNumber}");
+            await Listeners(game).FadeOutSound($"questions.final.{questionNumber}");
 
-            if (round.QuestionNumber == 15)
+            await Task.Delay(3000);
+            await Spectators(game).SetMoneyTree(questionNumber);
+
+            if (questionNumber == 15)
             {
                 await Win();
                 return;
             }
 
             await Spectators(game).ShowWinnings(round.GetWinnings());
-            await Task.Delay(round.QuestionNumber is 5 or 10 ? 5000 : 2000);
+            await Task.Delay(questionNumber is 5 or 10 ? 5000 : 2000);
             await ResetQuestion();
             await Spectators(game).HideWinnings();
 
@@ -896,9 +911,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private async Task WrongAnswer()
     {
         var game = GetCurrentGame();
-        if (game?.Round is not MillionaireRound) return;
+        if (game?.Round is not MillionaireRound round) return;
 
-        await Host(game).Message("wrong answer");
+        var questionNumber = round.QuestionNumber;
+        await Listeners(game).PlaySound($"questions.incorrect.{questionNumber}");
+        await Listeners(game).FadeOutSound($"questions.final.{questionNumber}");
+        await Listeners(game).StopSound($"questions.music.{questionNumber}");
 
         await Host(game).SetOnClick("nextBtn", "GameOver");
         await Host(game).Enable("nextBtn");
