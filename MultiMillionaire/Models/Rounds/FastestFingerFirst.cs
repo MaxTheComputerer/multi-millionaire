@@ -23,8 +23,8 @@ public class FastestFingerFirst : GameRound
     public async Task StartRoundAndWait()
     {
         State = RoundState.InProgress;
-        // Timeout after 20 seconds if nobody answers
-        await Task.WhenAny(Task.Delay(20000), AllPlayersAnsweredSignal.Task);
+        // Timeout after 23 seconds if someone hasn't answered
+        await Task.WhenAny(Task.Delay(23000), AllPlayersAnsweredSignal.Task);
         State = RoundState.AnswerReveal;
     }
 
@@ -35,8 +35,13 @@ public class FastestFingerFirst : GameRound
 
     private void CheckAllPlayersAnswered()
     {
-        if (Times.Count == Players.Count && GaveCorrectAnswer.Count == Players.Count)
+        if (HaveAllPlayersAnswered())
             AllPlayersAnsweredSignal.SetResult();
+    }
+
+    public bool HaveAllPlayersAnswered()
+    {
+        return Times.Count == Players.Count && GaveCorrectAnswer.Count == Players.Count;
     }
 
     public void SubmitAnswer(User player, IEnumerable<char> answerOrder, double time)

@@ -89,6 +89,24 @@ const soundLibrary = {
         closing: sounds.create("music/closing.mp3")
     },
 
+    fastestFinger: {
+        start: sounds.create("fastest-finger/start.mp3", true),
+        question: sounds.create("fastest-finger/question.mp3", true),
+        vote: sounds.create("fastest-finger/vote.mp3"),
+        earlyEnd: sounds.create("fastest-finger/end-vote.mp3"),
+        answers: {
+            background: sounds.create("fastest-finger/answer-reveal-bg.mp3", true),
+            init: function () {
+                for (let i = 0; i <= 3; i++) {
+                    this[i] = sounds.create(`fastest-finger/answer-${i}.mp3`);
+                }
+                return this;
+            }
+        }.init(),
+        resultsReveal: sounds.create("fastest-finger/results-reveal.mp3"),
+        winner: sounds.create("fastest-finger/winner-reveal.mp3")
+    },
+
     questions: {
         lightsDown: {
             1: (oneSixEleven = sounds.create("questions/lights-down/1-6-11.mp3")),
@@ -168,14 +186,14 @@ const soundLibrary = {
         fiftyFifty: sounds.create("lifelines/50-50.mp3"),
 
         phone: {
-            start: sounds.create("lifelines/phone-start.mp3"),
+            start: sounds.create("lifelines/phone-start.mp3", true),
             clock: sounds.create("lifelines/phone-clock.mp3", false, 1, (nextFn = async () => await connection.invoke("RequestQuestionMusic")), nextFn),
             earlyEnd: sounds.create("lifelines/phone-early-end.mp3")
         },
 
         audience: {
-            start: sounds.create("lifelines/audience-start.mp3"),
-            vote: sounds.create("lifelines/audience-vote.mp3"),
+            start: sounds.create("lifelines/audience-start.mp3", true),
+            vote: sounds.create("lifelines/audience-vote.mp3", true),
             results: sounds.create("lifelines/audience-results.mp3")
         }
     }

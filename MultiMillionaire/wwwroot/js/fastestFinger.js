@@ -29,6 +29,13 @@
         }
     },
 
+    stopVoteMusic: () => {
+        if (sounds.isPlaying("fastestFinger.vote")) {
+            sounds.play("fastestFinger.earlyEnd");
+        }
+        sounds.stop("fastestFinger.vote");
+    },
+
     revealAnswer: (index, letter, answer) => {
         const rowElement = document.getElementById(`fffAnswer${index}`);
         const letterElement = rowElement.querySelector(".answer-letter");
@@ -124,6 +131,7 @@
 connection.on("StartFastestFinger", fastestFinger.showAnswers);
 connection.on("EnableFastestFingerAnswering", fastestFinger.onStart.bind(fastestFinger));
 connection.on("DisableFastestFingerAnswering", fastestFinger.input.lock);
+connection.on("StopFastestFingerVoteMusic", fastestFinger.stopVoteMusic);
 connection.on("ShowFastestFingerAnswer", fastestFinger.revealAnswer);
 connection.on("PopulateFastestFingerResults", fastestFinger.populateResultsPanel);
 connection.on("RevealCorrectFastestFingerPlayers", fastestFinger.revealCorrectPlayers);

@@ -28,6 +28,7 @@ public interface IMultiplayerGameHub
     Task StartFastestFinger(Dictionary<char, string> answers);
     Task EnableFastestFingerAnswering();
     Task DisableFastestFingerAnswering();
+    Task StopFastestFingerVoteMusic();
     Task ShowFastestFingerAnswer(int answerIndex, char letter, string answerText);
     Task PopulateFastestFingerResults(IEnumerable<UserViewModel> players);
     Task RevealCorrectFastestFingerPlayers(Dictionary<string, double> correctUserTimes);
@@ -487,7 +488,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         var round = game.SetupFastestFingerRound();
 
+        await Listeners(game).PlaySound("fastestFinger.start");
+        await Listeners(game).FadeOutSound("music.closing");
         await SetBackground(0);
+
         await Everyone(game).Hide("gameSetupPanels");
         await Everyone(game).Show("fastestFingerPanels", "flex");
 
@@ -509,6 +513,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                await Listeners(game).PlaySound("fastestFinger.question");
+                await Listeners(game).FadeOutSound("fastestFinger.start");
                 await SetBackground(1, true);
 
                 await SpectatorsAndPlayers(game, round).SetText("question", round.Question.Question);
@@ -529,6 +535,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             else
             {
+                await Listeners(game).PlaySound("fastestFinger.vote");
+                await Listeners(game).StopSound("fastestFinger.question");
                 await SetBackground(0, true);
 
                 await Host(game).Disable("fffNextBtn");
@@ -559,9 +567,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal } round)
         {
-            await SetBackground(1);
-
             await Players(round).DisableFastestFingerAnswering();
+
+            if (round.HaveAllPlayersAnswered())
+                await Listeners(game).StopFastestFingerVoteMusic();
+            await SetBackground(1);
 
             await Host(game).SetOnClick("fffNextBtn", "ShowFastestFingerAnswerPanel");
             await Host(game).Enable("fffNextBtn");
@@ -573,6 +583,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.AnswerReveal } round)
         {
+            await Listeners(game).PlaySound("fastestFinger.answers.background");
             await SpectatorsAndPlayers(game, round).Hide("questionAndAnswers");
             await Players(round).Hide("fastestFingerBtns");
             await Players(round).Hide("fastestFingerInput");
@@ -593,6 +604,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 var index = round.AnswerRevealIndex;
                 var letter = round.GetNextAnswer();
                 var answer = round.Question.Answers[letter];
+                await Listeners(game).PlaySound($"fastestFinger.answers.{index}");
                 await Spectators(game).ShowFastestFingerAnswer(index, letter, answer);
 
                 if (index == 3) await Host(game).SetOnClick("fffNextBtn", "ShowFastestFingerResultsPanel");
@@ -628,6 +640,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             var correctUserTimes =
                 round.GetTimesForCorrectPlayers().ToDictionary(x => x.Key.ConnectionId, v => v.Value);
+
+            await Listeners(game).FadeOutSound("fastestFinger.answers.background");
+            await Listeners(game).PlaySound("fastestFinger.resultsReveal");
+
             await Spectators(game).RevealCorrectFastestFingerPlayers(correctUserTimes);
             await Host(game).SetOnClick("fffNextBtn", "RevealFastestFingerWinners");
         }
@@ -641,7 +657,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             var winners = round.GetWinners();
 
             if (winners.Count > 0)
+            {
+                await Listeners(game).PlaySound("fastestFinger.winner");
                 await SetBackground(0);
+            }
 
             foreach (var winner in winners)
                 await Spectators(game).HighlightFastestFingerWinner(winner.ConnectionId);
@@ -955,8 +974,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             round.HasWalkedAway = true;
             await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
             await SetBackground(0);
-            foreach (var id in new List<string> { "answerA", "answerB", "answerC", "answerD" })
-                await Host(game).Enable(id);
+            foreach (var letter in round.GetRemainingAnswers())
+                await Host(game).Enable($"answer{letter}");
         }
     }
 
