@@ -381,12 +381,13 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             (user?.Role is UserRole.Audience && game.Settings.AudienceAreSpectators))
         {
             if (round.QuestionNumber > 1) await Clients.Caller.SetMoneyTree(round.QuestionNumber - 1);
-            await Clients.Caller.SetText("question", round.GetCurrentQuestion().Question);
-            foreach (var letter in MultiplayerGame.AnswerLetters)
-                await Clients.Caller.SetAnswerText($"answer{letter}", round.GetCurrentQuestion().Answers[letter]);
             await Clients.Caller.Show("moneyTreePanel");
             await Clients.Caller.Show("questionAndAnswers");
         }
+
+        await Clients.Caller.SetText("question", round.GetCurrentQuestion().Question);
+        foreach (var letter in round.GetRemainingAnswers())
+            await Clients.Caller.SetAnswerText($"answer{letter}", round.GetCurrentQuestion().Answers[letter]);
 
         if (round.SubmittedAnswer != null && !round.HasWalkedAway && game.GetListeners().Contains(user!))
             await Clients.Caller.PlaySound($"questions.music.{round.QuestionNumber}");
@@ -399,6 +400,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private async Task SynchroniseFastestFingerRoundView(MultiplayerGame game, FastestFingerFirst round)
     {
         var user = GetCurrentUser();
+        var isListener = user != null && game.GetListeners().Contains(user);
         if (user?.Role is UserRole.Spectator ||
             (user?.Role is UserRole.Audience && game.Settings.AudienceAreSpectators))
         {
@@ -409,6 +411,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                     foreach (var letter in MultiplayerGame.AnswerLetters)
                         await Clients.Caller.SetAnswerText($"answer{letter}", round.Question?.Answers[letter] ?? "");
                     await Clients.Caller.Show("questionAndAnswers");
+
+                    if (isListener)
+                        await Clients.Caller.PlaySound("fastestFinger.vote");
                     await Clients.Caller.SetBackground(0, true);
                     break;
                 case FastestFingerFirst.RoundState.AnswerReveal or FastestFingerFirst.RoundState.ResultsReveal:
@@ -431,10 +436,14 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                         await Clients.Caller.Hide("fffDefaultPanel");
                     }
 
+                    if (isListener && round.State is FastestFingerFirst.RoundState.AnswerReveal)
+                        await Clients.Caller.PlaySound("fastestFinger.answers.background");
                     await Clients.Caller.SetBackground(1);
                     break;
                 }
                 default:
+                    if (isListener)
+                        await Clients.Caller.PlaySound("fastestFinger.question");
                     await Clients.Caller.SetBackground(1, true);
                     break;
             }
