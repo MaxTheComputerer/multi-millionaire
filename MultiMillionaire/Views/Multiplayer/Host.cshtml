@@ -38,8 +38,8 @@
 <script>
 window.addEventListener("load", () => {
     setTimeout(() => {
-        connection.invoke("SetName", "Max");
-        connection.invoke("HostGame");
+        connection.send("SetName", "Max");
+        connection.send("HostGame");
     }, 1000);
 });
 </script>

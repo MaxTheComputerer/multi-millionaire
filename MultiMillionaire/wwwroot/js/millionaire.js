@@ -1,5 +1,5 @@
 ﻿const millionaire = {
-    request: async () => await connection.invoke("RequestMainGame"),
+    request: async () => await connection.send("RequestMainGame"),
 
     noNextPlayer: players => {
         const choosePlayerSelect = document.getElementById("choosePlayerSelect");
@@ -18,14 +18,14 @@
     setPlayerAndStart: async () => {
         const choosePlayerSelect = document.getElementById("choosePlayerSelect");
         if (choosePlayerSelect.value !== "") {
-            await connection.invoke("SetPlayerAndStart", choosePlayerSelect.value);
+            await connection.send("SetPlayerAndStart", choosePlayerSelect.value);
         }
     },
 
-    lightsDown: async () => await connection.invoke("LightsDown"),
+    lightsDown: async () => await connection.send("LightsDown"),
 
     answers: {
-        submit: async letter => await connection.invoke("SubmitAnswer", letter),
+        submit: async letter => await connection.send("SubmitAnswer", letter),
 
         select: letter => {
             const answerElement = document.getElementById(`answer${letter}`);
@@ -96,7 +96,7 @@
         }
     },
 
-    walkAway: async () => await connection.invoke("WalkAway"),
+    walkAway: async () => await connection.send("WalkAway"),
 
     lifelines: {
         reset: function () {
@@ -108,7 +108,7 @@
         },
 
         fiftyFifty: {
-            request: async () => await connection.invoke("RequestFiftyFifty"),
+            request: async () => await connection.send("RequestFiftyFifty"),
 
             use: answers => {
                 const lifeline = document.getElementById("lifeline-5050");
@@ -123,18 +123,18 @@
         },
 
         phone: {
-            request: async () => await connection.invoke("RequestPhoneAFriend"),
+            request: async () => await connection.send("RequestPhoneAFriend"),
 
             use: () => {
                 const lifeline = document.getElementById("lifeline-phone");
                 lifeline.classList.add("used");
             },
 
-            phoneFriend: async () => await connection.invoke("ChooseWhoToPhone", false),
+            phoneFriend: async () => await connection.send("ChooseWhoToPhone", false),
 
-            phoneAi: async () => await connection.invoke("ChooseWhoToPhone", true),
+            phoneAi: async () => await connection.send("ChooseWhoToPhone", true),
 
-            startClock: async () => await connection.invoke("PhoneStartClock"),
+            startClock: async () => await connection.send("PhoneStartClock"),
 
             onStart: () => {
                 const clockElement = document.getElementById("phoneClockImg");
@@ -148,7 +148,7 @@
                 sounds.stop("lifelines.phone.clock");
             },
 
-            dismiss: async () => await connection.invoke("DismissPhoneAFriend"),
+            dismiss: async () => await connection.send("DismissPhoneAFriend"),
 
             reset: () => {
                 const clockElement = document.getElementById("phoneClockImg");
@@ -157,18 +157,18 @@
         },
 
         audience: {
-            request: async () => await connection.invoke("RequestAskTheAudience"),
+            request: async () => await connection.send("RequestAskTheAudience"),
 
             use: () => {
                 const lifeline = document.getElementById("lifeline-audience");
                 lifeline.classList.add("used");
             },
 
-            askLive: async () => await connection.invoke("ChooseAudienceToAsk", false),
+            askLive: async () => await connection.send("ChooseAudienceToAsk", false),
 
-            askAi: async () => await connection.invoke("ChooseAudienceToAsk", true),
+            askAi: async () => await connection.send("ChooseAudienceToAsk", true),
 
-            submit: async letter => await connection.invoke("SubmitAudienceGuess", letter),
+            submit: async letter => await connection.send("SubmitAudienceGuess", letter),
 
             lock: () => {
                 disable("answerA");
@@ -191,9 +191,9 @@
                 })
             },
 
-            start: async () => await connection.invoke("StartAudienceVoting"),
+            start: async () => await connection.send("StartAudienceVoting"),
 
-            dismiss: async () => await connection.invoke("DismissAskTheAudience"),
+            dismiss: async () => await connection.send("DismissAskTheAudience"),
 
             graph: {
                 getContext: () => {

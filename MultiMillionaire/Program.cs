@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews();
 if (builder.Environment.IsDevelopment()) mvcBuilder.AddRazorRuntimeCompilation();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(hubOptions => { hubOptions.MaximumParallelInvocationsPerClient = 5; });
 
 builder.Services.AddDetection();
 builder.Services.AddSession(options =>

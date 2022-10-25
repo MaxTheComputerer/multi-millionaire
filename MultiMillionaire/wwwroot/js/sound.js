@@ -187,7 +187,7 @@ const soundLibrary = {
 
         phone: {
             start: sounds.create("lifelines/phone-start.mp3", true),
-            clock: sounds.create("lifelines/phone-clock.mp3", false, 1, (nextFn = async () => await connection.invoke("RequestQuestionMusic")), nextFn),
+            clock: sounds.create("lifelines/phone-clock.mp3", false, 1, (nextFn = async () => await connection.send("RequestQuestionMusic")), nextFn),
             earlyEnd: sounds.create("lifelines/phone-early-end.mp3")
         },
 

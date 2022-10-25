@@ -7,7 +7,7 @@
 
     setName: async () => {
         const name = document.getElementById("playerNameInput").value;
-        await connection.invoke("SetName", name);
+        await connection.send("SetName", name);
     },
 
     joined: user => {

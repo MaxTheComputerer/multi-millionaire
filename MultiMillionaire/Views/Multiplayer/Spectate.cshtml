@@ -36,8 +36,8 @@
 <script>
 window.addEventListener("load", () => {
     setTimeout(() => {
-        connection.invoke("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
-        connection.invoke("JoinRandomSpectators");
+        connection.send("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
+        connection.send("JoinRandomSpectators");
     }, 2000);
 });
 </script>

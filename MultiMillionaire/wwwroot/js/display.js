@@ -42,8 +42,8 @@ function setAnswerText(id, text) {
 function setOnClick(id, methodName, charArg = null) {
     const element = document.getElementById(id);
     element.onclick = charArg
-        ? async () => await connection.invoke(methodName, charArg)
-        : async () => await connection.invoke(methodName);
+        ? async () => await connection.send(methodName, charArg)
+        : async () => await connection.send(methodName);
 }
 
 function enable(id) {

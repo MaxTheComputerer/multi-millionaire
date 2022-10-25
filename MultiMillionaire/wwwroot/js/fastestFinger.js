@@ -1,7 +1,7 @@
 ﻿const fastestFinger = {
-    request: async () => await connection.invoke("RequestFastestFinger"),
+    request: async () => await connection.send("RequestFastestFinger"),
 
-    fetchQuestion: async () => await connection.invoke("FetchFastestFingerQuestion"),
+    fetchQuestion: async () => await connection.send("FetchFastestFingerQuestion"),
 
     showAnswers: answers => {
         setAnswerText("answerA", answers.A);
@@ -25,7 +25,7 @@
             const inputs = element.querySelectorAll(".fff-answer-input span");
             const answerOrder = Array.from(inputs).map(i => i.textContent);
 
-            await connection.invoke("SubmitFastestFingerAnswer", answerOrder, duration);
+            await connection.send("SubmitFastestFingerAnswer", answerOrder, duration);
         }
     },
 

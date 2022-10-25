@@ -12,11 +12,11 @@
 
     updateSwitchSetting: async id => {
         const element = document.getElementById(id);
-        await connection.invoke("UpdateSwitchSetting", id, element.checked);
+        await connection.send("UpdateSwitchSetting", id, element.checked);
     },
 
     updateTextSetting: async id => {
         const element = document.getElementById(id);
-        await connection.invoke("UpdateTextSetting", id, element.value);
+        await connection.send("UpdateTextSetting", id, element.value);
     }
 }

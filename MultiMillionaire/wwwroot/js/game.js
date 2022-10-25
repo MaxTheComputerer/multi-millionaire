@@ -12,7 +12,7 @@
         host: async function () {
             if (this.validateForm()) {
                 await players.setName();
-                await connection.invoke("HostGame");
+                await connection.send("HostGame");
             }
         },
 
@@ -21,14 +21,14 @@
             if (this.validateForm()) {
                 await players.setName();
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
-                await connection.invoke("JoinGameAudience", gameId);
+                await connection.send("JoinGameAudience", gameId);
             }
         },
 
         spectator: async function () {
             if (this.validateForm()) {
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
-                await connection.invoke("SpectateGame", gameId);
+                await connection.send("SpectateGame", gameId);
             }
         },
 
