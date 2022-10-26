@@ -72,6 +72,7 @@
         createToastElement: (message) => {
             const toastElement = document.createElement("div");
             toastElement.className = "toast box align-items-center fade";
+            toastElement.setAttribute("data-bs-delay", "3000");
             toastElement.innerHTML =
                 '<div class="toast-header">\n' +
                 '<img src="/images/logo.png" class="me-2" alt="Who Wants To Be A Millionaire? logo">\n' +

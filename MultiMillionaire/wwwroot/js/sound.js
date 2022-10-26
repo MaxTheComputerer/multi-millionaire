@@ -40,6 +40,7 @@ const sounds = {
     onLoad: function () {
         this.loadCounter++;
         if (this.loadCounter === 62) {
+            game.toasts.showMessage("Sounds loaded successfully");
             window.dispatchEvent(this.loadEvent);
         }
     },
@@ -56,7 +57,7 @@ const sounds = {
             }
         }
 
-        console.log("start load");
+        game.toasts.showMessage("Loading sounds...");
         loadRecurse(soundLibrary);
     },
 
@@ -228,6 +229,7 @@ const soundLibrary = {
     }
 }
 
+connection.on("LoadSounds", sounds.load);
 connection.on("PlaySound", sounds.play.bind(sounds));
 connection.on("StopSound", sounds.stop.bind(sounds));
 connection.on("FadeOutSound", sounds.fadeOut.bind(sounds));

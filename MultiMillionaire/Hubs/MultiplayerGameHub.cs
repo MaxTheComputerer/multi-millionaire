@@ -66,6 +66,7 @@ public interface IMultiplayerGameHub
     Task StopSound(string path);
     Task FadeOutSound(string path, double duration = 400);
     Task StopAllSounds();
+    Task LoadSounds();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -467,8 +468,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         if (game.Settings.TryUpdateSwitchSetting(settingName, value))
         {
+            if (settingName.StartsWith("mute")) await LoadUnloadSounds(game, settingName, value);
             await Clients.Caller.Message("Settings updated successfully");
-            await Clients.Group(game.Id).StopAllSounds();
         }
         else
             await Clients.Caller.Message("Setting not found");
@@ -483,6 +484,29 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Caller.Message("Settings updated successfully");
         else
             await Clients.Caller.Message("Setting not found");
+    }
+
+    private async Task LoadUnloadSounds(MultiplayerGame game, string settingName, bool value)
+    {
+        var listenersToChange = new List<User>();
+        switch (settingName)
+        {
+            case "muteHostSound":
+                listenersToChange.Add(game.Host);
+                break;
+            case "muteAudienceSound":
+                listenersToChange = game.Audience;
+                break;
+            case "muteSpectatorSound":
+                listenersToChange = game.Spectators;
+                break;
+        }
+
+        var userIds = listenersToChange.Select(u => u.ConnectionId);
+        if (value)
+            await Clients.Clients(userIds).StopAllSounds();
+        else
+            await Clients.Clients(userIds).LoadSounds();
     }
 
     #endregion

@@ -5,17 +5,13 @@
 
 <div class="loading" id="loadingScreen" style="display: flex">Loading...</div>
 
-<div id="panels">
-    @await RenderSectionAsync("Panels")
-</div>
+@await RenderSectionAsync("Panels")
 
-<div id="questionRows">
-    @await RenderSectionAsync("QuestionRows")
-</div>
+@await RenderSectionAsync("QuestionRows")
 
-<div id="modals">
-    @await RenderSectionAsync("Modals")
-</div>
+@await RenderSectionAsync("FastestFingerBtns", false)
+
+@await RenderSectionAsync("Modals")
 
 <div class="toast-container bottom-0 end-0 mb-2 me-2" id="toastContainer"></div>
 
