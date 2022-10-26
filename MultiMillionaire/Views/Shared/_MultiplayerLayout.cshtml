@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Mode"] = "Multiplayer";
+}
+
+<div class="loading" id="loadingScreen" style="display: flex">Loading...</div>
+
+<div id="panels">
+    @await RenderSectionAsync("Panels")
+</div>
+
+<div id="questionRows">
+    @await RenderSectionAsync("QuestionRows")
+</div>
+
+<div id="modals">
+    @await RenderSectionAsync("Modals")
+</div>
+
+
+@RenderBody()
+
+<div id="scripts">
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/multiplayer.js" asp-append-version="true"></script>
+
+    <script src="~/js/display.js" asp-append-version="true"></script>
+    <script src="~/js/players.js" asp-append-version="true"></script>
+    <script src="~/js/game.js" asp-append-version="true"></script>
+    <script src="~/js/fastestFinger.js" asp-append-version="true"></script>
+    <script src="~/js/millionaire.js" asp-append-version="true"></script>
+    <script src="~/js/sound.js" asp-append-version="true"></script>
+
+    <script type="text/javascript">
+        window.addEventListener("load", () => {
+            const loadingElement = document.getElementById("loadingScreen");
+            if (loadingElement) {
+                loadingElement.style.display = "none";
+            }
+        });
+    </script>
+</div>

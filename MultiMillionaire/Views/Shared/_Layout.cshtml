@@ -26,25 +26,9 @@
 
 <body>
 
-@if (ViewData["Mode"] is "Multiplayer")
-{
-    <div class="loading" id="loadingScreen" style="display: flex">Loading...</div>
-}
-
 <main role="main" class="container-lg d-flex flex-column justify-content-evenly min-vh-100 py-4">
     @RenderBody()
 </main>
 
 </body>
-@if (ViewData["Mode"] is "Multiplayer")
-{
-    <script type="text/javascript">
-    window.onload = function () {
-        const loadingElement = document.getElementById("loadingScreen");
-        if (loadingElement) {
-            loadingElement.style.display = "none";
-        }
-    }
-    </script>
-}
 </html>

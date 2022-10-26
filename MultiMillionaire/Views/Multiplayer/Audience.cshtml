@@ -1,38 +1,44 @@
 ﻿@{
+    Layout = "_MultiplayerLayout";
     ViewData["Title"] = "Audience";
-    ViewData["Mode"] = "Multiplayer";
     ViewData["Role"] = UserRole.Audience;
 }
 
-<div class="row mb-3" id="gameSetupPanels">
-    <partial name="_PlayersListPanel"/>
-</div>
+@section Panels
+{
+    <div class="row mb-3" id="gameSetupPanels">
+        <partial name="_PlayersListPanel"/>
+    </div>
 
-<div class="row mb-3" id="fastestFingerPanels" style="display: none">
-    <partial name="FastestFingerFirst/_DefaultPanel"/>
-    <partial name="FastestFingerFirst/_ResultsPanel"/>
-    <partial name="FastestFingerFirst/_Answers"/>
-</div>
-<partial name="FastestFingerFirst/_AnswerInput"/>
+    <div class="row mb-3" id="fastestFingerPanels" style="display: none">
+        <partial name="FastestFingerFirst/_DefaultPanel"/>
+        <partial name="FastestFingerFirst/_ResultsPanel"/>
+        <partial name="FastestFingerFirst/_Answers"/>
+    </div>
+    <partial name="FastestFingerFirst/_AnswerInput"/>
 
-<div class="row mb-3" id="mainGamePanels" style="display: none">
-    <partial name="_DefaultPanel"/>
-    <partial name="_AskTheAudiencePanel"/>
-    <partial name="_PhoneAFriendPanel"/>
+    <div class="row mb-3" id="mainGamePanels" style="display: none">
+        <partial name="_DefaultPanel"/>
+        <partial name="_AskTheAudiencePanel"/>
+        <partial name="_PhoneAFriendPanel"/>
 
-    <partial name="_MoneyTree"/>
-</div>
+        <partial name="_MoneyTree"/>
+    </div>
+}
 
+@section QuestionRows
+{
+    <partial name="_QuestionAndAnswers"/>
+    <partial name="_Winnings"/>
+    <partial name="FastestFingerFirst/_InputButtons"/>
+}
 
-<partial name="_QuestionAndAnswers"/>
-<partial name="_Winnings"/>
-<partial name="FastestFingerFirst/_InputButtons"/>
-
-<partial name="_JoinGameModal"/>
-<partial name="_GameEndedModal"/>
-<partial name="_DisconnectedModal"/>
-
-<partial name="_MultiplayerScripts"/>
+@section Modals
+{
+    <partial name="_JoinGameModal"/>
+    <partial name="_GameEndedModal"/>
+    <partial name="_DisconnectedModal"/>
+}
 
 @* Temp script to set up game for testing *@
 <script>

@@ -1,38 +1,47 @@
 ﻿@{
+    Layout = "_MultiplayerLayout";
     ViewData["Title"] = "Host";
-    ViewData["Mode"] = "Multiplayer";
     ViewData["Role"] = UserRole.Host;
 }
 
-<div class="row mb-3" id="gameSetupPanels">
-    <partial name="_PlayersListPanel"/>
-    <partial name="Host/_SettingsPanel"/>
-</div>
+@section Panels
+{
+    <div class="row mb-3" id="gameSetupPanels">
+        <partial name="_PlayersListPanel"/>
+        <partial name="Host/_SettingsPanel"/>
+    </div>
 
-<div class="row mb-3" id="fastestFingerPanels" style="display: none">
-    <partial name="FastestFingerFirst/_DefaultPanel"/>
-    <partial name="FastestFingerFirst/_ResultsPanel"/>
-    <partial name="FastestFingerFirst/_Answers"/>
-</div>
+    <div class="row mb-3" id="fastestFingerPanels" style="display: none">
+        <partial name="FastestFingerFirst/_DefaultPanel"/>
+        <partial name="FastestFingerFirst/_ResultsPanel"/>
+        <partial name="FastestFingerFirst/_Answers"/>
+    </div>
 
-<div class="row mb-3" id="mainGamePanels" style="display: none">
-    <partial name="Host/_DefaultPanel"/>
-    <partial name="_AskTheAudiencePanel"/>
-    <partial name="_PhoneAFriendPanel"/>
+    <div class="row mb-3" id="mainGamePanels" style="display: none">
+        <partial name="Host/_DefaultPanel"/>
+        <partial name="_AskTheAudiencePanel"/>
+        <partial name="_PhoneAFriendPanel"/>
 
-    <partial name="_MoneyTree"/>
-</div>
+        <partial name="_MoneyTree"/>
+    </div>
+}
 
-<partial name="Host/_HostMenu"/>
-<partial name="_QuestionAndAnswers"/>
-<partial name="_Winnings"/>
+@section QuestionRows
+{
+    <partial name="Host/_HostMenu"/>
+    <partial name="_QuestionAndAnswers"/>
+    <partial name="_Winnings"/>
+}
 
-<partial name="_JoinGameModal"/>
-<partial name="Host/_ChoosePlayerModal"/>
-<partial name="Host/_QuestionEditorModal"/>
-<partial name="_DisconnectedModal"/>
+@section Modals
+{
+    <partial name="_JoinGameModal"/>
+    <partial name="Host/_ChoosePlayerModal"/>
+    <partial name="Host/_QuestionEditorModal"/>
+    <partial name="_DisconnectedModal"/>
+}
 
-<partial name="_MultiplayerScripts"/>
+<script src="~/js/gameSetup.js" asp-append-version="true"></script>
 
 @* Temp script to set up game for testing *@
 <script>
