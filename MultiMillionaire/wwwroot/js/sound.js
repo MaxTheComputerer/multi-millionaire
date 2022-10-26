@@ -11,7 +11,7 @@ const sounds = {
     }, onstop = () => {
     }) => {
         return new Howl({
-            src: ["/sounds/" + src],
+            src: ["/sounds/" + src + ".webm", "/sounds/" + src + ".mp3"],
             loop: loop,
             volume: volume,
             onend: onend,
@@ -75,46 +75,46 @@ const sounds = {
 
 const soundLibrary = {
     music: {
-        hotSeat: sounds.create("music/hotseat.mp3"),
+        hotSeat: sounds.create("music/hotseat"),
 
-        walk: sounds.create("music/walk.mp3", false, 1, async () => {
+        walk: sounds.create("music/walk", false, 1, async () => {
             await sleep(1000);
             sounds.play("music.closing");
         }),
 
-        gameOver: sounds.create("music/gameover.mp3", false, 1, () => {
+        gameOver: sounds.create("music/gameover", false, 1, () => {
             sounds.play("music.closing");
         }),
 
-        closing: sounds.create("music/closing.mp3")
+        closing: sounds.create("music/closing")
     },
 
     fastestFinger: {
-        start: sounds.create("fastest-finger/start.mp3", true),
-        question: sounds.create("fastest-finger/question.mp3", true),
-        vote: sounds.create("fastest-finger/vote.mp3"),
-        earlyEnd: sounds.create("fastest-finger/end-vote.mp3"),
+        start: sounds.create("fastest-finger/start", true),
+        question: sounds.create("fastest-finger/question", true),
+        vote: sounds.create("fastest-finger/vote"),
+        earlyEnd: sounds.create("fastest-finger/end-vote"),
         answers: {
-            background: sounds.create("fastest-finger/answer-reveal-bg.mp3", true),
+            background: sounds.create("fastest-finger/answer-reveal-bg", true),
             init: function () {
                 for (let i = 0; i <= 3; i++) {
-                    this[i] = sounds.create(`fastest-finger/answer-${i}.mp3`);
+                    this[i] = sounds.create(`fastest-finger/answer-${i}`);
                 }
                 return this;
             }
         }.init(),
-        resultsReveal: sounds.create("fastest-finger/results-reveal.mp3"),
-        winner: sounds.create("fastest-finger/winner-reveal.mp3")
+        resultsReveal: sounds.create("fastest-finger/results-reveal"),
+        winner: sounds.create("fastest-finger/winner-reveal")
     },
 
     questions: {
         lightsDown: {
-            1: (oneSixEleven = sounds.create("questions/lights-down/1-6-11.mp3")),
+            1: (oneSixEleven = sounds.create("questions/lights-down/1-6-11")),
             6: oneSixEleven,
-            7: (sevenTwelve = sounds.create("questions/lights-down/7-12.mp3")),
-            8: (eightThirteen = sounds.create("questions/lights-down/8-13.mp3")),
-            9: (nineFourteen = sounds.create("questions/lights-down/9-14.mp3")),
-            10: (tenFifteen = sounds.create("questions/lights-down/10-15.mp3")),
+            7: (sevenTwelve = sounds.create("questions/lights-down/7-12")),
+            8: (eightThirteen = sounds.create("questions/lights-down/8-13")),
+            9: (nineFourteen = sounds.create("questions/lights-down/9-14")),
+            10: (tenFifteen = sounds.create("questions/lights-down/10-15")),
             11: oneSixEleven,
             12: sevenTwelve,
             13: eightThirteen,
@@ -124,23 +124,23 @@ const soundLibrary = {
 
         music: {
             init: function () {
-                const oneToFive = sounds.create("questions/music/1to5.mp3", true);
+                const oneToFive = sounds.create("questions/music/1to5", true);
                 for (let i = 1; i <= 5; i++) {
                     this[i] = oneToFive;
                 }
                 for (let i = 6; i <= 15; i++) {
-                    this[i] = sounds.create(`questions/music/${i}.mp3`, true);
+                    this[i] = sounds.create(`questions/music/${i}`, true);
                 }
                 return this;
             }
         }.init(),
 
         final: {
-            6: (sixEleven = sounds.create("questions/final/6-11.mp3")),
-            7: (sevenTwelve = sounds.create("questions/final/7-12.mp3")),
-            8: (eightThirteen = sounds.create("questions/final/8-13.mp3")),
-            9: (nineFourteen = sounds.create("questions/final/9-14.mp3")),
-            10: (tenFifteen = sounds.create("questions/final/10-15.mp3")),
+            6: (sixEleven = sounds.create("questions/final/6-11")),
+            7: (sevenTwelve = sounds.create("questions/final/7-12")),
+            8: (eightThirteen = sounds.create("questions/final/8-13")),
+            9: (nineFourteen = sounds.create("questions/final/9-14")),
+            10: (tenFifteen = sounds.create("questions/final/10-15")),
             11: sixEleven,
             12: sevenTwelve,
             13: eightThirteen,
@@ -150,12 +150,12 @@ const soundLibrary = {
 
         correct: {
             init: function () {
-                const oneToFour = sounds.create("questions/correct/1to4.mp3");
+                const oneToFour = sounds.create("questions/correct/1to4");
                 for (let i = 1; i <= 4; i++) {
                     this[i] = oneToFour;
                 }
                 for (let i = 5; i <= 15; i++) {
-                    this[i] = sounds.create(`questions/correct/${i}.mp3`);
+                    this[i] = sounds.create(`questions/correct/${i}`);
                 }
                 return this;
             }
@@ -163,38 +163,38 @@ const soundLibrary = {
 
         incorrect: {
             init: function () {
-                const oneToFive = sounds.create("questions/incorrect/1to5.mp3");
+                const oneToFive = sounds.create("questions/incorrect/1to5");
                 for (let i = 1; i <= 5; i++) {
                     this[i] = oneToFive;
                 }
                 return this;
             },
-            6: (sixEleven = sounds.create("questions/incorrect/6-11.mp3")),
-            7: (sevenTwelve = sounds.create("questions/incorrect/7-12.mp3")),
-            8: (eightThirteen = sounds.create("questions/incorrect/8-13.mp3")),
-            9: (nineFourteen = sounds.create("questions/incorrect/9-14.mp3")),
-            10: sounds.create("questions/incorrect/10.mp3"),
+            6: (sixEleven = sounds.create("questions/incorrect/6-11")),
+            7: (sevenTwelve = sounds.create("questions/incorrect/7-12")),
+            8: (eightThirteen = sounds.create("questions/incorrect/8-13")),
+            9: (nineFourteen = sounds.create("questions/incorrect/9-14")),
+            10: sounds.create("questions/incorrect/10"),
             11: sixEleven,
             12: sevenTwelve,
             13: eightThirteen,
             14: nineFourteen,
-            15: sounds.create("questions/incorrect/15.mp3"),
+            15: sounds.create("questions/incorrect/15"),
         }.init()
     },
 
     lifelines: {
-        fiftyFifty: sounds.create("lifelines/50-50.mp3"),
+        fiftyFifty: sounds.create("lifelines/50-50"),
 
         phone: {
-            start: sounds.create("lifelines/phone-start.mp3", true),
-            clock: sounds.create("lifelines/phone-clock.mp3", false, 1, (nextFn = async () => await connection.send("RequestQuestionMusic")), nextFn),
-            earlyEnd: sounds.create("lifelines/phone-early-end.mp3")
+            start: sounds.create("lifelines/phone-start", true),
+            clock: sounds.create("lifelines/phone-clock", false, 1, (nextFn = async () => await connection.send("RequestQuestionMusic")), nextFn),
+            earlyEnd: sounds.create("lifelines/phone-early-end")
         },
 
         audience: {
-            start: sounds.create("lifelines/audience-start.mp3", true),
-            vote: sounds.create("lifelines/audience-vote.mp3", true),
-            results: sounds.create("lifelines/audience-results.mp3")
+            start: sounds.create("lifelines/audience-start", true),
+            vote: sounds.create("lifelines/audience-vote", true),
+            results: sounds.create("lifelines/audience-results")
         }
     }
 }
