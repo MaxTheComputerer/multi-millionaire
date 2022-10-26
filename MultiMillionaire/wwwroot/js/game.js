@@ -53,6 +53,34 @@
         removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
         modals.gameEndedModal.show();
         sounds.stopAll();
+    },
+
+    toasts: {
+        showMessage: function (message) {
+            const toastContainer = document.getElementById("toastContainer");
+            const toastElement = this.createToastElement(message);
+
+            toastElement.addEventListener("hidden.bs.toast", () => {
+                toastContainer.removeChild(toastElement);
+            });
+            toastContainer.insertBefore(toastElement, toastContainer.firstChild);
+
+            const toastObject = bootstrap.Toast.getOrCreateInstance(toastElement);
+            toastObject.show();
+        },
+
+        createToastElement: (message) => {
+            const toastElement = document.createElement("div");
+            toastElement.className = "toast box align-items-center fade";
+            toastElement.innerHTML =
+                '<div class="toast-header">\n' +
+                '<img src="/images/logo.png" class="me-2" alt="Who Wants To Be A Millionaire? logo">\n' +
+                '<strong class="me-auto">Who Wants To Be A Millionaire?</strong>\n' +
+                '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
+                '</div>\n' +
+                `<div class="toast-body">${message}</div>\n`;
+            return toastElement;
+        }
     }
 }
 

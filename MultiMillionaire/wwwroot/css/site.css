@@ -210,3 +210,23 @@ body.bg-red-2 {
 #playersListPanel .box {
     min-height: 50vh;
 }
+
+
+/* Toasts */
+
+.toast {
+    --bs-toast-bg: black;
+    --bs-toast-header-bg: black;
+    --bs-toast-header-color: white;
+    --bs-toast-header-border-color: var(--blue);
+    border-width: 2px;
+}
+
+.toast-body {
+    font-size: 1.25rem;
+}
+
+.toast-header img {
+    height: 20px;
+    width: 20px;
+}
