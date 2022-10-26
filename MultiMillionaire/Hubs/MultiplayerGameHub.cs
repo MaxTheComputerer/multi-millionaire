@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Net;
+using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
 using MultiMillionaire.Models.Rounds;
@@ -24,6 +25,7 @@ public interface IMultiplayerGameHub
     Task Disable(string elementId);
     Task Enable(string elementId);
     Task SetBackground(int imageNumber, bool useRedVariant = false);
+    Task ShowToastMessage(string message);
 
     Task StartFastestFinger(Dictionary<char, string> answers);
     Task EnableFastestFingerAnswering();
@@ -65,7 +67,7 @@ public interface IMultiplayerGameHub
     Task PlaySound(string path, double attack = 40);
     Task StopSound(string path);
     Task FadeOutSound(string path, double duration = 400);
-    Task StopAllSounds();
+    Task UnloadSounds();
     Task LoadSounds();
 }
 
@@ -97,6 +99,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return game.Settings.AudienceAreSpectators
             ? Everyone(game)
             : Clients.GroupExcept(game.Id, game.Audience.Select(u => u.ConnectionId));
+    }
+
+    private IMultiplayerGameHub SpectatorsOnly(MultiplayerGame game)
+    {
+        return Clients.Clients(game.Spectators.Select(u => u.ConnectionId));
     }
 
     private IMultiplayerGameHub SpectatorsAndPlayers(MultiplayerGame game, FastestFingerFirst round)
@@ -290,7 +297,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Host(game).Enable("playMainGameBtn");
 
         await Clients.OthersInGroup(game.Id).PlayerJoined(user.ToViewModel());
-        await Clients.OthersInGroup(game.Id).Message($"{user.Name} has joined the game.");
+        await Clients.GroupExcept(game.Id, user.ConnectionId, game.Host.ConnectionId)
+            .Message($"{user.Name} has joined the game.");
+        await Host(game).ShowToastMessage($"{user.Name} has joined the game.");
         await SynchroniseView(game);
         await JoinSuccessful(game);
     }
@@ -335,7 +344,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 await Host(game).Disable("playMainGameBtn");
             }
 
-            await Clients.OthersInGroup(game.Id).Message($"{user.Name} has left the game.");
+            await Clients.GroupExcept(game.Id, user.ConnectionId, game.Host.ConnectionId)
+                .Message($"{user.Name} has left the game.");
+            await Host(game).ShowToastMessage($"{user.Name} has left the game.");
             await Clients.Caller.Message($"You have left game {game.Id}");
         }
     }
@@ -396,6 +407,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Clients.Caller.SetBackground(round.GetBackgroundNumber());
         await Clients.Caller.Hide("gameSetupPanels");
         await Clients.Caller.Show("mainGamePanels", "flex");
+        if (user?.Role is UserRole.Spectator) await Clients.Caller.Hide("menu");
     }
 
     private async Task SynchroniseFastestFingerRoundView(MultiplayerGame game, FastestFingerFirst round)
@@ -454,6 +466,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         await Clients.Caller.Hide("gameSetupPanels");
         await Clients.Caller.Show("fastestFingerPanels", "flex");
+        if (user?.Role is UserRole.Spectator) await Clients.Caller.Hide("menu");
     }
 
     #endregion
@@ -466,13 +479,32 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null) return;
 
-        if (game.Settings.TryUpdateSwitchSetting(settingName, value))
+        switch (settingName)
         {
-            if (settingName.StartsWith("mute")) await LoadUnloadSounds(game, settingName, value);
-            await Clients.Caller.Message("Settings updated successfully");
+            case "audienceAreSpectators":
+                game.Settings.AudienceAreSpectators = value;
+                break;
+            case "muteHostSound":
+                game.Settings.MuteHostSound = value;
+                await LoadUnloadSounds(new[] { game.Host }, value);
+                break;
+            case "muteAudienceSound":
+                await LoadUnloadSounds(game.Audience, value);
+                game.Settings.MuteAudienceSound = value;
+                break;
+            case "muteSpectatorSound":
+                await LoadUnloadSounds(game.Spectators, value);
+                game.Settings.MuteSpectatorSound = value;
+                break;
+            case "useLifxLight":
+                game.Settings.UseLifxLight = value;
+                break;
+            default:
+                await Clients.Caller.Message("Setting not found");
+                return;
         }
-        else
-            await Clients.Caller.Message("Setting not found");
+
+        await Clients.Caller.Message("Setting updated successfully.");
     }
 
     public async Task UpdateTextSetting(string settingName, string value)
@@ -480,31 +512,25 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null) return;
 
-        if (game.Settings.TryUpdateTextSetting(settingName, value))
-            await Clients.Caller.Message("Settings updated successfully");
-        else
-            await Clients.Caller.Message("Setting not found");
-    }
-
-    private async Task LoadUnloadSounds(MultiplayerGame game, string settingName, bool value)
-    {
-        var listenersToChange = new List<User>();
         switch (settingName)
         {
-            case "muteHostSound":
-                listenersToChange.Add(game.Host);
+            case "lifxLightIp":
+                var parseSuccess = IPAddress.TryParse(value, out var parsedAddress);
+                if (parseSuccess) game.Settings.LifxLightIp = parsedAddress!;
                 break;
-            case "muteAudienceSound":
-                listenersToChange = game.Audience;
-                break;
-            case "muteSpectatorSound":
-                listenersToChange = game.Spectators;
-                break;
+            default:
+                await Clients.Caller.Message("Setting not found");
+                return;
         }
 
+        await Clients.Caller.Message("Setting updated successfully.");
+    }
+
+    private async Task LoadUnloadSounds(IEnumerable<User> listenersToChange, bool value)
+    {
         var userIds = listenersToChange.Select(u => u.ConnectionId);
         if (value)
-            await Clients.Clients(userIds).StopAllSounds();
+            await Clients.Clients(userIds).UnloadSounds();
         else
             await Clients.Clients(userIds).LoadSounds();
     }
@@ -531,7 +557,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Players(round).Show("fastestFingerInput");
         await Players(round).Show("fastestFingerBtns", "flex");
 
-        await Host(game).Hide("hostMenu");
+        await Host(game).Hide("menu");
+        await SpectatorsOnly(game).Hide("menu");
         await SpectatorsAndPlayers(game, round).Show("questionAndAnswers");
     }
 
@@ -542,14 +569,18 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             if (round.Question == null)
             {
-                await Host(game).Message("Question has not been set for this round.");
+                await Host(game).ShowToastMessage("Question has not been set for this round.");
             }
             else
             {
+                await Host(game).Disable("fffNextBtn");
                 await Listeners(game).PlaySound("fastestFinger.question");
                 await Listeners(game).FadeOutSound("fastestFinger.start");
                 await SetBackground(1, true);
 
+                await Task.Delay(2000);
+
+                await Host(game).Enable("fffNextBtn");
                 await SpectatorsAndPlayers(game, round).SetText("question", round.Question.Question);
                 await Spectators(game).SetText("fffQuestion", round.Question.Question);
                 await Host(game).SetOnClick("fffNextBtn", "StartFastestFinger");
@@ -564,7 +595,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             if (round.Question == null)
             {
-                await Host(game).Message("Question has not been set for this round.");
+                await Host(game).ShowToastMessage("Question has not been set for this round.");
             }
             else
             {
@@ -591,7 +622,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (round.State == FastestFingerFirst.RoundState.InProgress)
                 round.SubmitAnswer(user!, answerOrder, time);
             else
-                await Clients.Caller.Message("The round is not currently in progress.");
+                await Clients.Caller.ShowToastMessage("The round is not currently in progress.");
         }
     }
 
@@ -644,7 +675,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
             catch (ArgumentOutOfRangeException)
             {
-                await Clients.Caller.Message("All answers have been revealed.");
+                await Clients.Caller.ShowToastMessage("All answers have been revealed.");
             }
     }
 
@@ -679,6 +710,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await Spectators(game).RevealCorrectFastestFingerPlayers(correctUserTimes);
             await Host(game).SetOnClick("fffNextBtn", "RevealFastestFingerWinners");
+            if (correctUserTimes.Count == 0) await Host(game).ShowToastMessage("No players answered correctly.");
         }
     }
 
@@ -693,6 +725,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             {
                 await Listeners(game).PlaySound("fastestFinger.winner");
                 await SetBackground(0);
+            }
+            else
+            {
+                await Host(game).ShowToastMessage("There are no winners.");
             }
 
             foreach (var winner in winners)
@@ -723,7 +759,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Spectators(game).Hide("fffAnswerPanel");
             await Everyone(game).Hide("fastestFingerPanels");
             await Everyone(game).Show("gameSetupPanels");
-            await Host(game).Show("hostMenu");
+            await Host(game).Show("menu");
+            await SpectatorsOnly(game).Show("menu");
 
             await ResetQuestion();
 
@@ -781,7 +818,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Everyone(game).Hide("gameSetupPanels");
         await Everyone(game).Show("mainGamePanels", "flex");
 
-        await Host(game).Hide("hostMenu");
+        await Host(game).Hide("menu");
+        await SpectatorsOnly(game).Hide("menu");
         await Everyone(game).ResetAnswerBackgrounds();
         await Spectators(game).Show("questionAndAnswers");
     }
@@ -888,7 +926,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             round.SubmittedAnswer = letter;
             await Spectators(game).SelectAnswer(letter);
 
-            if (round.QuestionNumber > 5)
+            if (round.QuestionNumber > 5 && !round.HasWalkedAway)
             {
                 await Listeners(game).PlaySound($"questions.final.{round.QuestionNumber}");
                 await Listeners(game).FadeOutSound($"questions.music.{round.QuestionNumber}");
@@ -1062,7 +1100,8 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             await Everyone(game).Hide("mainGamePanels");
             await Everyone(game).Show("gameSetupPanels");
-            await Host(game).Show("hostMenu");
+            await Host(game).Show("menu");
+            await SpectatorsOnly(game).Show("menu");
 
             await ResetQuestion();
             await ResetStatusBox();
