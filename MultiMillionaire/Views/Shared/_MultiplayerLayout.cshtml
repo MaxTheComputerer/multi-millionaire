@@ -17,8 +17,7 @@
     @await RenderSectionAsync("Modals")
 </div>
 
-
-@RenderBody()
+<div class="toast-container bottom-0 end-0 mb-2 me-2" id="toastContainer"></div>
 
 <div id="scripts">
     <script src="~/lib/signalr/dist/browser/signalr.js"></script>
@@ -32,11 +31,8 @@
     <script src="~/js/sound.js" asp-append-version="true"></script>
 
     <script type="text/javascript">
-        window.addEventListener("load", () => {
-            const loadingElement = document.getElementById("loadingScreen");
-            if (loadingElement) {
-                loadingElement.style.display = "none";
-            }
-        });
+        window.addEventListener("load", hideLoadingScreen);
     </script>
 </div>
+
+@RenderBody()

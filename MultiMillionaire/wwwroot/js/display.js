@@ -77,6 +77,10 @@ function setBackground(imageNumber, useRedVariant) {
     document.body.className = "bg-" + (useRedVariant ? "red-" : "") + imageNumber;
 }
 
+function hideLoadingScreen() {
+    hide("loadingScreen");
+}
+
 connection.on("Show", show);
 connection.on("Hide", hide);
 connection.on("SetText", setText);

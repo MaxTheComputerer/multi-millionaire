@@ -38,6 +38,12 @@
     <partial name="_DisconnectedModal"/>
 }
 
+<script type="text/javascript">
+window.removeEventListener("load", hideLoadingScreen);
+window.addEventListener("soundsLoaded", hideLoadingScreen);
+sounds.load();
+</script>
+
 @* Temp script to set up game for testing *@
 <script>
 window.addEventListener("load", () => {

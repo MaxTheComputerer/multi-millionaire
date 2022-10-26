@@ -7,15 +7,17 @@
 }
 
 const sounds = {
-    create: (src, loop = false, volume = 1, onend = () => {
+    create: function (src, loop = false, volume = 1, onend = () => {
     }, onstop = () => {
-    }) => {
+    }) {
         return new Howl({
             src: ["/sounds/" + src + ".webm", "/sounds/" + src + ".mp3"],
             loop: loop,
             volume: volume,
             onend: onend,
-            onstop: onstop
+            onstop: onstop,
+            onload: this.onLoad.bind(sounds),
+            preload: false
         });
     },
 
@@ -32,9 +34,36 @@ const sounds = {
         }
     },
 
+    loadCounter: 0,
+    loadEvent: new Event("soundsLoaded"),
+
+    onLoad: function () {
+        this.loadCounter++;
+        if (this.loadCounter === 62) {
+            window.dispatchEvent(this.loadEvent);
+        }
+    },
+
+    load: () => {
+        function loadRecurse(obj) {
+            for (const key of Object.keys(obj)) {
+                const value = obj[key];
+                if (value instanceof Howl) {
+                    if (value.state() === "unloaded") value.load();
+                } else if (typeof value == "object" && value !== null) {
+                    loadRecurse(value);
+                }
+            }
+        }
+
+        console.log("start load");
+        loadRecurse(soundLibrary);
+    },
+
     play: function (path, attack = 40) {
         this.getObjectFromCacheOrPath(path, sound => {
             if (sound.playing()) return;
+            if (sound.state() === "unloaded") sound.load();
             const volume = sound.volume();
             sound.volume(0);
             sound.play();
