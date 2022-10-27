@@ -94,6 +94,22 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Clients.Caller.Message(message);
     }
 
+    private async Task SetBackground(int imageNumber, bool useRedVariant = false)
+    {
+        var game = GetCurrentGame();
+        if (game == null) return;
+
+        await Everyone(game).SetBackground(imageNumber, useRedVariant);
+
+        if (game.Settings.UseLifxLight && game.Light != null)
+            await game.Light.SetColourFromBackgroundImage(imageNumber, useRedVariant);
+    }
+
+    #endregion
+
+
+    #region ClientsMethods
+
     private IMultiplayerGameHub Spectators(MultiplayerGame game)
     {
         return game.Settings.AudienceAreSpectators
@@ -144,15 +160,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private IMultiplayerGameHub Listeners(MultiplayerGame game)
     {
         return Clients.Clients(game.GetListeners().Select(u => u.ConnectionId));
-    }
-
-    private async Task SetBackground(int imageNumber, bool useRedVariant = false)
-    {
-        var game = GetCurrentGame();
-        if (game == null) return;
-
-        await Everyone(game).SetBackground(imageNumber, useRedVariant);
-        if (game.Settings.UseLifxLight) await Host(game).Message("set light colour");
     }
 
     #endregion
@@ -498,6 +505,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 break;
             case "useLifxLight":
                 game.Settings.UseLifxLight = value;
+                if (!value) game.DisconnectFromLight();
                 break;
             default:
                 await Clients.Caller.Message("Setting not found");
@@ -516,7 +524,21 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             case "lifxLightIp":
                 var parseSuccess = IPAddress.TryParse(value, out var parsedAddress);
-                if (parseSuccess) game.Settings.LifxLightIp = parsedAddress!;
+                if (parseSuccess)
+                {
+                    game.Settings.LifxLightIp = parsedAddress!;
+                    if (game.Settings.UseLifxLight)
+                        await ConnectToLifxLight(game);
+                    else
+                        await Clients.Caller.ShowToastMessage(
+                            "Failed to connect to light. Use Lifx light setting is false.");
+                }
+                else
+                {
+                    await Clients.Caller.ShowToastMessage("Invalid IP address entered.");
+                    return;
+                }
+
                 break;
             default:
                 await Clients.Caller.Message("Setting not found");
@@ -533,6 +555,25 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await Clients.Clients(userIds).UnloadSounds();
         else
             await Clients.Clients(userIds).LoadSounds();
+    }
+
+    private async Task ConnectToLifxLight(MultiplayerGame game)
+    {
+        await Clients.Caller.ShowToastMessage("Connecting to light...");
+        try
+        {
+            await game.ConnectToLight();
+        }
+        catch (Exception e)
+        {
+            await Clients.Caller.ShowToastMessage("Failed to connect to Lifx light.");
+            await Clients.Caller.Message("Failed to connect to Lifx light: " + e.Message);
+            return;
+        }
+
+        await game.Light!.SetColourFromBackgroundImage(3);
+        await game.Light!.OnAsync();
+        await Clients.Caller.ShowToastMessage("Successfully connected to Lifx light.");
     }
 
     #endregion

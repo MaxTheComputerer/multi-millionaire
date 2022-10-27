@@ -1,4 +1,5 @@
-﻿using MultiMillionaire.Models.Questions;
+﻿using Lifx;
+using MultiMillionaire.Models.Questions;
 using MultiMillionaire.Models.Rounds;
 
 namespace MultiMillionaire.Models;
@@ -13,6 +14,7 @@ public class MultiplayerGame
     public Dictionary<User, int> Scores { get; } = new();
     public GameRound? Round { get; private set; }
     public User? NextPlayer { get; set; }
+    public ILight? Light { get; set; }
     public static readonly List<char> AnswerLetters = new() { 'A', 'B', 'C', 'D' };
 
     public static string GenerateRoomId()
@@ -79,5 +81,19 @@ public class MultiplayerGame
         Spectators.Remove(user);
         Scores.Remove(user);
         if (NextPlayer == user) NextPlayer = null;
+    }
+
+    public async Task ConnectToLight()
+    {
+        DisconnectFromLight();
+
+        var lightFactory = new LightFactory();
+        Light = await lightFactory.CreateLightAsync(Settings.LifxLightIp);
+    }
+
+    public void DisconnectFromLight()
+    {
+        Light?.Dispose();
+        Light = null;
     }
 }
