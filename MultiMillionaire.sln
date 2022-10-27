@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiMillionaire", "MultiMillionaire\MultiMillionaire.csproj", "{2B0FF89B-EA65-4003-867A-4C159D36689E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lifx", "Lifx\Lifx\Lifx.csproj", "{A4025130-D2F3-4892-B4A5-07777B27B08C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{2B0FF89B-EA65-4003-867A-4C159D36689E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B0FF89B-EA65-4003-867A-4C159D36689E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B0FF89B-EA65-4003-867A-4C159D36689E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4025130-D2F3-4892-B4A5-07777B27B08C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4025130-D2F3-4892-B4A5-07777B27B08C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4025130-D2F3-4892-B4A5-07777B27B08C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4025130-D2F3-4892-B4A5-07777B27B08C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

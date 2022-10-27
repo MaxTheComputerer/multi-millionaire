@@ -1,0 +1,3 @@
+[submodule "Lifx"]
+	path = Lifx
+	url = git@github.com:MaxTheComputerer/Lifx.git
