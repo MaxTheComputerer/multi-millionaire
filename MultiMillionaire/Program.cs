@@ -1,11 +1,18 @@
+using MultiMillionaire.Database;
 using MultiMillionaire.Hubs;
+using MultiMillionaire.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews();
 if (builder.Environment.IsDevelopment()) mvcBuilder.AddRazorRuntimeCompilation();
+
 builder.Services.AddSignalR(hubOptions => { hubOptions.MaximumParallelInvocationsPerClient = 5; });
+
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
+
+builder.Services.AddSingleton<IOrderQuestionsService, OrderQuestionsService>();
 
 builder.Services.AddDetection();
 builder.Services.AddSession(options =>

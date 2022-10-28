@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
+using MultiMillionaire.Models.Questions;
 using MultiMillionaire.Models.Rounds;
+using MultiMillionaire.Services;
 
 namespace MultiMillionaire.Hubs;
 
@@ -75,6 +77,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private static List<MultiplayerGame> Games { get; } = new();
     private static List<User> Users { get; } = new();
+    private readonly IOrderQuestionsService _orderQuestionsService;
+
+    public MultiplayerGameHub(IOrderQuestionsService orderQuestionsService)
+    {
+        _orderQuestionsService = orderQuestionsService;
+    }
 
     // TEMP
     public async Task JoinRandomAudience()
@@ -85,6 +93,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     public async Task JoinRandomSpectators()
     {
         await SpectateGame(Games.First().Id);
+    }
+
+    public async Task GetAllOrderQuestions()
+    {
+        var questions = await _orderQuestionsService.GetAsync();
+        foreach (var question in questions.Select(OrderQuestion.FromDbModel)) Console.WriteLine(question.Question);
     }
 
     #region MiscellaneousMethods

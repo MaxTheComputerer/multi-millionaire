@@ -1,8 +1,11 @@
-﻿namespace MultiMillionaire.Models.Questions;
+﻿using MultiMillionaire.Database;
+
+namespace MultiMillionaire.Models.Questions;
 
 public class OrderQuestion : QuestionBase
 {
-    public List<char> CorrectOrder { get; } = new();
+    public List<char> CorrectOrder { get; private init; } = new();
+    public string? Comment { get; set; }
 
     public static OrderQuestion GenerateQuestion()
     {
@@ -17,6 +20,17 @@ public class OrderQuestion : QuestionBase
                 ['D'] = "9 ÷ 3"
             },
             CorrectOrder = { 'D', 'B', 'A', 'C' }
+        };
+    }
+
+    public static OrderQuestion FromDbModel(OrderQuestionDbModel dbModel)
+    {
+        return new OrderQuestion
+        {
+            Question = dbModel.Question,
+            Answers = dbModel.Answers,
+            CorrectOrder = dbModel.CorrectOrder,
+            Comment = dbModel.Comment
         };
     }
 }
