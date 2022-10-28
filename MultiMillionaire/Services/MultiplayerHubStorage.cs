@@ -1,4 +1,6 @@
-﻿namespace MultiMillionaire.Models;
+﻿using MultiMillionaire.Models;
+
+namespace MultiMillionaire.Services;
 
 public interface IMultiplayerHubStorage
 {

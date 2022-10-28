@@ -1,6 +1,8 @@
 ﻿using Lifx;
+using MultiMillionaire.Database;
 using MultiMillionaire.Models.Questions;
 using MultiMillionaire.Models.Rounds;
+using MultiMillionaire.Services;
 
 namespace MultiMillionaire.Models;
 
@@ -15,7 +17,15 @@ public class MultiplayerGame
     public GameRound? Round { get; private set; }
     public User? NextPlayer { get; set; }
     public ILight? Light { get; set; }
+    private HashSet<string> UsedOrderQuestionIds { get; } = new();
+
     public static readonly List<char> AnswerLetters = new() { 'A', 'B', 'C', 'D' };
+    private readonly IDatabaseService _databaseService;
+
+    public MultiplayerGame(IDatabaseService databaseService)
+    {
+        _databaseService = databaseService;
+    }
 
     public static string GenerateRoomId()
     {
@@ -46,12 +56,26 @@ public class MultiplayerGame
         return Round == null && Audience.Count > 0;
     }
 
-    public FastestFingerFirst SetupFastestFingerRound()
+    public async Task<FastestFingerFirst> SetupFastestFingerRound()
     {
+        OrderQuestionDbModel questionDbModel;
+        try
+        {
+            questionDbModel = await _databaseService.GetRandomOrderQuestionExcept(UsedOrderQuestionIds);
+        }
+        catch (InvalidOperationException)
+        {
+            UsedOrderQuestionIds.Clear();
+            questionDbModel = await _databaseService.GetRandomOrderQuestionExcept(UsedOrderQuestionIds);
+        }
+
+        if (questionDbModel.Id != null)
+            UsedOrderQuestionIds.Add(questionDbModel.Id);
+
         Round = new FastestFingerFirst
         {
             Players = GetNotPlayedPlayers().ToList(),
-            Question = OrderQuestion.GenerateQuestion()
+            Question = OrderQuestion.FromDbModel(questionDbModel)
         };
         return (FastestFingerFirst)Round;
     }

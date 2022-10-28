@@ -1,6 +1,5 @@
 using MultiMillionaire.Database;
 using MultiMillionaire.Hubs;
-using MultiMillionaire.Models;
 using MultiMillionaire.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +13,7 @@ builder.Services.AddSignalR(hubOptions => { hubOptions.MaximumParallelInvocation
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 
 builder.Services.AddSingleton<IMultiplayerHubStorage, MultiplayerHubStorage>();
-builder.Services.AddSingleton<IOrderQuestionsService, OrderQuestionsService>();
+builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 
 builder.Services.AddDetection();
 builder.Services.AddSession(options =>

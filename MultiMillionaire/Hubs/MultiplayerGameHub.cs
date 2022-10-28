@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
-using MultiMillionaire.Models.Questions;
 using MultiMillionaire.Models.Rounds;
 using MultiMillionaire.Services;
 
@@ -75,14 +74,14 @@ public interface IMultiplayerGameHub
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
-    private readonly IOrderQuestionsService _orderQuestionsService;
+    private readonly IDatabaseService _databaseService;
     private readonly IMultiplayerHubStorage _storage;
 
     public MultiplayerGameHub(IMultiplayerHubStorage multiplayerHubStorage,
-        IOrderQuestionsService orderQuestionsService)
+        IDatabaseService databaseService)
     {
         _storage = multiplayerHubStorage;
-        _orderQuestionsService = orderQuestionsService;
+        _databaseService = databaseService;
     }
 
     // TEMP
@@ -96,11 +95,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await SpectateGame(_storage.Games.First().Id);
     }
 
-    public async Task GetAllOrderQuestions()
-    {
-        var question = OrderQuestion.FromDbModel(await _orderQuestionsService.GetRandom());
-        Console.WriteLine(question);
-    }
 
     #region MiscellaneousMethods
 
@@ -272,7 +266,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             gameId = MultiplayerGame.GenerateRoomId();
         } while (_storage.Games.Any(g => g.Id == gameId));
 
-        return new MultiplayerGame
+        return new MultiplayerGame(_databaseService)
         {
             Id = gameId,
             Host = host
@@ -598,7 +592,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null || !game.IsReadyForNewRound()) return;
 
-        var round = game.SetupFastestFingerRound();
+        var round = await game.SetupFastestFingerRound();
 
         await Listeners(game).PlaySound("fastestFinger.start");
         await Listeners(game).FadeOutSound("music.closing");
