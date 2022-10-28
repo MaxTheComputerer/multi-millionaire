@@ -37,11 +37,11 @@
     },
 
     revealAnswer: (index, letter, answer) => {
-        const rowElement = document.getElementById(`fffAnswer${index}`);
+        const id = `fffAnswer${index}`;
+        const rowElement = document.getElementById(id);
         const letterElement = rowElement.querySelector(".answer-letter");
-        const textElement = rowElement.querySelector(".answer-text");
         letterElement.textContent = `${letter}:`;
-        textElement.textContent = answer;
+        setAnswerText(id, answer);
         rowElement.classList.add("fff-slide-in");
     },
 
