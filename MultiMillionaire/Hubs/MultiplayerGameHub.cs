@@ -75,30 +75,31 @@ public interface IMultiplayerGameHub
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
-    private static List<MultiplayerGame> Games { get; } = new();
-    private static List<User> Users { get; } = new();
     private readonly IOrderQuestionsService _orderQuestionsService;
+    private readonly IMultiplayerHubStorage _storage;
 
-    public MultiplayerGameHub(IOrderQuestionsService orderQuestionsService)
+    public MultiplayerGameHub(IMultiplayerHubStorage multiplayerHubStorage,
+        IOrderQuestionsService orderQuestionsService)
     {
+        _storage = multiplayerHubStorage;
         _orderQuestionsService = orderQuestionsService;
     }
 
     // TEMP
     public async Task JoinRandomAudience()
     {
-        await JoinGameAudience(Games.First().Id);
+        await JoinGameAudience(_storage.Games.First().Id);
     }
 
     public async Task JoinRandomSpectators()
     {
-        await SpectateGame(Games.First().Id);
+        await SpectateGame(_storage.Games.First().Id);
     }
 
     public async Task GetAllOrderQuestions()
     {
-        var questions = await _orderQuestionsService.GetAsync();
-        foreach (var question in questions.Select(OrderQuestion.FromDbModel)) Console.WriteLine(question.Question);
+        var question = OrderQuestion.FromDbModel(await _orderQuestionsService.GetRandom());
+        Console.WriteLine(question);
     }
 
     #region MiscellaneousMethods
@@ -183,17 +184,14 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     private User? GetCurrentUser()
     {
-        lock (Users)
-        {
-            return Users.SingleOrDefault(u => u.ConnectionId == Context.ConnectionId);
-        }
+        return _storage.GetUserById(Context.ConnectionId);
     }
 
     public override async Task OnConnectedAsync()
     {
-        lock (Users)
+        lock (_storage.Users)
         {
-            if (GetCurrentUser() == null) Users.Add(new User(Context.ConnectionId));
+            if (GetCurrentUser() == null) _storage.Users.Add(new User(Context.ConnectionId));
         }
 
         Console.WriteLine($"User connected: {Context.ConnectionId}");
@@ -206,7 +204,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (user != null)
         {
             await LeaveGame();
-            Users.Remove(user);
+            _storage.Users.Remove(user);
         }
 
         Console.WriteLine($"User disconnected: {Context.ConnectionId}");
@@ -255,9 +253,9 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     #region GameMethods
 
-    private static MultiplayerGame? GetGameById(string gameId)
+    private MultiplayerGame? GetGameById(string gameId)
     {
-        return Games.SingleOrDefault(g => g.Id == gameId);
+        return _storage.GetGameById(gameId);
     }
 
     private MultiplayerGame? GetCurrentGame()
@@ -265,14 +263,14 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return GetCurrentUser()?.Game;
     }
 
-    private static MultiplayerGame CreateGame(User host)
+    private MultiplayerGame CreateGame(User host)
     {
         // Make sure ID is unique
         string gameId;
         do
         {
             gameId = MultiplayerGame.GenerateRoomId();
-        } while (Games.Any(g => g.Id == gameId));
+        } while (_storage.Games.Any(g => g.Id == gameId));
 
         return new MultiplayerGame
         {
@@ -288,7 +286,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
         // Create game
         var game = CreateGame(user);
-        Games.Add(game);
+        _storage.Games.Add(game);
 
         // Join game
         await LeaveGame();
@@ -381,7 +379,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         foreach (var user in game.Spectators) await RemoveUserFromGame(user);
         await RemoveUserFromGame(game.Host);
 
-        Games.Remove(game);
+        _storage.Games.Remove(game);
     }
 
     private async Task JoinSuccessful(MultiplayerGame game)
@@ -848,7 +846,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         var game = GetCurrentGame();
         if (game == null || !game.IsReadyForNewRound()) return;
 
-        var nextPlayer = Users.SingleOrDefault(u => u.ConnectionId == connectionId);
+        var nextPlayer = _storage.Users.SingleOrDefault(u => u.ConnectionId == connectionId);
         if (nextPlayer == null) return;
 
         game.NextPlayer = nextPlayer;

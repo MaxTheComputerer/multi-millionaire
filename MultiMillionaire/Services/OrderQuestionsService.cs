@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using MultiMillionaire.Database;
 
 namespace MultiMillionaire.Services;
 
 public interface IOrderQuestionsService
 {
-    Task<List<OrderQuestionDbModel>> GetAsync();
+    public Task<OrderQuestionDbModel> GetRandom();
 }
 
 public class OrderQuestionsService : IOrderQuestionsService
@@ -21,8 +22,8 @@ public class OrderQuestionsService : IOrderQuestionsService
             mongoDatabase.GetCollection<OrderQuestionDbModel>(databaseSettings.Value.OrderQuestionsCollectionName);
     }
 
-    public async Task<List<OrderQuestionDbModel>> GetAsync()
+    public async Task<OrderQuestionDbModel> GetRandom()
     {
-        return await _questionsCollection.Find(_ => true).ToListAsync();
+        return await _questionsCollection.AsQueryable().Sample(1).SingleAsync();
     }
 }
