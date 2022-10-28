@@ -56,9 +56,9 @@
     },
 
     toasts: {
-        showMessage: function (message) {
+        showMessage: function (message, duration = 5000) {
             const toastContainer = document.getElementById("toastContainer");
-            const toastElement = this.createToastElement(message);
+            const toastElement = this.createToastElement(message, duration);
 
             toastElement.addEventListener("hidden.bs.toast", () => {
                 toastContainer.removeChild(toastElement);
@@ -70,9 +70,10 @@
             console.log(message);
         },
 
-        createToastElement: (message) => {
+        createToastElement: (message, duration = 5000) => {
             const toastElement = document.createElement("div");
             toastElement.className = "toast box align-items-center fade";
+            toastElement.setAttribute("data-bs-delay", duration.toString());
             toastElement.innerHTML =
                 '<div class="toast-header">\n' +
                 '<img src="/images/logo.png" class="me-2" alt="Who Wants To Be A Millionaire? logo">\n' +

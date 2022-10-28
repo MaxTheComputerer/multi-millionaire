@@ -26,7 +26,7 @@ public interface IMultiplayerGameHub
     Task Disable(string elementId);
     Task Enable(string elementId);
     Task SetBackground(int imageNumber, bool useRedVariant = false);
-    Task ShowToastMessage(string message);
+    Task ShowToastMessage(string message, int duration = 5000);
 
     Task StartFastestFinger(Dictionary<char, string> answers);
     Task EnableFastestFingerAnswering();
@@ -715,10 +715,19 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 var index = round.AnswerRevealIndex;
                 var letter = round.GetNextAnswer();
                 var answer = round.Question.Answers[letter];
+                var comment = round.Question.Comment;
                 await Listeners(game).PlaySound($"fastestFinger.answers.{index}");
                 await Spectators(game).ShowFastestFingerAnswer(index, letter, answer);
 
-                if (index == 3) await Host(game).SetOnClick("fffNextBtn", "ShowFastestFingerResultsPanel");
+                switch (index)
+                {
+                    case 0 when comment != null:
+                        await Host(game).ShowToastMessage(comment, 20000);
+                        break;
+                    case 3:
+                        await Host(game).SetOnClick("fffNextBtn", "ShowFastestFingerResultsPanel");
+                        break;
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
