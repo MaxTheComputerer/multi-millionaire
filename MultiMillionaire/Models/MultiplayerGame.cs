@@ -18,6 +18,7 @@ public class MultiplayerGame
     public User? NextPlayer { get; set; }
     public ILight? Light { get; set; }
     private HashSet<string> UsedOrderQuestionIds { get; } = new();
+    private HashSet<string> UsedMultipleChoiceQuestionIds { get; } = new();
 
     public static readonly List<char> AnswerLetters = new() { 'A', 'B', 'C', 'D' };
     private readonly IDatabaseService _databaseService;
@@ -80,12 +81,12 @@ public class MultiplayerGame
         return (FastestFingerFirst)Round;
     }
 
-    public void SetupMillionaireRound()
+    public async Task SetupMillionaireRound()
     {
         Round = new MillionaireRound
         {
             Player = NextPlayer,
-            QuestionBank = QuestionBank.GenerateQuestionBank()
+            QuestionBank = await QuestionBank.GenerateQuestionBank(_databaseService, UsedMultipleChoiceQuestionIds)
         };
     }
 

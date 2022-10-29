@@ -859,7 +859,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     private async Task StartMainGame()
     {
         var game = GetCurrentGame();
-        game!.SetupMillionaireRound();
+        await game!.SetupMillionaireRound();
 
         await Clients.Caller.DismissChoosePlayerModal();
 

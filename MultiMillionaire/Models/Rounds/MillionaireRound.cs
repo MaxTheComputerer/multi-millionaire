@@ -175,4 +175,17 @@ public class MillionaireRound : GameRound
             _ => 0
         };
     }
+
+    public static QuestionDifficulty GetDifficultyFromQuestionNumber(int? questionNumber)
+    {
+        return questionNumber switch
+        {
+            <= 2 => QuestionDifficulty.FirstTwo,
+            <= 5 => QuestionDifficulty.SectionOne,
+            <= 10 => QuestionDifficulty.SectionTwo,
+            <= 14 => QuestionDifficulty.SectionThree,
+            15 => QuestionDifficulty.FinalQuestion,
+            _ => QuestionDifficulty.SectionOne
+        };
+    }
 }

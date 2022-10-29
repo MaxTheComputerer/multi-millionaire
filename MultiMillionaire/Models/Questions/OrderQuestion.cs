@@ -5,7 +5,6 @@ namespace MultiMillionaire.Models.Questions;
 public class OrderQuestion : QuestionBase
 {
     public List<char> CorrectOrder { get; private init; } = new();
-    public string? Comment { get; set; }
 
     public static OrderQuestion FromDbModel(OrderQuestionDbModel dbModel)
     {
