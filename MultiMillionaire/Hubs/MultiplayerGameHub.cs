@@ -1009,9 +1009,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             await Host(game).Disable("nextBtn");
 
-            var correctLetter = round.GetCurrentQuestion().CorrectLetter;
-            await Spectators(game).FlashCorrectAnswer(correctLetter);
+            var question = round.GetCurrentQuestion();
+            await Spectators(game).FlashCorrectAnswer(question.CorrectLetter);
             if (round.QuestionNumber >= 5) await SetBackground(0);
+
+            if (question.Comment != null) await Host(game).ShowToastMessage(question.Comment, 20000);
 
             if (round.HasWalkedAway)
             {
@@ -1023,7 +1025,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 if (round.QuestionNumber == 5)
                     await Listeners(game).StopSound($"questions.music.{round.QuestionNumber}");
 
-                if (round.SubmittedAnswer == correctLetter)
+                if (round.SubmittedAnswer == question.CorrectLetter)
                     await CorrectAnswer();
                 else
                     await WrongAnswer();
