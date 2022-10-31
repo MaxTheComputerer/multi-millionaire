@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using MultiMillionaire.Database;
 using MultiMillionaire.Hubs;
 using MultiMillionaire.Services;
@@ -24,6 +25,11 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
