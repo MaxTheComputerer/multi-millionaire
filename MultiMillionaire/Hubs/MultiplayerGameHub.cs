@@ -84,17 +84,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         _databaseService = databaseService;
     }
 
-    // TEMP
-    public async Task JoinRandomAudience()
-    {
-        await JoinGameAudience(_storage.Games.First().Id);
-    }
-
-    public async Task JoinRandomSpectators()
-    {
-        await SpectateGame(_storage.Games.First().Id);
-    }
-
 
     #region MiscellaneousMethods
 
@@ -188,7 +177,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             if (GetCurrentUser() == null) _storage.Users.Add(new User(Context.ConnectionId));
         }
 
-        Console.WriteLine($"User connected: {Context.ConnectionId}");
         await base.OnConnectedAsync();
     }
 
@@ -201,7 +189,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             _storage.Users.Remove(user);
         }
 
-        Console.WriteLine($"User disconnected: {Context.ConnectionId}");
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -239,7 +226,6 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (user == null) return;
 
         user.Name = name;
-        Console.WriteLine($"Registered player: {name}");
     }
 
     #endregion

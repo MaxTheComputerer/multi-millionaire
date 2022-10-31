@@ -44,13 +44,3 @@ window.removeEventListener("load", hideLoadingScreen);
 window.addEventListener("soundsLoaded", hideLoadingScreen);
 sounds.load();
 </script>
-
-@* Temp script to set up game for testing *@
-<script>
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        connection.send("SetName", "@($"Max {MultiMillionaire.Models.User.PlayerNum++}")");
-        connection.send("JoinRandomSpectators");
-    }, 2000);
-});
-</script>

@@ -42,13 +42,3 @@
 }
 
 <script src="~/js/gameSetup.js" asp-append-version="true"></script>
-
-@* Temp script to set up game for testing *@
-<script>
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        connection.send("SetName", "Max");
-        connection.send("HostGame");
-    }, 1000);
-});
-</script>
