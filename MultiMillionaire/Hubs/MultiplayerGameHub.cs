@@ -563,6 +563,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             return;
         }
 
+        await game.Light!.SetTemperatureAsync(1500);
         await game.Light!.SetColourFromBackgroundImage(3);
         await game.Light!.OnAsync();
         await Clients.Caller.ShowToastMessage("Successfully connected to Lifx light.");

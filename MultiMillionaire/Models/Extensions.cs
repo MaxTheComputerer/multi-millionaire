@@ -40,7 +40,7 @@ public static class Extensions
                 1 => new Color(210, 1),
                 2 => new Color(220, 1),
                 3 => new Color(240, 1),
-                _ => new Color(25, 0.501)
+                _ => new Color(210, 0)
             };
 
             var brightness = imageNumber switch

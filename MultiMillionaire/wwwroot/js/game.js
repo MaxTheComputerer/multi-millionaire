@@ -76,7 +76,10 @@
             toastElement.setAttribute("data-bs-delay", duration.toString());
             toastElement.innerHTML =
                 '<div class="toast-header">\n' +
-                '<img src="/images/logo.png" class="me-2" alt="Who Wants To Be A Millionaire? logo">\n' +
+                '<picture class="me-2">' +
+                '<source type="image/webp" srcset="/images/webp/logo.webp">\n' +
+                '<img src="/images/png/logo.png" alt="Who Wants To Be A Millionaire? logo">\n' +
+                '</picture>\n' +
                 '<strong class="me-auto">Who Wants To Be A Millionaire?</strong>\n' +
                 '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
                 '</div>\n' +
