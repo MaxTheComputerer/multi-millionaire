@@ -1,7 +1,7 @@
 ﻿/* Question */
 
 .question {
-    background-image: url("../images/question.png");
+    background-image: url(../images/png/question.png);
     background-size: 100% 300%;
     background-position: 0 0;
     max-width: 768px;
@@ -26,7 +26,7 @@
 /* Answers */
 
 .answer {
-    background-image: url("../images/question.png");
+    background-image: url(../images/png/question.png);
     background-size: 100% 300%;
     background-position: 0 0;
     height: 53px;
@@ -74,11 +74,11 @@
 
 @media (min-width: 576px) {
     .answer-left {
-        background-image: url("../images/answer_left.png");
+        background-image: url(../images/png/answer_left.png);
     }
 
     .answer-right {
-        background-image: url("../images/answer_right.png");
+        background-image: url(../images/png/answer_right.png);
         padding-left: 25px;
     }
 

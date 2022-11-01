@@ -22,7 +22,15 @@ body {
     overflow: auto;
     position: relative;
 
-    background-image: url(../images/background_3.png);
+    background-image: url(../images/png/background_3.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_3.webp) 1x,
+            url(../images/png/background_3.png) 1x
+    );
+    background-image: image-set(
+            url(../images/webp/background_3.webp) 1x,
+            url(../images/png/background_3.png) 1x
+    );
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
@@ -33,31 +41,59 @@ body {
 }
 
 body.bg-0 {
-    background-image: url(../images/background_0.png);
+    background-image: url(../images/png/background_0.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_0.webp) 1x,
+            url(../images/png/background_0.png) 1x
+    );
 }
 
 body.bg-1 {
-    background-image: url(../images/background_1.png);
+    background-image: url(../images/png/background_1.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_1.webp) 1x,
+            url(../images/png/background_1.png) 1x
+    );
 }
 
 body.bg-2 {
-    background-image: url(../images/background_2.png);
+    background-image: url(../images/png/background_2.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_2.webp) 1x,
+            url(../images/png/background_2.png) 1x
+    );
 }
 
 body.bg-3 {
-    background-image: url(../images/background_3.png);
+    background-image: url(../images/png/background_3.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_3.webp) 1x,
+            url(../images/png/background_3.png) 1x
+    );
 }
 
 body.bg-red-0 {
-    background-image: url(../images/background_0_red.png);
+    background-image: url(../images/png/background_0_red.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_0_red.webp) 1x,
+            url(../images/png/background_0_red.png) 1x
+    );
 }
 
 body.bg-red-1 {
-    background-image: url(../images/background_1_red.png);
+    background-image: url(../images/png/background_1_red.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_1_red.webp) 1x,
+            url(../images/png/background_1_red.png) 1x
+    );
 }
 
 body.bg-red-2 {
-    background-image: url(../images/background_2_red.png);
+    background-image: url(../images/png/background_2_red.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/background_2_red.webp) 1x,
+            url(../images/png/background_2_red.png) 1x
+    );
 }
 
 .container-lg {

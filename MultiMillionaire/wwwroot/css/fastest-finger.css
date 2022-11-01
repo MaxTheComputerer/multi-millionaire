@@ -7,7 +7,7 @@
 }
 
 .answer-fff {
-    background-image: url("../images/answer_fff.png");
+    background-image: url(../images/png/answer_fff.png);
     background-size: 100% 100%;
     background-position: 0 0;
     height: 53px;
@@ -44,12 +44,14 @@
 @keyframes slide-in {
     100% {
         transform: translateX(0%);
+        -webkit-transform: translateX(0%);
     }
 }
 
 @-webkit-keyframes slide-in {
     100% {
         -webkit-transform: translateX(0%);
+        transform: translateX(0%);
     }
 }
 
@@ -61,7 +63,7 @@
 /* Results panel */
 
 .fff-results {
-    background: center / cover padding-box url(../images/fff_results_bg.png),
+    background: center / cover padding-box url(../images/png/fff_results_bg.png),
     linear-gradient(to right, var(--blue), var(--pale-blue), var(--blue)) border-box;
     border-radius: .5rem;
     border: 3px solid transparent;

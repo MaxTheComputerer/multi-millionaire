@@ -1,5 +1,13 @@
 ﻿.money-tree {
-    background-image: url(../images/money_tree_bg.png);
+    background-image: url(../images/png/money_tree_bg.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/money_tree_bg.webp) 1x,
+            url(../images/png/money_tree_bg.png) 1x
+    );
+    background-image: image-set(
+            url(../images/webp/money_tree_bg.webp) 1x,
+            url(../images/png/money_tree_bg.png) 1x
+    );
     background-repeat: no-repeat;
     background-size: cover;
     background-position: right center;
@@ -45,15 +53,15 @@
 }
 
 .lifeline-5050 {
-    background-image: url(../images/5050.png);
+    background-image: url(../images/png/5050.png);
 }
 
 .lifeline-phone {
-    background-image: url(../images/phone.png);
+    background-image: url(../images/png/phone.png);
 }
 
 .lifeline-audience {
-    background-image: url(../images/audience.png);
+    background-image: url(../images/png/audience.png);
 }
 
 

@@ -1,5 +1,13 @@
 ﻿.winnings {
-    background-image: url("../images/winnings.png");
+    background-image: url(../images/png/winnings.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/winnings.webp) 1x,
+            url(../images/png/winnings.png) 1x
+    );
+    background-image: image-set(
+            url(../images/webp/winnings.webp) 1x,
+            url(../images/png/winnings.png) 1x
+    );
     background-size: 100% 100%;
     height: calc(132 * 100vw / 917);
     min-height: 0;
@@ -12,14 +20,30 @@
 }
 
 .total-prize {
-    background-image: url("../images/total_prize.png");
+    background-image: url(../images/png/total_prize.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/total_prize.webp) 1x,
+            url(../images/png/total_prize.png) 1x
+    );
+    background-image: image-set(
+            url(../images/webp/total_prize.webp) 1x,
+            url(../images/png/total_prize.png) 1x
+    );
     background-size: 100% 100%;
     height: calc(204 * 100vw / 1365);
     text-align: center;
 }
 
 .millionaire-prize {
-    background-image: url("../images/millionaire.png");
+    background-image: url(../images/png/millionaire.png);
+    background-image: -webkit-image-set(
+            url(../images/webp/millionaire.webp) 1x,
+            url(../images/png/millionaire.png) 1x
+    );
+    background-image: image-set(
+            url(../images/webp/millionaire.webp) 1x,
+            url(../images/png/millionaire.png) 1x
+    );
     background-size: 100% 100%;
     height: calc(194 * 100vw / 960);
     text-align: center;
