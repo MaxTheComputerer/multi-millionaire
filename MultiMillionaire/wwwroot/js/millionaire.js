@@ -144,7 +144,7 @@
 
             onStart: () => {
                 const clockElement = document.getElementById("phoneClockImg");
-                clockElement.src = "../images/clock.gif";
+                clockElement.src = "../images/png/clock.gif";
             },
 
             stopClockMusic: () => {
