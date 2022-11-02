@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
+using MultiMillionaire.Models.Questions;
 using MultiMillionaire.Models.Rounds;
 using MultiMillionaire.Services;
 using Wangkanai.Detection.Models;
@@ -590,12 +591,17 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         for (var i = 1; i <= 15; i++)
         {
             var question = game.ProvisionalQuestionBank?.GetQuestion(i);
-            await Host(game).SetText($"question{i}", question?.Question ?? "");
-            foreach (var letter in MultiplayerGame.AnswerLetters)
-                await Host(game).SetAnswerText($"question{i}_answer{letter}", question?.Answers[letter] ?? "");
+            await PopulateQuestionEditorRow(game, i, question);
         }
 
         await Host(game).ShowQuestionEditor();
+    }
+
+    private async Task PopulateQuestionEditorRow(MultiplayerGame game, int questionNumber, QuestionBase? question)
+    {
+        await Host(game).SetText($"question{questionNumber}", question?.Question ?? "");
+        foreach (var letter in MultiplayerGame.AnswerLetters)
+            await Host(game).SetAnswerText($"question{questionNumber}_answer{letter}", question?.Answers[letter] ?? "");
     }
 
     public async Task RegenerateQuestion(int questionNumber)
@@ -604,9 +610,33 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game is not { Round: null } || questionNumber is < 1 or > 15) return;
 
         var question = await game.RegenerateProvisionalQuestion(questionNumber);
-        await Host(game).SetText($"question{questionNumber}", question.Question);
-        foreach (var letter in MultiplayerGame.AnswerLetters)
-            await Host(game).SetAnswerText($"question{questionNumber}_answer{letter}", question?.Answers[letter] ?? "");
+        await PopulateQuestionEditorRow(game, questionNumber, question);
+    }
+
+    public async Task MoveQuestionEarlier(int questionNumber)
+    {
+        var game = GetCurrentGame();
+        if (game is not { Round: null } || questionNumber is <= 1 or > 15) return;
+
+        game.ProvisionalQuestionBank?.SwapQuestions(questionNumber, questionNumber - 1);
+
+        var questionA = game.ProvisionalQuestionBank?.GetQuestion(questionNumber);
+        var questionB = game.ProvisionalQuestionBank?.GetQuestion(questionNumber - 1);
+        await PopulateQuestionEditorRow(game, questionNumber, questionA);
+        await PopulateQuestionEditorRow(game, questionNumber - 1, questionB);
+    }
+
+    public async Task MoveQuestionLater(int questionNumber)
+    {
+        var game = GetCurrentGame();
+        if (game is not { Round: null } || questionNumber is < 1 or >= 15) return;
+
+        game.ProvisionalQuestionBank?.SwapQuestions(questionNumber, questionNumber + 1);
+
+        var questionA = game.ProvisionalQuestionBank?.GetQuestion(questionNumber);
+        var questionB = game.ProvisionalQuestionBank?.GetQuestion(questionNumber + 1);
+        await PopulateQuestionEditorRow(game, questionNumber, questionA);
+        await PopulateQuestionEditorRow(game, questionNumber + 1, questionB);
     }
 
     #endregion
@@ -1178,6 +1208,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         {
             game.SaveScore(round.Player!, round.GetTotalPrize());
             game.ResetRound();
+            game.ProvisionalQuestionBank = null;
             game.NextPlayer = null;
 
             var players = game.GetPlayers().Select(u => u.ToViewModel()).ToList();

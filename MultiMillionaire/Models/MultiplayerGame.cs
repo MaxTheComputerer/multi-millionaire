@@ -88,7 +88,8 @@ public class MultiplayerGame
         Round = new MillionaireRound
         {
             Player = NextPlayer,
-            QuestionBank = await QuestionBank.GenerateQuestionBank(_databaseService, UsedMultipleChoiceQuestionIds)
+            QuestionBank = ProvisionalQuestionBank ??
+                           await QuestionBank.GenerateQuestionBank(_databaseService, UsedMultipleChoiceQuestionIds)
         };
     }
 

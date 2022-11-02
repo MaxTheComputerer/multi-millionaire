@@ -36,6 +36,16 @@ const questionEditor = {
             setAnswerText(`question${questionNumber}_answer${letter}`, "...");
         });
         await connection.send("RegenerateQuestion", questionNumber);
+    },
+
+    moveUp: async questionNumber => {
+        if (questionNumber === 1) return;
+        await connection.send("MoveQuestionEarlier", questionNumber);
+    },
+
+    moveDown: async questionNumber => {
+        if (questionNumber === 15) return;
+        await connection.send("MoveQuestionLater", questionNumber);
     }
 }
 

@@ -9,6 +9,14 @@
     font-size: 2rem;
 }
 
+.editorBtn.disabled {
+    pointer-events: none;
+}
+
+.editorBtn.disabled .bi {
+    color: grey;
+}
+
 @media (hover: hover) {
     .editorBtn:hover .bi {
         color: black;

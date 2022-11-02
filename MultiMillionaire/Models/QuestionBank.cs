@@ -41,4 +41,10 @@ public class QuestionBank
 
         return question;
     }
+
+    public void SwapQuestions(int questionNumberA, int questionNumberB)
+    {
+        (Questions[questionNumberA - 1], Questions[questionNumberB - 1]) =
+            (Questions[questionNumberB - 1], Questions[questionNumberA - 1]);
+    }
 }

@@ -26,10 +26,10 @@
                             <button class="editorBtn mx-1" data-bs-toggle="collapse" data-bs-target="#question@(i)_collapse">
                                 <i class="bi bi-arrows-expand"></i>
                             </button>
-                            <button class="editorBtn mx-1">
+                            <button class="editorBtn mx-1 @(i == 1 ? "disabled" : "")" onclick="questionEditor.moveUp(@(i))">
                                 <i class="bi bi-chevron-up"></i>
                             </button>
-                            <button class="editorBtn mx-1">
+                            <button class="editorBtn mx-1 @(i == 15 ? "disabled" : "")" onclick="questionEditor.moveDown(@(i))">
                                 <i class="bi bi-chevron-down"></i>
                             </button>
                             <button class="editorBtn mx-1" onclick="questionEditor.regenerate(@(i))">
