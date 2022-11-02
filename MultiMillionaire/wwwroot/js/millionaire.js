@@ -1,5 +1,9 @@
 ﻿const millionaire = {
-    request: async () => await connection.send("RequestMainGame"),
+    request: async () => {
+        disable("playMainGameBtn");
+        await connection.invoke("RequestMainGame");
+        enable("playMainGameBtn");
+    },
 
     noNextPlayer: players => {
         const choosePlayerSelect = document.getElementById("choosePlayerSelect");
@@ -18,7 +22,9 @@
     setPlayerAndStart: async () => {
         const choosePlayerSelect = document.getElementById("choosePlayerSelect");
         if (choosePlayerSelect.value !== "") {
-            await connection.send("SetPlayerAndStart", choosePlayerSelect.value);
+            disable("choosePlayerStartBtn");
+            await connection.invoke("SetPlayerAndStart", choosePlayerSelect.value);
+            enable("choosePlayerStartBtn");
         }
     },
 

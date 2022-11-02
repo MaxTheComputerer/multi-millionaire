@@ -1,5 +1,9 @@
 ﻿const fastestFinger = {
-    request: async () => await connection.send("RequestFastestFinger"),
+    request: async () => {
+        disable("playFastestFingerBtn");
+        await connection.invoke("RequestFastestFinger");
+        enable("playFastestFingerBtn");
+    },
 
     fetchQuestion: async () => await connection.send("FetchFastestFingerQuestion"),
 
