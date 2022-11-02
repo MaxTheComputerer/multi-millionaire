@@ -1,0 +1,27 @@
+﻿.bi {
+    color: white;
+}
+
+.editorBtn {
+    background-color: black;
+    border: var(--blue) 2px solid;
+    border-radius: 10px;
+    font-size: 2rem;
+}
+
+@media (hover: hover) {
+    .editorBtn:hover .bi {
+        color: black;
+    }
+
+    .editorBtn:hover {
+        background-color: var(--orange);
+    }
+}
+
+@media (min-width: 992px) {
+    .editorQuestion {
+        border-left: var(--blue) 3px solid;
+        border-right: var(--blue) 3px solid;
+    }
+}
