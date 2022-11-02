@@ -28,4 +28,17 @@ public class QuestionBank
 
         return bank;
     }
+
+    public async Task<MultipleChoiceQuestion> RegenerateQuestion(int questionNumber, IDatabaseService databaseService,
+        HashSet<string> excludedIds)
+    {
+        var difficulty = MillionaireRound.GetDifficultyFromQuestionNumber(questionNumber);
+        var questionDbModel = await databaseService.GetMultipleChoiceQuestionExcept(difficulty, excludedIds);
+        var question = MultipleChoiceQuestion.FromDbModel(questionDbModel);
+
+        Questions[questionNumber - 1] = question;
+        if (questionDbModel.Id != null) excludedIds.Add(questionDbModel.Id!);
+
+        return question;
+    }
 }

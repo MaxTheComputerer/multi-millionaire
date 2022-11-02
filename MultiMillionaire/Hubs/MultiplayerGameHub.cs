@@ -598,6 +598,17 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await Host(game).ShowQuestionEditor();
     }
 
+    public async Task RegenerateQuestion(int questionNumber)
+    {
+        var game = GetCurrentGame();
+        if (game is not { Round: null } || questionNumber is < 1 or > 15) return;
+
+        var question = await game.RegenerateProvisionalQuestion(questionNumber);
+        await Host(game).SetText($"question{questionNumber}", question.Question);
+        foreach (var letter in MultiplayerGame.AnswerLetters)
+            await Host(game).SetAnswerText($"question{questionNumber}_answer{letter}", question?.Answers[letter] ?? "");
+    }
+
     #endregion
 
 

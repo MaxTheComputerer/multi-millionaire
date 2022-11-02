@@ -129,4 +129,10 @@ public class MultiplayerGame
         ProvisionalQuestionBank =
             await QuestionBank.GenerateQuestionBank(_databaseService, UsedMultipleChoiceQuestionIds);
     }
+
+    public async Task<MultipleChoiceQuestion> RegenerateProvisionalQuestion(int questionNumber)
+    {
+        return await ProvisionalQuestionBank!.RegenerateQuestion(questionNumber, _databaseService,
+            UsedMultipleChoiceQuestionIds);
+    }
 }

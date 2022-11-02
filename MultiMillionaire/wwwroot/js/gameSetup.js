@@ -28,7 +28,15 @@ const questionEditor = {
         enable("editQuestionsBtn");
     },
 
-    show: () => modals.questionEditorModal.show()
+    show: () => modals.questionEditorModal.show(),
+
+    regenerate: async questionNumber => {
+        setText(`question${questionNumber}`, "Loading...");
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+            setAnswerText(`question${questionNumber}_answer${letter}`, "...");
+        });
+        await connection.send("RegenerateQuestion", questionNumber);
+    }
 }
 
 connection.on("ShowQuestionEditor", questionEditor.show);
