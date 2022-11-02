@@ -17,6 +17,8 @@ public class MultiplayerGame
     public GameRound? Round { get; private set; }
     public User? NextPlayer { get; set; }
     public ILight? Light { get; set; }
+
+    public QuestionBank? ProvisionalQuestionBank { get; set; }
     private HashSet<string> UsedOrderQuestionIds { get; } = new();
     private HashSet<string> UsedMultipleChoiceQuestionIds { get; } = new();
 
@@ -120,5 +122,11 @@ public class MultiplayerGame
     {
         Light?.Dispose();
         Light = null;
+    }
+
+    public async Task GenerateProvisionalQuestionBank()
+    {
+        ProvisionalQuestionBank =
+            await QuestionBank.GenerateQuestionBank(_databaseService, UsedMultipleChoiceQuestionIds);
     }
 }

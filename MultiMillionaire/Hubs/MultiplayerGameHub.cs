@@ -72,6 +72,8 @@ public interface IMultiplayerGameHub
     Task FadeOutSound(string path, double duration = 400);
     Task UnloadSounds();
     Task LoadSounds();
+
+    Task ShowQuestionEditor();
 }
 
 public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
@@ -575,6 +577,25 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         await game.Light!.SetColourFromBackgroundImage(3);
         await game.Light!.OnAsync();
         await Clients.Caller.ShowToastMessage("Successfully connected to Lifx light.");
+    }
+
+    public async Task RequestQuestionEditor()
+    {
+        var game = GetCurrentGame();
+        if (game is not { Round: null }) return;
+
+        if (game.ProvisionalQuestionBank == null)
+            await game.GenerateProvisionalQuestionBank();
+
+        for (var i = 1; i <= 15; i++)
+        {
+            var question = game.ProvisionalQuestionBank?.GetQuestion(i);
+            await Host(game).SetText($"question{i}", question?.Question ?? "");
+            foreach (var letter in MultiplayerGame.AnswerLetters)
+                await Host(game).SetAnswerText($"question{i}_answer{letter}", question?.Answers[letter] ?? "");
+        }
+
+        await Host(game).ShowQuestionEditor();
     }
 
     #endregion

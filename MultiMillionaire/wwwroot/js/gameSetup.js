@@ -20,3 +20,15 @@
         await connection.send("UpdateTextSetting", id, element.value);
     }
 }
+
+const questionEditor = {
+    request: async () => {
+        disable("editQuestionsBtn");
+        await connection.invoke("RequestQuestionEditor");
+        enable("editQuestionsBtn");
+    },
+
+    show: () => modals.questionEditorModal.show()
+}
+
+connection.on("ShowQuestionEditor", questionEditor.show);
