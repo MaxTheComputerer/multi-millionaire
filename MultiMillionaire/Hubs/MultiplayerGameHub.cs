@@ -4,6 +4,8 @@ using MultiMillionaire.Models;
 using MultiMillionaire.Models.Lifelines;
 using MultiMillionaire.Models.Rounds;
 using MultiMillionaire.Services;
+using Wangkanai.Detection.Models;
+using Wangkanai.Detection.Services;
 
 namespace MultiMillionaire.Hubs;
 
@@ -76,12 +78,14 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 {
     private readonly IDatabaseService _databaseService;
     private readonly IMultiplayerHubStorage _storage;
+    private readonly IDetectionService _detectionService;
 
     public MultiplayerGameHub(IMultiplayerHubStorage multiplayerHubStorage,
-        IDatabaseService databaseService)
+        IDatabaseService databaseService, IDetectionService detectionService)
     {
         _storage = multiplayerHubStorage;
         _databaseService = databaseService;
+        _detectionService = detectionService;
     }
 
 
@@ -174,7 +178,11 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
     {
         lock (_storage.Users)
         {
-            if (GetCurrentUser() == null) _storage.Users.Add(new User(Context.ConnectionId));
+            if (GetCurrentUser() == null)
+            {
+                var isMobile = _detectionService.Device.Type == Device.Mobile;
+                _storage.Users.Add(new User(Context.ConnectionId, isMobile));
+            }
         }
 
         await base.OnConnectedAsync();
@@ -542,7 +550,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     private async Task LoadUnloadSounds(IEnumerable<User> listenersToChange, bool value)
     {
-        var userIds = listenersToChange.Select(u => u.ConnectionId);
+        var userIds = listenersToChange.Where(u => !u.IsMobile).Select(u => u.ConnectionId);
         if (value)
             await Clients.Clients(userIds).UnloadSounds();
         else

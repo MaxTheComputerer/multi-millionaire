@@ -4,18 +4,17 @@ namespace MultiMillionaire.Models;
 
 public class User
 {
-    public User(string connectionId)
+    public User(string connectionId, bool isMobile = false)
     {
         ConnectionId = connectionId;
+        IsMobile = isMobile;
     }
 
-    // TEMP
-    public static int PlayerNum { get; set; } = 2;
-
-    public string ConnectionId { get; set; }
+    public string ConnectionId { get; }
     public string? Name { get; set; }
     public MultiplayerGame? Game { get; set; }
     public UserRole? Role { get; set; }
+    public bool IsMobile { get; }
 
     private string GetScore()
     {

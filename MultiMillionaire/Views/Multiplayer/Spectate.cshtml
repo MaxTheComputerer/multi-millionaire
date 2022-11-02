@@ -39,8 +39,11 @@
     <partial name="_DisconnectedModal"/>
 }
 
-<script type="text/javascript">
-window.removeEventListener("load", hideLoadingScreen);
-window.addEventListener("soundsLoaded", hideLoadingScreen);
-sounds.load();
-</script>
+@if (ViewData["IsMobile"] is false)
+{
+    <script type="text/javascript">
+    window.removeEventListener("load", hideLoadingScreen);
+    window.addEventListener("soundsLoaded", hideLoadingScreen);
+    sounds.load();
+    </script>
+}
