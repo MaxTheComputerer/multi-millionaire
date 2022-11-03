@@ -724,7 +724,10 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is FastestFingerFirst round)
         {
             if (round.State == FastestFingerFirst.RoundState.InProgress)
+            {
                 round.SubmitAnswer(user!, answerOrder, time);
+                await Clients.Caller.ShowToastMessage("Answer submitted.");
+            }
             else
                 await Clients.Caller.ShowToastMessage("The round is not currently in progress.");
         }
