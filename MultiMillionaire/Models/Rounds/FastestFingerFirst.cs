@@ -28,7 +28,7 @@ public class FastestFingerFirst : GameRound
         State = RoundState.AnswerReveal;
     }
 
-    public List<string> GetPlayerIds()
+    public List<string> GetPlayerConnectionIds()
     {
         return Players.Select(u => u.ConnectionId).ToList();
     }

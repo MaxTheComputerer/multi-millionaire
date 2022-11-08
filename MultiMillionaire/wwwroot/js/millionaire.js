@@ -11,7 +11,7 @@
 
         for (const player of players) {
             const optionElement = document.createElement("option");
-            optionElement.value = player.connectionId;
+            optionElement.value = player.id;
             optionElement.textContent = player.name;
             choosePlayerSelect.appendChild(optionElement);
         }

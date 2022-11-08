@@ -28,6 +28,7 @@
 
     <script type="text/javascript">
         window.addEventListener("load", hideLoadingScreen);
+        startConnection(@(ViewData["Role"] is UserRole.Host ? "true" : ""));
     </script>
 </div>
 

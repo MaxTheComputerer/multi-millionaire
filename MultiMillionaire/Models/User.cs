@@ -10,7 +10,8 @@ public class User
         IsMobile = isMobile;
     }
 
-    public string ConnectionId { get; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string ConnectionId { get; set; }
     public string? Name { get; set; }
     public MultiplayerGame? Game { get; set; }
     public UserRole? Role { get; set; }
@@ -26,6 +27,7 @@ public class User
     {
         return new UserViewModel
         {
+            Id = Id.ToString(),
             ConnectionId = ConnectionId,
             Name = Name,
             Role = Role,

@@ -15,6 +15,7 @@ public interface IMultiplayerGameHub
     Task Message(string message);
     Task JoinSuccessful(string gameId);
     Task JoinGameIdNotFound();
+    Task ShowJoinGameModal();
     Task PopulatePlayerList(IEnumerable<UserViewModel> players);
     Task PlayerJoined(UserViewModel player);
     Task PlayerLeft(UserViewModel player);
@@ -144,7 +145,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
     private IMultiplayerGameHub Players(FastestFingerFirst round)
     {
-        return Clients.Clients(round.GetPlayerIds());
+        return Clients.Clients(round.GetPlayerConnectionIds());
     }
 
     private IMultiplayerGameHub AudienceExceptPlayer(MultiplayerGame game, MillionaireRound round)
@@ -177,7 +178,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         return _storage.GetUserById(Context.ConnectionId);
     }
 
-    public override async Task OnConnectedAsync()
+    public void StartNewSession()
     {
         lock (_storage.Users)
         {
@@ -187,14 +188,33 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
                 _storage.Users.Add(new User(Context.ConnectionId, isMobile));
             }
         }
+    }
 
-        await base.OnConnectedAsync();
+    public async Task ResumeGameSession(string oldConnectionId)
+    {
+        if (GetCurrentUser() == null)
+        {
+            var existingUser = _storage.GetUserById(oldConnectionId);
+            var game = existingUser?.Game;
+            if (existingUser is { Role: UserRole.Audience or UserRole.Spectator } && game != null)
+            {
+                existingUser.ConnectionId = Context.ConnectionId;
+                await Groups.AddToGroupAsync(existingUser.ConnectionId, game.Id);
+                await SynchroniseView(game);
+                await JoinSuccessful(game);
+            }
+            else
+            {
+                StartNewSession();
+                await Clients.Caller.ShowJoinGameModal();
+            }
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var user = GetCurrentUser();
-        if (user != null)
+        if (user is { Role: UserRole.Host } or { Game: null })
         {
             await LeaveGame();
             _storage.Users.Remove(user);
@@ -819,7 +839,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is FastestFingerFirst { State: FastestFingerFirst.RoundState.ResultsReveal } round)
         {
             var correctUserTimes =
-                round.GetTimesForCorrectPlayers().ToDictionary(x => x.Key.ConnectionId, v => v.Value);
+                round.GetTimesForCorrectPlayers().ToDictionary(x => x.Key.Id.ToString(), v => v.Value);
 
             await Listeners(game).FadeOutSound("fastestFinger.answers.background");
             await Listeners(game).PlaySound("fastestFinger.resultsReveal");
@@ -848,7 +868,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             }
 
             foreach (var winner in winners)
-                await Spectators(game).HighlightFastestFingerWinner(winner.ConnectionId);
+                await Spectators(game).HighlightFastestFingerWinner(winner.Id.ToString());
 
             await Host(game).SetOnClick("fffNextBtn", "EndFastestFingerRound");
         }
@@ -865,7 +885,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
 
             var players = game.GetPlayers().Select(u => u.ToViewModel()).ToList();
             foreach (var winner in winners)
-                players.Single(u => u.ConnectionId == winner.ConnectionId).IsFastestFingerWinner = true;
+                players.Single(u => u.Id == winner.Id.ToString()).IsFastestFingerWinner = true;
             await Everyone(game).PopulatePlayerList(players);
 
             // Reset UI
@@ -904,12 +924,12 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
             await StartMainGame();
     }
 
-    public async Task SetPlayerAndStart(string connectionId)
+    public async Task SetPlayerAndStart(string playerId)
     {
         var game = GetCurrentGame();
         if (game == null || !game.IsReadyForNewRound()) return;
 
-        var nextPlayer = _storage.Users.SingleOrDefault(u => u.ConnectionId == connectionId);
+        var nextPlayer = _storage.Users.SingleOrDefault(u => u.Id.ToString() == playerId);
         if (nextPlayer == null) return;
 
         game.NextPlayer = nextPlayer;

@@ -52,7 +52,7 @@
     populateResultsPanel: playerList => {
         const panel = document.getElementById("fffResultsPanel");
         for (const player of playerList) {
-            const listElement = players.listPanel.createListElement(player.connectionId, player.name.toUpperCase(), "", "", "", "fff-results-list-element_");
+            const listElement = players.listPanel.createListElement(player.id, player.name.toUpperCase(), "", "", "", "fff-results-list-element_");
             panel.appendChild(listElement);
         }
     },

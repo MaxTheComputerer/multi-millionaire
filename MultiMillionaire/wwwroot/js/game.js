@@ -17,11 +17,11 @@
         },
 
         audience: async function () {
-            console.log(this);
             if (this.validateForm()) {
                 await players.setName();
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
                 await connection.send("JoinGameAudience", gameId);
+                setCookie("millionaire-connection-id", connection.connectionId);
             }
         },
 
@@ -29,8 +29,11 @@
             if (this.validateForm()) {
                 const gameId = document.getElementById("gameIdInput").value.toUpperCase();
                 await connection.send("SpectateGame", gameId);
+                setCookie("millionaire-connection-id", connection.connectionId);
             }
         },
+
+        showModal: () => modals.joinGameModal.show(),
 
         joinSuccessful: gameId => {
             game.setId(gameId);
@@ -53,6 +56,7 @@
         removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
         modals.gameEndedModal.show();
         sounds.stopAll();
+        eraseCookie("millionaire-connection-id");
     },
 
     toasts: {
@@ -91,5 +95,6 @@
 
 connection.on("JoinSuccessful", game.join.joinSuccessful);
 connection.on("JoinGameIdNotFound", game.join.idNotFound);
+connection.on("ShowJoinGameModal", game.join.showModal);
 connection.on("GameEnded", game.ended);
 connection.on("ShowToastMessage", game.toasts.showMessage.bind(game.toasts));

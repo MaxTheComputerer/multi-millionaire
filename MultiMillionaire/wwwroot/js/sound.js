@@ -94,6 +94,8 @@ const sounds = {
         });
     },
 
+    stopAll: () => Howler.stop(),
+
     isPlaying: function (path) {
         return this.getObjectFromCacheOrPath(path, sound => {
             return sound.playing();

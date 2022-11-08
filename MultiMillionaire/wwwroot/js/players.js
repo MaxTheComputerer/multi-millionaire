@@ -30,11 +30,11 @@
                 rightClass = "text-orange";
             }
             const className = user.isFastestFingerWinner ? "correct" : "";
-            const listElement = this.createListElement(user.connectionId, user.name.toUpperCase(), rightText, rightClass, className);
+            const listElement = this.createListElement(user.id, user.name.toUpperCase(), rightText, rightClass, className);
             playerList.appendChild(listElement);
         },
 
-        remove: user => document.getElementById(`player-list-element_${user.connectionId}`).remove(),
+        remove: user => document.getElementById(`player-list-element_${user.id}`).remove(),
 
         populate: function (playerList) {
             this.reset();
