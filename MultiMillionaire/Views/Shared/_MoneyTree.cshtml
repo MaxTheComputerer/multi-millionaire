@@ -7,11 +7,11 @@
             <span class="col lifeline lifeline-audience mx-1 disabled" id="lifeline-audience" onclick="@(ViewData["Role"] is UserRole.Host ? "millionaire.lifelines.audience.request()" : "")"></span>
         </div>
 
-        <table class="m-2 d-none d-sm-table">
+        <table class="m-2">
             <tbody>
             @for (var i = 15; i > 0; i--)
             {
-                <tr id="tree-@i" class="@(i is 5 or 10 or 15 ? "safety-net" : "")">
+                <tr id="tree-@i" class="@(i is 5 or 10 or 15 ? "safety-net" : "") @(i is 1 ? "tree-next" : "")">
                     <td class="tree-question-number">@i</td>
                     <td class="tree-diamond px-2">◆</td>
                     <td class="tree-money">@MillionaireRound.GetValueStringFromQuestionNumber(i)</td>

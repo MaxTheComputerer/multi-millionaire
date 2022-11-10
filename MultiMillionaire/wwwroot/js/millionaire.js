@@ -90,15 +90,26 @@
             if (questionNumber > 1) {
                 const previousRow = document.getElementById(`tree-${questionNumber - 1}`);
                 previousRow.classList.remove("tree-selected");
+
+                const firstQuestion = document.getElementById("tree-1");
+                firstQuestion.classList.remove("tree-next");
             }
 
             const currentRow = document.getElementById(`tree-${questionNumber}`);
             currentRow.classList.add("tree-selected");
+            currentRow.classList.remove("tree-next");
+
+            if (questionNumber < 15) {
+                const nextRow = document.getElementById(`tree-${questionNumber + 1}`);
+                nextRow.classList.add("tree-next");
+            }
         },
 
         reset: () => {
             const elements = document.querySelectorAll(".tree-selected");
-            elements.forEach(e => e.classList.remove("tree-selected"));
+            elements.forEach(e => e.classList.remove("tree-selected", "tree-next"));
+            const firstQuestion = document.getElementById("tree-1");
+            firstQuestion.classList.add("tree-next");
         }
     },
 

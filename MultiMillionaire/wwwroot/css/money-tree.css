@@ -77,6 +77,20 @@
     text-shadow: 1px 1px 5px black;
 }
 
+.money-tree table tr {
+    display: none;
+}
+
+.money-tree table tr.tree-selected, .money-tree table tr.tree-selected + tr, .money-tree table tr.tree-next {
+    display: table-row;
+}
+
+@media (min-width: 576px) {
+    .money-tree table tr {
+        display: table-row;
+    }
+}
+
 .safety-net {
     color: white;
 }
