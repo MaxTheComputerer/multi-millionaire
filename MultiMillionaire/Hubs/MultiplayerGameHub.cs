@@ -55,6 +55,7 @@ public interface IMultiplayerGameHub
     Task ResetAnswerBackgrounds();
     Task ShowTotalPrize(string amount);
     Task ShowMillionaireBanner(string playerName);
+    Task LaunchConfetti();
 
     Task UseFiftyFifty(IEnumerable<char> answersToRemove);
     Task UsePhoneAFriend();
@@ -1206,6 +1207,7 @@ public class MultiplayerGameHub : Hub<IMultiplayerGameHub>
         if (game?.Round is MillionaireRound { QuestionNumber: 15 } round)
         {
             await Spectators(game).ShowMillionaireBanner(round.Player?.Name ?? "");
+            await Spectators(game).LaunchConfetti();
             await Host(game).SetOnClick("nextBtn", "EndMainGameRound");
             await Host(game).Enable("nextBtn");
             await Task.Delay(21000);

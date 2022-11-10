@@ -11,15 +11,15 @@ async function startConnection(isHost = false) {
 
 async function onConnected(isHost) {
     return async () => {
-        console.log("Connected");
+        console.log("Connected.");
 
         const connectionCookie = getCookie("millionaire-connection-id");
         if (isHost || connectionCookie == null) {
-            console.log("Starting new session");
+            console.log("Starting new session.");
             await connection.send("StartNewSession");
             game.join.showModal();
         } else {
-            console.log("Resuming session");
+            console.log("Resuming session.");
             await connection.send("ResumeGameSession", connectionCookie);
             setCookie("millionaire-connection-id", connection.connectionId);
         }

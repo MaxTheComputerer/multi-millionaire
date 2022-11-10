@@ -104,6 +104,37 @@
 
     walkAway: async () => await connection.send("WalkAway"),
 
+    launchConfetti: () => {
+        const end = Date.now() + (15 * 1000);
+        const documentStyle = getComputedStyle(document.documentElement);
+        const colors = [documentStyle.getPropertyValue("--blue"), '#eeeeee'];
+
+        (function frame() {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: {x: 0},
+                colors: colors,
+                startVelocity: 80,
+                ticks: 400
+            });
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: {x: 1},
+                colors: colors,
+                startVelocity: 80,
+                ticks: 400
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    },
+
     lifelines: {
         reset: function () {
             ["lifeline-5050", "lifeline-phone", "lifeline-audience"].forEach(id => {
@@ -263,6 +294,7 @@ connection.on("ShowWinnings", millionaire.banners.winnings.show);
 connection.on("HideWinnings", millionaire.banners.winnings.hide);
 connection.on("ShowTotalPrize", millionaire.banners.showTotalPrize);
 connection.on("ShowMillionaireBanner", millionaire.banners.showMillionaire);
+connection.on("LaunchConfetti", millionaire.launchConfetti);
 connection.on("SetMoneyTree", millionaire.moneyTree.set);
 connection.on("ResetMoneyTree", millionaire.moneyTree.reset);
 connection.on("ResetAnswerBackgrounds", millionaire.answers.resetBackgrounds);
