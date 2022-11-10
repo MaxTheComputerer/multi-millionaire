@@ -3,8 +3,12 @@
     setId: function (id) {
         this.id = id;
         const gameIdElement = document.getElementById("gameId");
+        const statusBoxIdElement = document.getElementById("statusBoxGameId");
         if (gameIdElement) {
             gameIdElement.textContent = `Game ID: ${game.id}`;
+        }
+        if (statusBoxIdElement) {
+            statusBoxIdElement.textContent = game.id;
         }
     },
 
