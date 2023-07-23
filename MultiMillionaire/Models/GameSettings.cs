@@ -9,5 +9,5 @@ public class GameSettings
     public bool MuteSpectatorSound { get; set; }
     public bool AudienceAreSpectators { get; set; }
     public bool UseLifxLight { get; set; }
-    public IPAddress LifxLightIp { get; set; } = IPAddress.Parse("192.168.0.9");
+    public IPAddress LifxLightIp { get; set; } = IPAddress.Parse("192.168.0.109");
 }

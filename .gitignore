@@ -93,3 +93,6 @@ fabric.properties
 
 libman.json
 .idea/**/.name
+.vscode
+deploy.txt
+MultiMillionaire/Data/question sources/*
