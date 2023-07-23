@@ -112,6 +112,11 @@ body.bg-red-2 {
     color: white;
 }
 
+.menu-button-lg.disabled, .menu-button-sm.disabled {
+    pointer-events: none;
+    color: grey;
+}
+
 #playFastestFingerBtn.disabled span, #playMainGameBtn.disabled span, #editQuestionsBtn.disabled span {
     opacity: 0.5;
 }
