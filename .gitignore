@@ -96,3 +96,5 @@ libman.json
 .vscode
 deploy.txt
 MultiMillionaire/Data/question sources/*
+MultipleChoiceQuestions.json
+OrderQuestions.json

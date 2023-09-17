@@ -1,4 +1,6 @@
-﻿<div class="col-auto col-md-6 mx-auto" id="settingsPanel" style="display: none;">
+﻿@using System.Net
+
+<div class="col-auto col-md-6 mx-auto" id="settingsPanel" style="display: none;">
     <div class="box p-3 lh-base mb-4">
         <h2 class="mb-3">Settings</h2>
         <div class="mb-3">
@@ -10,14 +12,16 @@
             <settings-toggle id="muteSpectatorSound">Mute sound for spectators</settings-toggle>
         </div>
         @{
+            var dnsResolve = Dns.GetHostAddresses("maxjohnson.ddns.net");
+            var lifxIp = dnsResolve[0]?.ToString();
             var ipAddress = Context.Connection.RemoteIpAddress?.ToString();
-            if (ipAddress != null && (ipAddress.StartsWith("192.168.0.") || ipAddress.StartsWith("::1") || ipAddress.StartsWith("38.242.174.238")))
+            if (ipAddress != null && lifxIp != null && (ipAddress.StartsWith("192.168.0.") || ipAddress.StartsWith("::1") || ipAddress.StartsWith(lifxIp)))
             {
                 <div class="mb-3">
                     <settings-toggle id="useLifxLight" class="mb-2">Use Lifx light</settings-toggle>
                     <div class="row">
                         <div class="col-auto mb-2">
-                            <input type="text" class="form-control" id="lifxLightIp" value="38.242.174.238"/>
+                            <input type="text" class="form-control" id="lifxLightIp" value="@lifxIp"/>
                         </div>
                         <div class="col mb-2">
                             <small-button class="h-100" no-margin="true" onclick="settings.updateTextSetting('lifxLightIp')">Connect</small-button>
